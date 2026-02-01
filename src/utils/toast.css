@@ -1,0 +1,38 @@
+.toast-message {
+    position: fixed;
+    bottom: 3%;
+    right: 0%;
+    min-width: 25%;
+    padding: 12px 22px;
+    color: white;
+    font-size: 14px;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 6px -1px, rgba(0, 0, 0, 0.06) 0px 2px 4px -1px;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+    z-index: 9999;
+}
+
+.success {
+    background-color: green;
+}
+
+.error {
+    background-color: red;
+}
+
+.warning {
+    background-color: orange;
+}
+
+.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.hide {
+    opacity: 0;
+    transform: translateX(100%);
+}
