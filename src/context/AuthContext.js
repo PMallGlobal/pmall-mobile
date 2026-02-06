@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
-    fetch("https://stage.api.pmall.com.ng/api/v1/register/vendor", {
+    fetch("https://api.pmall.com.ng/api/v1/register/vendor", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -71,7 +71,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/register/affiliate", {
+    fetch("https://api.pmall.com.ng/api/v1/register/affiliate", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -120,7 +120,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
-    fetch("https://stage.api.pmall.com.ng/api/v1/customer/register", {
+    fetch("https://api.pmall.com.ng/api/v1/customer/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -169,7 +169,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/login", {
+    fetch("https://api.pmall.com.ng/api/v1/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -207,6 +207,9 @@ export const AuthProvider = ({ children }) => {
           setLoading(false);
         } else {
           console.log(result.message);
+          if(result.message == "kindly complete your payment"){
+            window.location.href = result?.payment.authorization_url;
+          }
           setToastMsg(
             `Oops! ${result.message}`);
           setToastType("error");

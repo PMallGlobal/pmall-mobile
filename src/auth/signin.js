@@ -5,8 +5,12 @@ import Toaster from "../utils/toaster";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import ButtonLoader from "../utils/buttonLoader";
+import Toast from "../utils/Toast";
+
 
 const Login = () => {
+  const [toast, setToast] = useState()
+
   const onEnter = (e) => {
     e.stopPropagation();
     if (e.key === "Enter") {
@@ -37,6 +41,7 @@ const Login = () => {
   
   return (
     <section>
+       {<Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />}
       <div className="login-screen">
 
         <div className="right">
