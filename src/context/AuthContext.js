@@ -139,7 +139,7 @@ export const AuthProvider = ({ children }) => {
             setToastMsg("");
             // window.location.href = "/checkout";
           }, 2000);
-
+          window.location.reload();
           setLoading(false);
         } else {
           setToastMsg(result.message);
@@ -231,7 +231,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/login", {
+    fetch("https://api.pmall.com.ng/api/v1/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -286,7 +286,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); // Prevent default form submission
     setLoading(true);
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/customer/login", {
+    fetch("https://api.pmall.com.ng/api/v1/customer/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -340,7 +340,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); // Prevent default form submission
     setLoading(true);
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/stockists/login", {
+    fetch("https://api.pmall.com.ng/api/v1/stockists/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -403,7 +403,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); // Prevent default form submission
     setLoading(true);
     inputValues.device_name = 1234;
-    fetch("https://stage.api.pmall.com.ng/api/v1/forgot-password", {
+    fetch("https://api.pmall.com.ng/api/v1/forgot-password", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -466,7 +466,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
   
     try {
-      const response = await fetch("https://stage.api.pmall.com.ng/api/v1/reset-password", {
+      const response = await fetch("https://api.pmall.com.ng/api/v1/reset-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
@@ -506,7 +506,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); // Prevent default form submission
     setLoading(true);
     inputValues.email = email
-    fetch("https://stage.api.pmall.com.ng/api/v1/verify-code", {
+    fetch("https://api.pmall.com.ng/api/v1/verify-code", {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -567,7 +567,7 @@ export const AuthProvider = ({ children }) => {
   const getPackages = async (e) => {
     // setLoading(true);
 
-    fetch("https://stage.api.pmall.com.ng/api/v1/account-packages/all", {
+    fetch("https://api.pmall.com.ng/api/v1/account-packages/all", {
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",

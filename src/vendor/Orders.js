@@ -53,7 +53,7 @@ export default function VendorOrders() {
       const [orders, setOrders] = useState();
 
       const getOrders = () => {
-          fetch("https://stage.api.pmall.com.ng/api/v1/sales/vendorsales",{
+          fetch("https://api.pmall.com.ng/api/v1/sales/vendorsales",{
             method: "GET",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",

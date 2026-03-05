@@ -11,6 +11,8 @@ import MessageOutlinedIcon from '@mui/icons-material/MessageOutlined';
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import { Link } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
 
 export default function Footer({vendorIn,stockist }) {
     const {user} = useUser()
@@ -71,9 +73,9 @@ export default function Footer({vendorIn,stockist }) {
                         <p>Menu</p>
                     </div>
                 </Link>
-            </div> : 
+            </div> : user?.accountType == "Affiliate" ?
         <div className='footer'>
-            <Link to="/dashboard">
+            <Link to="/">
                 <div className='footer-item'>
                     <HomeOutlinedIcon className='footer-icon' />
                     <p>Home</p>
@@ -94,7 +96,7 @@ export default function Footer({vendorIn,stockist }) {
             <Link to="/dashboard">
                 <div className='footer-item'>
                     <img src="/images/Group (3).png" alt="" className='footer-icon' />
-                    <p>category</p>
+                    <p>dashboard</p>
                 </div>
             </Link>
             <Link to="/profile">
@@ -103,7 +105,39 @@ export default function Footer({vendorIn,stockist }) {
                     <p>Profile</p>
                 </div>
             </Link>
-        </div> 
+        </div> :
+        <div className='footer'>
+            <Link to="/">
+                <div className='footer-item'>
+                    <HomeOutlinedIcon className='footer-icon' />
+                    <p>Home</p>
+                </div>
+            </Link>
+            <Link to="/cart">
+                <div className='footer-item'>
+                    <ShoppingCartOutlinedIcon className='footer-icon' />
+                    <p>Cart</p>
+                </div>
+            </Link>
+            <Link to="/wishlist">
+                <div className='footer-item'>
+                    <FavoriteBorderOutlinedIcon className='footer-icon' />
+                    <p>Wishlist</p>
+                </div>
+            </Link>
+            <Link to="/category">
+                <div className='footer-item'>
+                    <img src="/images/Group (3).png" alt="" className='footer-icon' />
+                    <p>Category</p>
+                </div>
+            </Link>
+            <Link to="/customer/profile">
+                <div className='footer-item'>
+                    <AccountCircleOutlinedIcon className='footer-icon' />
+                    <p>Profile</p>
+                </div>
+            </Link>
+        </div>
     }
     </div>
   )

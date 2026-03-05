@@ -48,7 +48,7 @@ export default function Profile() {
     const [profile, setProfile] = useState();
     const user = useUser();
     const getProfile = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/profile",{
+        fetch("https://api.pmall.com.ng/api/v1/profile",{
             method: "GET",
             headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -80,8 +80,8 @@ export default function Profile() {
                 </div>
             </div>
             <div className='name-email'>
-                <h1 className='capitalize'>{profile?.fname} {profile?.lname}</h1>
-                <p>{profile?.email}</p>
+                <h1 className='capitalize'>{user?.user.fname} {user?.user.lname}</h1>
+                <p>{user?.user.email}</p>
             </div>
         </div>
         <div className='flex flex-col g-20'>

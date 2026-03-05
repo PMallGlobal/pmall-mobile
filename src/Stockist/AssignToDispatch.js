@@ -130,7 +130,7 @@ export default function AssignToDispatch() {
     //       e.preventDefault(); 
     //       setLoading(true)
     //     try {
-    //       const response = await fetch('https://stage.api.pmall.com.ng/api/v1/orders/push', {
+    //       const response = await fetch('https://api.pmall.com.ng/api/v1/orders/push', {
     //         method: 'POST',
     //         headers: {
     //             "Content-Type": "application/json;charset=UTF-8",

@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useVendor } from '../context/AuthContext';
 import ButtonLoader from "../utils/buttonLoader";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
-export default function Returning({inputValues,onChangeHandler,onSubmitHandler }) {
+export default function Returning({inputValues,onChangeHandler,onSubmitHandler,setVendorForm }) {
     const [showPassword, setShowPassword] = useState(false);
 
     const togglePassword = () => {
@@ -34,21 +36,21 @@ export default function Returning({inputValues,onChangeHandler,onSubmitHandler }
               <div className="pos-rel">
                 <label className="abs"> Your Password</label>
                 <div
-                  className="pos-rel">
+                  className="flex items-center">
                   <input
                     type={showPassword ? "text" : "password"}
-                    className="form-control"
+                    className="form-control w-full"
                     name="password"
                     onChange={onChangeHandler}
                     value={inputValues.password || ""}
                     placeholder="********"
                   />
-                  {/* <span onClick={togglePassword} className="cnwjien">
+                  <span onClick={togglePassword} className="cnwjien">
                     {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
-                  </span> */}
+                  </span>
                 </div>
                 <div className="forgotten">
-                    <p className="">Don’t have an account? <Link to='/sign-up' ><span className="purple ">  SIGN UP </span> </Link></p>
+                    <p className="">Don’t have an account? <span className="purple " onClick={()=>setVendorForm(false)}>  SIGN UP </span> </p>
                     <Link to="/auth/app/reset-account" className=" ">
                         <p className=" purple">Forgot Password?</p>
                     </Link>

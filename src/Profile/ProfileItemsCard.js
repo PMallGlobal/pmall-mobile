@@ -6,7 +6,7 @@ export default function ProfileItemsCard({image,title,link}) {
   return (
     <>
     <Link to={link}>  
-    <div className='flex alc ProfileItemsCard g-20'>
+    <div className='flex alc ProfileItemsCard black g-20'>
         <img src={image} alt="" />
         <p>{title}</p>
     </div>

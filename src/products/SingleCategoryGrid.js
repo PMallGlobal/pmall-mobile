@@ -5,8 +5,8 @@ import LimitWord from "../utils/limitWord";
 import currency from "../utils/formatCurrency";
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 
-const PRODUCTS_ENDPOINT = "https://stage.api.pmall.com.ng/api/v1/public/products/list-all";
-const CATEGORIES_ENDPOINT = "https://stage.api.pmall.com.ng/api/v1/public/products/get-all-categories";
+const PRODUCTS_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/list-all";
+const CATEGORIES_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
 
 const SingleCategoryGrid = ({ categoryId = null, related=false }) => {
   const navigate = useNavigate();

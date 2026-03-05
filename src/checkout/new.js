@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ButtonLoader from '../utils/buttonLoader';
 import nigeriaStates from '../components/nigeriaStateAndLgas.json'
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues,setInputValues}) {
     const [showPassword, setShowPassword] = useState(false);
@@ -149,18 +151,17 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
                 </div>
                 <div className="pos-rel">
                 <label className="abs py-10"> Password * </label>
-                <div
-                    className="pos-rel">
+                <div className="flex items-center ">
                     <input
                     type={showPassword ? "text" : "password"}
                     name="password"
-                    className="form-control"
+                    className="form-control w-full"
                       onChange={onChangeHandler}
                       value={inputValues.password || ""}
                     autoComplete="false"
                     />
                     <span onClick={togglePassword} className="cnwjien">
-                    {/* {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />} */}
+                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                     </span>
                 </div>
                 </div>
@@ -168,17 +169,17 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
                 <div className="pos-rel">
                 <label className="abs py-10">Confirm Password * </label>
                 <div
-                    className="pos-rel">
+                    className="flex items-center">
                     <input
                     type={showPassword ? "text" : "password"}
                     name="password_confirmation"
-                    className="form-control"
+                    className="form-control w-full"
                       onChange={onChangeHandler}
                       value={inputValues.password_confirmation || ""}
                     autoComplete="false"
                     />
                     <span onClick={togglePassword} className="cnwjien">
-                    {/* {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />} */}
+                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                     </span>
                 </div>
                 </div>

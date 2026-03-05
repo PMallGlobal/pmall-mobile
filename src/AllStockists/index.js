@@ -26,7 +26,7 @@ export default function AllStockists() {
       ];
 
     const getStockist = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/stockists/fetchstockist",{
+        fetch("https://api.pmall.com.ng/api/v1/stockists/fetchstockist",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",

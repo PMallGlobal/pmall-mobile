@@ -41,7 +41,7 @@ export default function MyStockist() {
       ];
 
     const getStockist = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/stockists/affiliate_stockist",{
+        fetch("https://api.pmall.com.ng/api/v1/stockists/affiliate_stockist",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -60,7 +60,7 @@ export default function MyStockist() {
       };
 
       const getStockistById = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/stockists/list/" + 16,{
+        fetch("https://api.pmall.com.ng/api/v1/stockists/list/" + 16,{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -81,7 +81,7 @@ export default function MyStockist() {
       const deleteStockist = (Id) => {
         const isConfirmed = window.confirm('Are you sure you want to delete this stockist?');
         if (isConfirmed) {
-          fetch("https://stage.api.pmall.com.ng/api/v1/stockists/delete/" + Id, {
+          fetch("https://api.pmall.com.ng/api/v1/stockists/delete/" + Id, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -133,8 +133,64 @@ export default function MyStockist() {
                 </div>
             </Link>
         </div>
-
-        <TableContainer component={Paper}>
+        <div className='flex flex-col g-20 '>
+          {stockist?.map((data, index) => (
+            <div className='flex flex-col g-20 stk-card'>
+              <div className='flex justsb'>
+                <div className="flex alc g-10 flex-start">
+                    <div className={`user__avatar ${data?.is_active == "1" ? "bg-success" : "bg-error"}`}>
+                        <h3 className="uppercase">
+                        {"AD"}</h3>
+                    </div>
+                    <div>
+                    <p className="bold">{data?.name}</p>
+                    <p className="stk-grey">{data?.email}</p>
+                  </div>
+                  </div>
+                  <div className="lheight13 flex alc g-10">
+                      <Link to={`/affiliate/edit-stockist/${data.id}`}>
+                          <div className='edit'>
+                              <EditOutlinedIcon className='ic' />
+                          </div>
+                      </Link>
+                      <div className='delete pointer' onClick={()=>deleteStockist(data?.id)}>
+                          <DeleteOutlineOutlinedIcon className='ic' />
+                      </div>
+                  </div>
+              </div>
+              <div className='flex justsb'>
+                <div className='flex flex-col g-10'>
+                  <div className='flex alc g-5'>
+                    <p>Address: </p>
+                    <p className="stk-grey">{data?.address}</p>
+                  </div>
+                  <div className='flex alc g-5'>
+                    <p>Phone: </p>
+                    <p className="stk-grey">{data?.phone}</p>
+                  </div>
+                  <div className='flex alc g-5'>
+                    <p>Country: </p>
+                    <p className="stk-grey">{data?.country}</p>
+                  </div>
+                </div>
+                <div className='flex flex-col g-10'>
+                  <div className='flex alc g-5'>
+                    <p>City: </p>
+                    <p className="stk-grey">{data?.city}</p>
+                  </div>
+                  <div className='flex alc g-5'>
+                    <p>State: </p>
+                    <p className="stk-grey">{data?.state}</p>
+                  </div>
+                  <div className='flex flex-end'>
+                    <p className={`badge stockist-status ${data?.is_active == "1" ? "bg-success" : "bg-error"}`}>{data?.is_active == "1" ? "Active" : "Inactive"}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} size="small" aria-label="Product Table" 
             sx={{
                 '& .MuiTableCell-body': {
@@ -224,7 +280,7 @@ export default function MyStockist() {
                     ))}
                 </TableBody>
             </Table>
-        </TableContainer>
+        </TableContainer> */}
     </div>
   )
 }

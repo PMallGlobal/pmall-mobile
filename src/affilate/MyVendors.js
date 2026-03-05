@@ -5,6 +5,7 @@ import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOu
 import CategoryHeader from '../components/CategoryHeader';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Link } from 'react-router-dom';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 import Toast from '../utils/Toast';
 
 
@@ -59,7 +60,7 @@ export default function MyVendors() {
       ];
       const [toast, setToast] = useState()
       const getVendors = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/get-all-vendors",{
+        fetch("https://api.pmall.com.ng/api/v1/get-all-vendors",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -97,8 +98,9 @@ export default function MyVendors() {
           <div className='flex flex-col g-20' >
               {vendors?.map((item)=>(
                 <div className=' flex bg-white p-20 g-40 my-vendors alc'>
-                      <div>
-                          <img src="/images/Ellipse 280.png" alt="" />
+                      <div className=''>
+                          {/* <img src="/images/Ellipse 280.png" alt="" /> */}
+                          <AccountCircleOutlinedIcon className='pfp' />
                       </div>
                       <div className='flex flex-col g-10 w-full'>
                           <p className='name uppercase'>{item.store_name}</p>

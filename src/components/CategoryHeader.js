@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { cartNum } from '../utils/cartUtils';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
 
 export default function CategoryHeader({title, image, search}) {
@@ -30,7 +31,8 @@ export default function CategoryHeader({title, image, search}) {
               </div>
             ) : title === 'My Orders' || title === 'Order Details' || title === 'Products' || title === 'New Product' || title === 'Edit Product' || title == "Orders/Transactions" || title == "Fund Withdrawal" || title == "Withdraw Funds" || title == "Transfer Funds"  || title == "Menu" || title == "Transfer Pin" || title === 'Edit Profile' || image === 'true' ? (
               <div className="back-icon">
-                <img src="/images/Ellipse 280.png" alt="Orders" className='profile-image' />
+                {/* <img src="/images/Ellipse 280.png" alt="Orders" className='profile-image' /> */}
+                <AccountCircleOutlinedIcon className='pfp' />
               </div>
             ) : (
               <div className='cart-cont'>

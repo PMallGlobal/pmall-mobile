@@ -49,7 +49,7 @@ export const calculateSubtotal = (cart = []) => {
 
 export const cartNum = cart.length
 
-export const dFee = 1245; 
+export const dFee = 0; 
 
 export const subtotal = calculateSubtotal(cart)
 export const vat = subtotal * 0.075; 

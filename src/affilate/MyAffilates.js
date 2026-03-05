@@ -6,6 +6,8 @@ import CategoryHeader from '../components/CategoryHeader';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import { Link } from 'react-router-dom';
 import Toast from '../utils/Toast';
+import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+
 
 
 export default function MyAffilates() {
@@ -60,7 +62,7 @@ export default function MyAffilates() {
       const [toast, setToast] = useState()
       
       const getAffilates = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/get-all-affiliates",{
+        fetch("https://api.pmall.com.ng/api/v1/get-all-affiliates",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -98,7 +100,8 @@ export default function MyAffilates() {
             {affilates?.map((item)=>(
                <div className=' flex bg-white p-20 g-40 my-vendors alc'>
                     <div>
-                        <img src="/images/Ellipse 280.png" alt="" />
+                        {/* <img src="/images/Ellipse 280.png" alt="" /> */}
+                        <AccountCircleOutlinedIcon className='pfp' />
                     </div>
                     <div className='flex flex-col g-10 w-full'>
                         <p className='name'>{item?.username} </p>

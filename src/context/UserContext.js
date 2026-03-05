@@ -76,7 +76,7 @@ const useLogOut2 = () => {
   return useCallback(() => {
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
-    localStorage.removeItem("pmallCart");
+    // localStorage.removeItem("pmallCart");
     sessionStorage.clear();
 
     setUser({

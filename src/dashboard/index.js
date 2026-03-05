@@ -62,7 +62,7 @@ export default function Dashboard() {
             <div className='flex alc g-20 d-profile'>
                 <div className='uppercase'>
                     <h2>{user?.fname} {user.lname}</h2>
-                    <p>{user?.storeId}</p>
+                    <p>{user?.accountType}</p>
                 </div>
                 <img src={user?.userAvatar} alt="" />
             </div>

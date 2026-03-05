@@ -47,7 +47,7 @@ export default function VendorProfile() {
       }
 
       const getProfileDetails = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/profile",{
+        fetch("https://api.pmall.com.ng/api/v1/profile",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",

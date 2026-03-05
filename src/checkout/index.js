@@ -10,6 +10,7 @@ import Toaster from "../utils/toaster";
 import Toast from "../utils/Toast";
 import { useVendor } from '../context/AuthContext';
 import { BASE_URL } from '../utils/config';
+import MapComponent from '../components/MapComponent';
 
 
 export default function Checkout() {
@@ -23,6 +24,7 @@ export default function Checkout() {
     const [stockists, setStockists] = useState(null);
     const [allStockist, setAllStockist] = useState(null);
     const [selectedStockist, setSelectedStockist] = useState(null);
+    const [method, setMethod] = useState('pickup');
 
     const handleSelectedStockist = (e) => {
       const selectedValue = e.target.value;
@@ -30,7 +32,27 @@ export default function Checkout() {
       console.log("Selected stockist id:", selectedValue);
     };
 
-
+    const getProfile = () => {
+        fetch("https://api.pmall.com.ng/api/v1/profile",{
+            method: "GET",
+            headers: {
+            "Content-Type": "application/json;charset=UTF-8",
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("authToken"),
+            },
+        })
+            .then((resp) => resp.json())
+            .then((result) => {
+            console.log(result.data.user);
+            // setProfile(result.data.user)
+            })
+            .catch((err) => {
+            console.log(err);
+            });
+        };
+        useEffect(()=>{
+            getProfile()
+          }, [])
     // const user = useUser();
     console.log(user)
     const addCommasToNumberString = (numberString) =>{
@@ -241,7 +263,11 @@ const getStockist = () => {
           console.log("Checkout Result:", result);
   
           if (!result.status) {
-              setToast({ message: `Checkout initiation failed: ${result.message}`, type: "error" });
+              if(result.message?.stockist_id == "The stockist id field is required."){
+                setToast({ message: `Choose a pickup location`, type: "error" });
+              }else{
+                setToast({ message: `Checkout initiation failed`, type: "error" });
+              }
           setTimeout(() => setToast(null), 5000);
               console.error("Checkout initiation failed:", result);
               return false;
@@ -322,7 +348,7 @@ const onSubmit = async () => {
 
         const saleData = await initiateCheckout(customerData);
         if (!saleData) {
-            setToast({message: `Oops! Not your fault, try logging back in again`, type: "error" });
+            // setToast({message: `Oops! Not your fault, try logging back in again`, type: "error" });
         setTimeout(() => setToast(null), 9000);
             console.error("Checkout step failed!");
             setBtnLoader(false);
@@ -398,6 +424,7 @@ const cart = getCart()
                     inputValues={inputValues}
                     onChangeHandler={onChangeHandler}
                     onSubmitHandler={customerLogin}
+                    setVendorForm={setVendorForm}
                 />
                 ) : (
                 <ProfileCard user={user} />
@@ -411,24 +438,60 @@ const cart = getCart()
                 />
             )}
             </div>
-            <div className="form-group w-full">
-                <label>Select Pickup Location</label>
-                <select
-                  name="pickup_location"
-                  className="last-name form-control"
-                  onChange={handleSelectedStockist}
-                  style={{marginTop: 4, textTransform: 'capitalize'}}>
-                    <option>Pickup Location</option>
-                  {
-                      allStockist?.map((stockist)=>(
-                        <option value={stockist.id}>
-                            {stockist.state} - ({stockist.city}) 
-                        </option>
-                      ))
-                    }
-                </select>
-                
+            <div className="flex items-center g-10 my-6">
+                <label className="flex items-center g-5 cursor-pointer">
+                    <input
+                    type="radio"
+                    name="delivery_method"
+                    value="pickup"
+                    checked={method === 'pickup'}
+                    onChange={() => setMethod('pickup')}
+                    className="w-5 h-5 accent-blue-600"
+                    />
+                    <span className={`font-medium ${method === 'pickup' ? 'text-blue-700' : 'text-gray-700'}`}>
+                    Pickup
+                    </span>
+                </label>
+
+                <label className="flex items-center g-5 cursor-pointer">
+                    <input
+                    type="radio"
+                    name="delivery_method"
+                    value="delivery"
+                    checked={method === 'delivery'}
+                    onChange={() => setMethod('delivery')}
+                    className="w-5 h-5 accent-blue-600"
+                    />
+                    <span className={`font-medium ${method === 'delivery' ? 'text-blue-700' : 'text-gray-700'}`}>
+                    Delivery
+                    </span>
+                </label>
             </div>
+            {method === 'pickup' && <p className='red'>Disclaimer: Delivery fee not included</p>}
+            {method === 'pickup' ?
+                <div className="form-group w-full">
+                    <label>Select Pickup Location</label>
+                    <select
+                    name="pickup_location"
+                    className="last-name form-control"
+                    onChange={handleSelectedStockist}
+                    style={{marginTop: 4, textTransform: 'capitalize'}}>
+                        <option>Pickup Location</option>
+                    {
+                        allStockist?.map((stockist)=>(
+                            <option value={stockist.id}>
+                                {stockist.state} - ({stockist.city}) 
+                            </option>
+                        ))
+                        }
+                    </select>
+                    
+                </div> : 
+                <div>
+                     <MapComponent />
+                </div>
+            }
+          
         <div>
             <CartSummary title="checkout" />
         </div>

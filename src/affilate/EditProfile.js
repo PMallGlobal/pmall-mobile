@@ -47,7 +47,7 @@ export default function EditProfile() {
       console.log(user.user)
 
       const getProfile = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/profile", {
+        fetch("https://api.pmall.com.ng/api/v1/profile", {
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -143,7 +143,7 @@ export default function EditProfile() {
           e.preventDefault(); 
           setLoading(true)
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/profile/update', {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/profile/update', {
             method: 'POST',
             headers:{ 
               'Content-Type': 'application/json;charset=UTF-8', 

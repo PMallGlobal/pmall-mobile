@@ -5,7 +5,7 @@ import CategoryHeader from '../components/CategoryHeader';
 import PlainProductGrid from './PlainProductGrid'; // or ProductGrid if you prefer
 import SingleCategoryGrid from './SingleCategoryGrid';
 
-const CATEGORIES_ENDPOINT = "https://stage.api.pmall.com.ng/api/v1/public/products/get-all-categories";
+const CATEGORIES_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
 
 const SingleCategory = () => {
   const { categorySlug } = useParams(); // e.g. "electronics", "fashion"

@@ -56,7 +56,7 @@ export default function EditProduct() {
 
     
   const getCategories = () => {
-    fetch("https://stage.api.pmall.com.ng/api/v1/product-category/get-all",{
+    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all",{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -75,7 +75,7 @@ export default function EditProduct() {
   };
 
   const getBrands = () => {
-    fetch("https://stage.api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
+    fetch("https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -144,7 +144,7 @@ export default function EditProduct() {
         if (e) {
           e.preventDefault(); 
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/products/update/' + id, {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/products/update/' + id, {
             method: 'POST',
             headers:{ 
               'Content-Type': 'application/json;charset=UTF-8', 
@@ -184,7 +184,7 @@ export default function EditProduct() {
         setLoading(true);
         // getProductsCategories();
         fetch(
-          `https://stage.api.pmall.com.ng/api/v1/public/products/single-product?product_id=${id}`,
+          `https://api.pmall.com.ng/api/v1/public/products/single-product?product_id=${id}`,
           {
             method: "GET",
             headers: {

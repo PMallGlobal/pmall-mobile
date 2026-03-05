@@ -1,1 +1,1 @@
-export const BASE_URL = "https://stage.api.pmall.com.ng/api/v1";
+export const BASE_URL = "https://api.pmall.com.ng/api/v1";

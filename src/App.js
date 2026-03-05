@@ -80,6 +80,7 @@ function App() {
         <Route path="/auth/customer/sign-up" element={<CustomerReg />} />
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<StoreFront />} />
+          <Route path="/store/:storeId" element={<StoreFront />} />
         </Route>
         <Route path="/category" element={<Categories />} />
         <Route path="/category/:categorySlug" element={<SingleCategory />} />
@@ -116,7 +117,7 @@ function App() {
         <Route path="/affiliate/my-vendors" element={<MyVendors/>} />
         <Route path="/affiliate/add-stockist" element={<AddStockist/>} />
         <Route path="/affiliate/edit-stockist/:id" element={<EditStockist/>} />
-        <Route path="/affiliate/my-stockist" element={<MyStockist/>} />
+        <Route path="/affiliate/my-stockists" element={<MyStockist/>} />
         <Route path="/all-stockists" element={<AllStockists/>} />
         <Route path="/affiliate/my-affiliates" element={<MyAffilates/>} />
         <Route path="/affiliate/my-vendors/details" element={<MyVendorDetails />} />

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import axios from 'axios'; 
 import { useNavigate } from 'react-router-dom';
 import Toaster from '../utils/toaster';
+import { useDebounce } from 'use-debounce';
 
 const VendorSignupContext = createContext();
 
@@ -20,11 +21,15 @@ export const VendorSignupProvider = ({ children }) => {
     const [vendorProductAmt,setVendorProductAmt] = useState(0)
     const [wallet, setWallet] = useState()
     const [orderAmt, setOrderAmt] = useState(0)
+    const [searchInput, setSearchInput] = useState('');
+    const [debouncedSearch] = useDebounce(searchInput, 400);
+    const [notifications, setNotifications]  = useState(); 
+    const [unreadNotifs, setUnreadNotifs]  = useState(0); 
 
     const onSubmitHandler = async(e) => {
         if (e) {
           e.preventDefault(); 
-          fetch("https://stage.api.pmall.com.ng/api/v1/register/vendor",{
+          fetch("https://api.pmall.com.ng/api/v1/register/vendor",{
             method:"POST",
             headers:{ 
             'Content-Type': 'application/json;charset=UTF-8', 
@@ -46,7 +51,7 @@ export const VendorSignupProvider = ({ children }) => {
       const onAffilateSubmitHandler = async(e) => {
         if (e) {
           e.preventDefault(); 
-          fetch("https://stage.api.pmall.com.ng/api/v1/register/affiliate",{
+          fetch("https://api.pmall.com.ng/api/v1/register/affiliate",{
             method:"POST",
             headers:{ 
             'Content-Type': 'application/json;charset=UTF-8', 
@@ -73,7 +78,7 @@ export const VendorSignupProvider = ({ children }) => {
         const loginData = { ...inputValues, device_name: 1234 };
       
         try {
-          const response = await fetch("https://stage.api.pmall.com.ng/api/v1/login", {
+          const response = await fetch("https://api.pmall.com.ng/api/v1/login", {
             method: "POST",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -110,7 +115,7 @@ export const VendorSignupProvider = ({ children }) => {
       const onForgotPasswordHandler = async(e) => {
         if (e) {
           e.preventDefault(); 
-          fetch("https://stage.api.pmall.com.ng/api/v1/forgot-password",{
+          fetch("https://api.pmall.com.ng/api/v1/forgot-password",{
             method:"POST",
             headers:{ 
             'Content-Type': 'application/json;charset=UTF-8', 
@@ -135,7 +140,7 @@ export const VendorSignupProvider = ({ children }) => {
       
         // Validate credentials 
       
-        fetch("https://stage.api.pmall.com.ng/api/v1/reset-password",{
+        fetch("https://api.pmall.com.ng/api/v1/reset-password",{
           method:"POST",
           headers:{ 
           'Content-Type': 'application/json;charset=UTF-8', 
@@ -158,7 +163,7 @@ export const VendorSignupProvider = ({ children }) => {
         inputValues.email = "mualiyuoox@gmail.com";
         // Validate credentials 
       
-        fetch("https://stage.api.pmall.com.ng/api/v1/verify-code",{
+        fetch("https://api.pmall.com.ng/api/v1/verify-code",{
           method:"POST",
           headers:{ 
           'Content-Type': 'application/json;charset=UTF-8', 
@@ -200,7 +205,7 @@ export const VendorSignupProvider = ({ children }) => {
           setLoading(true);
           const token = localStorage.getItem("authToken");
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/profile/update', {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/profile/update', {
             method: 'POST',
             headers:{ 
               'Content-Type': 'application/json;charset=UTF-8', 
@@ -237,7 +242,7 @@ export const VendorSignupProvider = ({ children }) => {
       };
 
       const getProfileDetails = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/profile",{
+        fetch("https://api.pmall.com.ng/api/v1/profile",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -256,7 +261,7 @@ export const VendorSignupProvider = ({ children }) => {
 
       
       const getOrders = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/sales/vendorsales",{
+        fetch("https://api.pmall.com.ng/api/v1/sales/vendorsales",{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -274,13 +279,44 @@ export const VendorSignupProvider = ({ children }) => {
           console.log("result");
       };
 
+      
+     const getNotifications = async () => {
+      const url = `https://api.pmall.com.ng/api/v1/user/notification`;
+    
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("authToken"),
+        },
+      });
+    
+      if (!response.ok) {
+        throw new Error(`Failed to fetch notification: ${response.status} ${response.statusText}`);
+      }
+    
+      const result = await response.json();
+      const notifs = result.notifications;
+      setNotifications(result.notifications)
+      setUnreadNotifs(result.unread_count)
+      console.log(result.notifications)
+    
+      if (!notifs) {
+        throw new Error("No notification data returned");
+      }
+     
+    };
+
+
+
       useEffect(()=>{
         getProfileDetails()
         getOrders()
-
+        getNotifications()
       },[])
   return (
-    <VendorSignupContext.Provider value={{ inputValues, setState, onChangeHandler, onSubmitHandler,handleLogin,onAffilateSubmitHandler,onForgotPasswordHandler,handleResetPassword, handleVerifyToken,VendorUpdateProfile,newVendorModal,setNewVendorModal, handleModalClose,profileDetails,setProfileDetails,submittedValues,loading, setLoading,visible,setVisible,vendorProductAmt,setVendorProductAmt, wallet, setWallet, orderAmt, setOrderAmt}}>
+    <VendorSignupContext.Provider value={{ inputValues, setState, onChangeHandler, onSubmitHandler,handleLogin,onAffilateSubmitHandler,onForgotPasswordHandler,handleResetPassword, handleVerifyToken,VendorUpdateProfile,newVendorModal,setNewVendorModal, handleModalClose,profileDetails,setProfileDetails,submittedValues,loading, setLoading,visible,setVisible,vendorProductAmt,setVendorProductAmt, wallet, setWallet, orderAmt, setOrderAmt,searchInput, setSearchInput,debouncedSearch,notifications,unreadNotifs,getNotifications}}>
       {children}
     </VendorSignupContext.Provider>
   );

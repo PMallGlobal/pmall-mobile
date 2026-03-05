@@ -6,17 +6,36 @@ import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import { VendorSignupProvider } from './context/VendorSignupContext';
+import {
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import "leaflet/dist/leaflet.css";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5,   
+      gcTime: 1000 * 60 * 30,  
+      // refetchOnWindowFocus: false, 
+    },
+  },
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <UserProvider>
-      <AuthProvider>
-        <VendorSignupProvider>
-          <App />
-      </VendorSignupProvider>
-      </AuthProvider>
-      </UserProvider>
+    <QueryClientProvider client={queryClient}>
+      <UserProvider>
+        <AuthProvider>
+          <VendorSignupProvider>
+            <App />
+        </VendorSignupProvider>
+        </AuthProvider>
+        </UserProvider>
+      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+    </QueryClientProvider>
   </React.StrictMode>
 );
 

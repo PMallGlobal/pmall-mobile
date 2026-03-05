@@ -8,6 +8,7 @@ import ButtonLoader from '../utils/buttonLoader';
 import { useVendor } from '../context/AuthContext';
 
 
+
 export default function AddVendor() {
     const [toast, setToast] = useState()
     const [allAffiliates, setAllAffiliates] = useState([]);
@@ -69,7 +70,7 @@ export default function AddVendor() {
           e.preventDefault(); 
           setLoading(true)
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/user/add-vendor', {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/user/add-vendor', {
             method: 'POST',
             headers:{ 
               'Content-Type': 'application/json;charset=UTF-8', 
@@ -89,7 +90,7 @@ export default function AddVendor() {
             setLoading(false)
             console.log(data)
             // setNewProduct(data)
-            window.location.href = "/affiliate/my-vendors";
+            // window.location.href = "/affiliate/my-vendors";
           } else {
             const error = await response.text();
             console.error('Error posting product:', error);
@@ -124,9 +125,11 @@ export default function AddVendor() {
             setToast({ message: "Failed to register vendor!", type: "error" });
             setTimeout(() => setToast(null), 7000);
             setLoading(false);
-          }
+          }else{
+          
           const result = await response.json();
           console.log(result);
+          window.location.href = result.data.payment.original.authorization_url;
           setToast({ message: `${result.message}`, type: "success" });
           setLoading(false);
           
@@ -140,9 +143,7 @@ export default function AddVendor() {
             package_id: "",
           });
           setTimeout(() => setToast(null), 9000);
-          fetchVendors();
-          // Make Payment
-          window.location.href = "/affiliates/my-vendors";
+        }
         } catch (error) {
           setLoading(false);
           setToast({ message: "Failed to register vendor!", type: "error" });
@@ -299,7 +300,7 @@ export default function AddVendor() {
                     value={formData.my_ref_id}
                     name="ref_id"
                     onChange={onChangeHandler}>
-                      <option> Select Parent</option>
+                      <option > Select Parent</option>
                       {
                         allAffiliates.map((affiliate)=>(
                           <option value={affiliate.my_ref_id} className="title-case"> {affiliate.fname} {affiliate.lname} - ({affiliate.my_ref_id})</option>
@@ -324,18 +325,19 @@ export default function AddVendor() {
                 </div>
               )}
                 <div className="pos-rel w100-m10 ">
-                  <label className="mb-7"> Package Type </label>
-                  <select
-            name="package_id"
-            className="search__bar w-100"
-            value={formData.package_id}
-            onChange={onChangeHandler}>
-              {
-                vendorPackages.map((pack)=>(
-                  <option value={pack.id} key={pack.id}>{pack.name} - {pack.price} </option>
-                ))
-              }
-          </select>
+                  <label className="mb-7"> Package Fee </label>
+                    <select
+                    name="package_id"
+                    className="search__bar w-100"
+                    value={formData.package_id}
+                    onChange={onChangeHandler}>
+                       <option value={""}>Select Pacckage</option>
+                      <option value={vendorPackages[0]?.id || ""}>
+                        {vendorPackages[0]
+                          ? `${vendorPackages[0].name} - ${vendorPackages[0].price}`
+                          : "No packages available"}
+                      </option>
+                    </select>
                 </div>
               </section>
 

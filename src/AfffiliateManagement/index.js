@@ -27,6 +27,15 @@ export default function AffiliateManagement() {
                     <ArrowForwardIosOutlinedIcon  className='right-arr' />
                 </div>
             </Link>
+            <Link to="/affiliate/my-stockists"  className='black'>
+                <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>
+                    <div className='flex g-20 alc'>
+                        <img src="/images/withdraw.png" alt="" />
+                        <p>My Stockists</p>
+                    </div>
+                    <ArrowForwardIosOutlinedIcon className='right-arr' />
+                </div>
+            </Link>
         </div>
     </div>
   )

@@ -7,6 +7,50 @@ import Toast from '../utils/Toast';
 export default function AddStockist() {
     const [toast, setToast] = useState()
 
+    const nigeriaStatesAndCities = {
+        Abia: ["Aba", "Umuahia", "Ohafia", "Arochukwu", "Ukwa"],
+        Adamawa: ["Yola", "Mubi", "Numan", "Jimeta", "Ganye"],
+        "Akwa Ibom": ["Uyo", "Eket", "Ikot Ekpene", "Oron", "Abak"],
+        Anambra: ["Awka", "Onitsha", "Nnewi", "Obosi", "Otuocha"],
+        Bauchi: ["Bauchi", "Azare", "Ningi", "Jama'are", "Misau"],
+        Bayelsa: ["Yenagoa", "Brass", "Sagbama", "Nembe", "Kaiama"],
+        Benue: ["Makurdi", "Gboko", "Katsina-Ala", "Otukpo", "Zaki Biam"],
+        Borno: ["Maiduguri", "Biu", "Bama", "Gwoza", "Monguno"],
+        "Cross River": ["Calabar", "Ikom", "Ogoja", "Obudu", "Ugep"],
+        Delta: ["Asaba", "Warri", "Sapele", "Ughelli", "Agbor"],
+        Ebonyi: ["Abakaliki", "Afikpo", "Ikwo", "Ezza", "Onueke"],
+        Edo: ["Benin City", "Auchi", "Ekpoma", "Uromi", "Irrua"],
+        Ekiti: ["Ado Ekiti", "Ikere", "Ise", "Ijero", "Omuo"],
+        Enugu: ["Enugu", "Nsukka", "Awgu", "Udi", "Oji River"],
+        Gombe: ["Gombe", "Billiri", "Kaltungo", "Bajoga", "Dukku"],
+        Imo: ["Owerri", "Orlu", "Okigwe", "Awo-Omamma", "Mbaise"],
+        Jigawa: ["Dutse", "Hadejia", "Kazaure", "Birnin Kudu", "Gumel"],
+        Kaduna: ["Kaduna", "Zaria", "Kafanchan", "Birnin Gwari", "Kachia"],
+        Kano: ["Kano", "Bichi", "Wudil", "Gaya", "Rogo"],
+        Katsina: ["Katsina", "Funtua", "Daura", "Malumfashi", "Kankia"],
+        Kebbi: ["Birnin Kebbi", "Argungu", "Yauri", "Zuru", "Bagudo"],
+        Kogi: ["Lokoja", "Okene", "Kabba", "Anyigba", "Idah"],
+        Kwara: ["Ilorin", "Offa", "Jebba", "Omu-Aran", "Patigi"],
+        Lagos: ["Lagos Island", "Ikeja", "Lekki", "Ikorodu", "Badagry", "Epe", "Agege"],
+        Nasarawa: ["Lafia", "Karu", "Keffi", "Akwanga", "Keana"],
+        Niger: ["Minna", "Bida", "Kontagora", "Suleja", "Lapai"],
+        Ogun: ["Abeokuta", "Ijebu Ode", "Ota", "Sagamu", "Ilishan-Remo"],
+        Ondo: ["Akure", "Ondo", "Owo", "Ikare", "Ore"],
+        Osun: ["Osogbo", "Ile-Ife", "Ilesa", "Ede", "Ikirun"],
+        Oyo: ["Ibadan", "Ogbomosho", "Oyo", "Saki", "Iseyin"],
+        Plateau: ["Jos", "Bukuru", "Pankshin", "Mangu", "Shendam"],
+        Rivers: ["Port Harcourt", "Obio-Akpor", "Bonny", "Eleme", "Yenagoa"],
+        Sokoto: ["Sokoto", "Wurno", "Gwadabawa", "Binji", "Bodinga"],
+        Taraba: ["Jalingo", "Wukari", "Takum", "Zing", "Bali"],
+        Yobe: ["Damaturu", "Potiskum", "Gashua", "Nguru", "Geidam"],
+        Zamfara: ["Gusau", "Kaura Namoda", "Talata Mafara", "Anka", "Bakura"],
+        FCT: ["Abuja", "Gwagwalada", "Kuje", "Bwari", "Gwarinpa", "Maitama"]
+      };
+      const allStates = Object.keys(nigeriaStatesAndCities).sort();
+      const [selectedState, setSelectedState] = useState('');
+      const [selectedCity, setSelectedCity] = useState('');
+        const cities = selectedState ? nigeriaStatesAndCities[selectedState] || [] : [];
+
     const {
         inputValues,
         setState,
@@ -15,6 +59,7 @@ export default function AddStockist() {
         loading,
         setLoading,
         toastMsg,
+        toastType,
         setToastType,
       } = useVendor();
 
@@ -22,11 +67,12 @@ export default function AddStockist() {
       console.log(user?.user)
 
     const handleAddStockist = async(e) => {
+        inputValues.country = "Nigeria";
         if (e) {
           e.preventDefault(); 
           setLoading(true)
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/stockists/store', {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/stockists/store', {
             method: 'POST',
             headers: {
                 "Content-Type": "application/json;charset=UTF-8",
@@ -45,7 +91,7 @@ export default function AddStockist() {
             }, 5000);
             setLoading(false)
             console.log(data)
-            window.location.href = "/affilate/my-stockist";
+            window.location.href = "/affiliate/my-stockists";
             // setNewProduct(data)
           } else {
             const error = await response.text();
@@ -64,7 +110,7 @@ export default function AddStockist() {
       };
   return (
     <div className='new-product edit-profile '>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+        <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
         <CategoryHeader title="Add Stockist" image="true" />
 
         <form action="" className="new flex flex-col g-20 w-full" onSubmit={handleAddStockist}>
@@ -125,35 +171,50 @@ export default function AddStockist() {
                     name="country"
                     className="form-control w-full"
                     onChange={onChangeHandler}
-                    value={inputValues.country}
+                    value={"Nigeria"}
                     placeholder="Country"
                     autoComplete="false"
+                    disabled
                 />
             </div>
             <div className="pos-rel phone">
                 <label className="abs py-10"> State </label>
-                <input
-                    type="text"
-                    name="state"
+                <select
+                    id="state"
+                    name= "state"
                     className="form-control w-full"
-                    onChange={onChangeHandler}
-                    value={inputValues.state}
-                    placeholder="State"
-                    autoComplete="false"
-                />
+                    value={selectedState}
+                    onChange={(e) => {
+                    setSelectedState(e.target.value);
+                    setState(prev => ({ ...prev, [e.target.name]: e.target.value }));
+                    setSelectedCity('');
+                    }}
+                    required
+                >
+                    <option value="">Select State</option>
+                    {allStates.map((state) => (
+                    <option key={state} value={state}>
+                        {state}
+                    </option>
+                    ))}
+                </select>
             </div>
 
             <div className="pos-rel phone">
                 <label className="abs py-10"> City </label>
-                <input
-                    type="text"
-                    name="city"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                    value={inputValues.city}
-                    placeholder="City"
-                    autoComplete="false"
-                />
+                <select id="city"  name="city" required disabled={!selectedState}
+                 onChange={(e) => {
+                    setSelectedCity(e.target.value);
+                    setState(prev => ({ ...prev, [e.target.name]: e.target.value }));
+                    }}
+                >
+                    <option value="">Select City</option>
+                    {cities.map((city) => (
+                    <option key={city} value={city}>
+                        {city}
+                    </option>
+                    ))}
+                </select>
             </div>
                 
                 <div className='flex g-40 justsb w-full mt-20 '> 

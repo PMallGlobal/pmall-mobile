@@ -29,6 +29,7 @@ export default function NewProduct() {
       loading,
       setLoading,
       toastMsg,
+      toastType,
       setToastType,
     } = useVendor();
 
@@ -61,7 +62,7 @@ export default function NewProduct() {
 
     
   const getCategories = () => {
-    fetch("https://stage.api.pmall.com.ng/api/v1/product-category/get-all",{
+    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all",{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -80,7 +81,7 @@ export default function NewProduct() {
   };
 
   const getBrands = () => {
-    fetch("https://stage.api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
+    fetch("https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -161,7 +162,7 @@ const VendorCreateProduct = async(e) => {
       };
       console.log("Sending payload:", payload);
     try {
-      const response = await fetch('https://stage.api.pmall.com.ng/api/v1/products/create', {
+      const response = await fetch('https://api.pmall.com.ng/api/v1/products/create', {
         method: 'POST',
         headers:{ 
           'Content-Type': 'application/json;charset=UTF-8', 
@@ -207,7 +208,7 @@ const VendorCreateProduct = async(e) => {
 
   return (
     <div className='new-product'>
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+    <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
 
         <CategoryHeader title="New Product" />
         <form action="" className="new flex flex-col g-20 w-full">
@@ -336,6 +337,18 @@ const VendorCreateProduct = async(e) => {
                         placeholder="Input quantity"
                     />
                 </div>
+                <div className="pos-rel phone">
+                    <label className="abs py-10"> Product Weight *</label>
+                    <input
+                        type="number"
+                        name="weight"
+                        className="form-control w-full"
+                        onChange={onChangeHandler}
+                        value={inputValues.weight}
+                        placeholder="Input weight"
+                        autoComplete="false"
+                    />
+                </div>
             <div className="pos-rel ">
                 <label className="abs py-10"> Describe this product(Weight, variant, size) *</label>
                 <input
@@ -350,7 +363,6 @@ const VendorCreateProduct = async(e) => {
             
             <div className="pos-rel">
                 <label style={{marginBottom: 7}}>Add Product Tags </label>
-     \
                 <Stack spacing={3} sx={{ width: "100%" }}>
                   <Autocomplete
                     multiple
@@ -411,7 +423,7 @@ const VendorCreateProduct = async(e) => {
                       files?.length && formData.append("file", files[0]);
                       //setLoading(true);
                       fetch(
-                        "https://stage.api.pmall.com.ng/api/v1/products/upload-file",
+                        "https://api.pmall.com.ng/api/v1/products/upload-file",
                         {
                           method: "POST",
                           body: formData,
@@ -454,7 +466,7 @@ const VendorCreateProduct = async(e) => {
                         files?.length && formData.append("file", files[0]);
                         //setLoading(true);
                         fetch(
-                            "https://stage.api.pmall.com.ng/api/v1/products/upload-file",
+                            "https://api.pmall.com.ng/api/v1/products/upload-file",
                             {
                             method: "POST",
                             body: formData,

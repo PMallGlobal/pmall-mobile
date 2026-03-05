@@ -5,6 +5,9 @@ import { useUser } from '../context/UserContext';
 import Toast from '../utils/Toast'
 import { BASE_URL } from "../utils/config"; 
 import ButtonLoader from '../utils/buttonLoader';
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+
 
 
 export default function AddAffilate() {
@@ -17,6 +20,11 @@ export default function AddAffilate() {
     const [allAffiliates, setAllAffiliates] = useState([]);
     const [error] = useState("");
 
+    const [showPassword, setShowPassword] = useState(false);
+
+    const togglePassword = () => {
+      setShowPassword((prevState) => !prevState);
+    };
 
     const [formData, setFormData] = useState({
         fname: "",
@@ -54,6 +62,7 @@ export default function AddAffilate() {
                   setTimeout(() => setToast(null), 7000);
             setLoading(false);
           }
+          else{
           const result = await response.json();
           console.log(result);
           setToast({ message: `${result.message}`, type: "success" });
@@ -69,10 +78,9 @@ export default function AddAffilate() {
             ref_id: "",
             package_id: "",
           });
-                setTimeout(() => setToast(null), 9000);
-                window.location.href = "/affiliate/my-affiliates";
-
-        //   window.location.href = result?.data?.payment.authorization_url;
+            setTimeout(() => setToast(null), 9000);
+            window.location.href = result.data.payment.original.authorization_url;
+        }
         } catch (error) {
           setLoading(false);
           console.log(error);
@@ -201,14 +209,20 @@ export default function AddAffilate() {
               <section className="flex-container mb-lg  flex flex-col g-20">
                 <div className="pos-rel w100-m10 flex flex-col g-10">
                   <label>Password</label>
+                  <div
+                  className="flex items-center g-10">
                   <input
-                    type="password"
+                     type={showPassword ? "text" : "password"}
                     onChange={onChangeHandler}
                     value={formData.password}
-                    className="form-control-input "
+                    className="form-control-input w-full "
                     name="password"
                     placeholder="******"
                   />
+                  <span onClick={togglePassword} className="cnwjien">
+                    {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
+                  </span>
+                </div>
                 </div>
               </section>
               <section className="flex-container mb-lg  flex flex-col g-20">
@@ -262,12 +276,13 @@ export default function AddAffilate() {
                     className="search__bar w-100"
                     value={formData.package_id}
                     onChange={onChangeHandler}>
-              {
-                affiliatePackages.map((pack)=>(
-                  <option value={pack.id} key={pack.id}>{pack.name} - {pack.price} </option>
-                ))
-              }
-          </select>
+                       <option> Select Package </option>
+                      {
+                        affiliatePackages.map((pack)=>(
+                          <option value={pack.id} key={pack.id}>{pack.name} - {pack.price} </option>
+                        ))
+                      }
+                  </select>
                 </div>
               </section>
              

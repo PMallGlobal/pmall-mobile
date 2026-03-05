@@ -32,7 +32,7 @@ export default function Products({categoryId = null,related=false }) {
 
       const getProducts = () => {
         if(user?.user.accountType== "Vendor"){
-          fetch("https://stage.api.pmall.com.ng/api/v1/products", {
+          fetch("https://api.pmall.com.ng/api/v1/products", {
             method: "GET",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -82,7 +82,7 @@ export default function Products({categoryId = null,related=false }) {
       const deleteProduct = (productId) => {
         const isConfirmed = window.confirm('Are you sure you want to delete this item?');
         if (isConfirmed) {
-          fetch("https://stage.api.pmall.com.ng/api/v1/products/delete-account?product_id=" + productId, {
+          fetch("https://api.pmall.com.ng/api/v1/products/delete-account?product_id=" + productId, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -195,9 +195,11 @@ export default function Products({categoryId = null,related=false }) {
           </div>
           </div>
         </div>
-        <div className="add-product">
-            <AddOutlinedIcon />
-        </div>
+        <Link to="/new-product">
+          <div className="add-product">
+              <AddOutlinedIcon />
+          </div>
+        </Link>
     </div>
   )
 }

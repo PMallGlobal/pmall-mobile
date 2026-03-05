@@ -28,7 +28,7 @@ export default function EditStockist() {
           e.preventDefault(); 
           setLoading(true)
         try {
-          const response = await fetch('https://stage.api.pmall.com.ng/api/v1/stockists/update/' + id, {
+          const response = await fetch('https://api.pmall.com.ng/api/v1/stockists/update/' + id, {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json;charset=UTF-8",
@@ -47,7 +47,7 @@ export default function EditStockist() {
             }, 5000);
             setLoading(false)
             console.log(data)
-            window.location.href = "/affilate/my-stockist";
+            window.location.href = "/affiliate/my-stockists";
             // setNewProduct(data)
           } else {
             const error = await response.text();
@@ -66,7 +66,7 @@ export default function EditStockist() {
       };
 
       const getStockistById = () => {
-        fetch("https://stage.api.pmall.com.ng/api/v1/stockists/list/" + id,{
+        fetch("https://api.pmall.com.ng/api/v1/stockists/list/" + id,{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
@@ -161,6 +161,7 @@ export default function EditStockist() {
                     value={inputValues.country}
                     placeholder="Country"
                     autoComplete="false"
+                    disabled
                 />
             </div>
             <div className="pos-rel phone">
