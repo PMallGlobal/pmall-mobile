@@ -1788,7 +1788,7 @@ button {
   font-size: 12px;
 }
 
-.orders, .ratings, .support-center,.products, .new-product, .edit-product,.vendor-profile, .dashboard{
+.orders, .ratings, .support-center,.products, .new-product, .edit-product,.vendor-profile,{
   background: #F2F2F2;
   padding:  30px;
   display: flex;
@@ -2624,9 +2624,14 @@ button {
 }
 
 .dashboard {
-  background: #f5f5f5;
-  gap:20px;
+  /* background: #f5f5f5; */
+  /* gap:20px; */
   padding-bottom: 90px;
+  background: #F2F2F2;
+  padding:  30px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
 }
 
 .dashboard .logo{

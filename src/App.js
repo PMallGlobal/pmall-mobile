@@ -83,7 +83,7 @@ function App() {
           <Route path="/store/:storeId" element={<StoreFront />} />
         </Route>
         <Route path="/category" element={<Categories />} />
-        <Route path="/category/:categorySlug" element={<SingleCategory />} />
+        <Route path="/category/:categoryId" element={<SingleCategory />} />
         <Route path="/product/:id" element={<Details/>} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />

@@ -88,12 +88,14 @@ const StoreFront = () => {
                             </div> :
                             <div className="categories-list">
                                 {productCategories?.map((category) => (
-                                    <div key={category.id} className="category-item">
-                                    <div className="category-icon">
-                                        <img src={category.category_image} alt={category.name} className='cat-img' />
-                                    </div>
-                                    <p className="category-name">{category.name}</p>
-                                    </div>
+                                    <Link to={`/category/${category.id}`}>
+                                        <div key={category.id} className="category-item">
+                                            <div className="category-icon">
+                                                <img src={category.category_image} alt={category.name} className='cat-img' />
+                                            </div>
+                                            <p className="category-name">{category.name}</p>
+                                        </div>
+                                    </Link>
                                 ))}
                             </div>
                         }
