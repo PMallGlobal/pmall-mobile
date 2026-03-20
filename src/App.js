@@ -67,9 +67,13 @@ import Dashboard from './dashboard';
 import CustomerReg from './auth/CustomerReg';
 import IRecharge from './components/iRecharge';
 import AffiliateManagement from './AfffiliateManagement';
+import Footer from './components/footer';
+import { useUser } from './context/UserContext';
 
 
 function App() {
+  const {user} = useUser()
+  console.log(user)
   return (
     <Router>
       <Routes>
@@ -144,6 +148,7 @@ function App() {
         <Route path="/iRecharge" element={<IRecharge />} />
 
       </Routes>
+      {user.loggedIn && <Footer />}
     </Router>
   );
 }

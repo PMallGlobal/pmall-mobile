@@ -132,22 +132,40 @@ const SignUp = () => {
                   <p className="have-an-account bold">
                   Already have an account? &nbsp;
                   </p>
-                  <button
-                  className={`vend-login-btn my-20 relative ${!vendorForm && "affilate"}`}
-                  >
-                  Login
-                  </button>
+                  <Link to="/auth/sign-in">
+                    <div
+                    className={`vend-login-btn  my-20 relative ${!vendorForm && "affilate"}`}
+                    >
+                    Login
+                    </div>
+                  </Link>
                 </>
                 }
               </div>
             ) : (
-              <button
-                className={`continue-btn my-20 relative ${!vendorForm && "affilate"}`}
-                onClick={onAffilateSubmitHandler}
-               disabled={loading}
-                >
-                {loading ?<ButtonLoader /> : "Continue"}
-              </button>
+              <div className="flex flex-col g-20">
+                <button
+                  className={`continue-btn my-20 relative w-full ${!vendorForm && "affilate"}`}
+                  onClick={onAffilateSubmitHandler}
+                disabled={loading}
+                  >
+                  {loading ?<ButtonLoader /> : "Continue"}
+                </button>
+                {!completeReg &&
+                  <>
+                    <p className="have-an-account bold">
+                    Already have an account? &nbsp;
+                    </p>
+                    <Link to="/auth/sign-in">
+                      <div
+                      className={`vend-login-btn  my-20 relative ${!vendorForm && "affilate"}`}
+                      >
+                      Login
+                      </div>
+                    </Link>
+                  </>
+                  }
+                </div>
             )}
            
           </form>

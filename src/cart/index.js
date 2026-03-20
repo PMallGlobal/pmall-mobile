@@ -3,7 +3,7 @@ import CartItemCard from '../components/CartItemCard'
 import CartSummary from '../components/CartSummary';
 import CategoryHeader from '../components/CategoryHeader'
 import { removeFromCart, getCart, clearCart } from '../utils/cartUtils';
-
+import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 
 export default function Cart() {
   const [cart, setCartItems] = useState(getCart() || []);
@@ -138,13 +138,24 @@ export default function Cart() {
     <div className='cart'>
         <div className='cart-main'>
             <CategoryHeader title="My Cart" />
-            <div className="cart-scrollable-container">
-                <div className='flex flex-col g-20'> 
-                    {cart.map((item)=>(
-                        <CartItemCard cartItem={item} handleDeleteItem={handleDeleteItem} handleQuantityChange={handleQuantityChange} />
-                    ))}
+            {cart.length == 0 ?
+              <div className="empty-cart">
+                <div className="empty-cart__icon">
+                  <ShoppingCartOutlinedIcon style={{ fontSize: 80, opacity: 0.15 }} />
                 </div>
-            </div>
+
+                <h2>Your cart is empty</h2>
+                <p className='text-center'>Looks like you haven't added anything yet. Browse products and find something you love.</p>
+              </div>
+              :
+              <div className="cart-scrollable-container">
+                  <div className='flex flex-col g-20'> 
+                      {cart.map((item)=>(
+                          <CartItemCard cartItem={item} handleDeleteItem={handleDeleteItem} handleQuantityChange={handleQuantityChange} />
+                      ))}
+                  </div>
+              </div>
+            }
         </div>
 
       <CartSummary subtotal={subtotal} handleClearCart={handleClearCart} />

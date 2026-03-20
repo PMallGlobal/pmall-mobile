@@ -78,16 +78,16 @@ export default function Footer({vendorIn,stockist }) {
             <Link to="/">
                 <div className='footer-item'>
                     <HomeOutlinedIcon className='footer-icon' />
-                    <p>Home</p>
+                    <p>Mall</p>
                 </div>
             </Link>
-            <Link to="/affiliates/my-affiliates">
+            <Link to="/affiliate/my-affiliates">
                 <div className='footer-item'>
                     <img src="/images/affilates.png" alt="" className='footer-icon' />
                     <p>Affilates</p>
                 </div>
             </Link>
-            <Link to="/affiliates/my-vendors">
+            <Link to="/affiliate/my-vendors">
                 <div className='footer-item'>
                     <img src="/images/courier.png" alt="" className='footer-icon' />
                     <p>My Vendor</p>

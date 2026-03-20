@@ -130,11 +130,11 @@ useEffect(()=>{
         <div className="pos-rel">
           <label className="abs py-10"> Password * </label>
           <div
-            className="pos-rel">
+            className=" flex alc g-5">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              className="form-control"
+              className="form-control w-full"
               onChange={onChangeHandler}
               value={inputValues.password || ""}
               autoComplete="false"
@@ -148,11 +148,11 @@ useEffect(()=>{
         <div className="pos-rel">
           <label className="abs py-10">Confirm Password * </label>
           <div
-            className="pos-rel">
+            className=" flex alc g-5">
             <input
               type={showPassword ? "text" : "password"}
               name="password"
-              className="form-control"
+              className="form-control w-full"
               onChange={onChangeHandler}
               value={inputValues.password || ""}
               autoComplete="false"
