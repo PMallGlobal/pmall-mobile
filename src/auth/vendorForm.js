@@ -114,16 +114,18 @@ useEffect(()=>{
         
             <div className="pos-rel">
               <label className="abs py-10"> Select Package* </label>
-              <select
-                name="package_id"
-                className="last-name form-control"
-                onChange={onChangeHandler}>
-                  {
-                    vendorPackages.map((pack)=>(
-                      <option value={pack.id} key={pack.id}>{pack.name} - {pack.price} </option>
-                    ))
-                  }
-              </select>
+               <select
+                    name="package_id"
+                    className="search__bar w-100"
+                    // value={formData.package_id}
+                    onChange={onChangeHandler}>
+                       <option value={""}>Select Package</option>
+                      <option value={vendorPackages[0]?.id || ""}>
+                        {vendorPackages[0]
+                          ? `${vendorPackages[0].name} - ${vendorPackages[0].price}`
+                          : "No packages available"}
+                      </option>
+                    </select>
             </div>
         </div>:
         <CompleteReg onChangeHandler={onChangeHandler} />

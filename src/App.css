@@ -2551,7 +2551,7 @@ button {
 }
 
 /* Dark mode support */
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   body {
     background: #000;
     color: #fff;
@@ -2584,7 +2584,7 @@ button {
   .key:active {
     background: #2c2c2e;
   }
-}
+} */
 
 .details-statistics .db1{
   border-bottom: 0px;

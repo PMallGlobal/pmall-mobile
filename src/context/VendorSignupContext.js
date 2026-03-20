@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Toaster from '../utils/toaster';
 import { useDebounce } from 'use-debounce';
+import { useUser } from './UserContext';
 
 const VendorSignupContext = createContext();
 
@@ -25,6 +26,7 @@ export const VendorSignupProvider = ({ children }) => {
     const [debouncedSearch] = useDebounce(searchInput, 400);
     const [notifications, setNotifications]  = useState(); 
     const [unreadNotifs, setUnreadNotifs]  = useState(0); 
+    const {user} = useUser()
 
     const onSubmitHandler = async(e) => {
         if (e) {
@@ -313,7 +315,9 @@ export const VendorSignupProvider = ({ children }) => {
       useEffect(()=>{
         getProfileDetails()
         getOrders()
-        getNotifications()
+        if(user.loggedIn){
+          getNotifications()
+        }
       },[])
   return (
     <VendorSignupContext.Provider value={{ inputValues, setState, onChangeHandler, onSubmitHandler,handleLogin,onAffilateSubmitHandler,onForgotPasswordHandler,handleResetPassword, handleVerifyToken,VendorUpdateProfile,newVendorModal,setNewVendorModal, handleModalClose,profileDetails,setProfileDetails,submittedValues,loading, setLoading,visible,setVisible,vendorProductAmt,setVendorProductAmt, wallet, setWallet, orderAmt, setOrderAmt,searchInput, setSearchInput,debouncedSearch,notifications,unreadNotifs,getNotifications}}>

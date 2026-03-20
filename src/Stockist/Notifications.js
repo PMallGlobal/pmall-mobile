@@ -4,6 +4,7 @@ import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined
 import { useVendorr } from '../context/VendorSignupContext';
 import { useVendor } from '../context/AuthContext';
 import Toast from '../utils/Toast';
+import { useUser } from '../context/UserContext';
 
 export default function Notifications() {
     const {notifications, getNotifications} = useVendorr()
@@ -80,6 +81,8 @@ export default function Notifications() {
             ]
         }
     ]
+    const {user} = useUser()
+    console.log(user)
     const {
         setToastMsg,
         toastMsg,
@@ -100,7 +103,9 @@ export default function Notifications() {
           .then((result) => {
             setToastMsg(result.message)
             setToastType("success")
+            if(user.loggedIn){
             getNotifications()
+            }
           })
           .catch((err) => {
             console.log(err);

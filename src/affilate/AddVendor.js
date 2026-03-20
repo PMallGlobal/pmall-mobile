@@ -331,7 +331,7 @@ export default function AddVendor() {
                     className="search__bar w-100"
                     value={formData.package_id}
                     onChange={onChangeHandler}>
-                       <option value={""}>Select Pacckage</option>
+                       <option value={""}>Select Package</option>
                       <option value={vendorPackages[0]?.id || ""}>
                         {vendorPackages[0]
                           ? `${vendorPackages[0].name} - ${vendorPackages[0].price}`
