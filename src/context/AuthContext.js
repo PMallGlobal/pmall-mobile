@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
           setToastType("success");
           setTimeout(() => {
             setToastMsg("");
-            window.location.href = "/auth/sign-in";
+            window.location.href = result.data.payment.original.authorization_url;
             // window.location.href = result?.data?.payment.authorization_url;
           }, 2000);
 
@@ -90,7 +90,7 @@ export const AuthProvider = ({ children }) => {
           setTimeout(() => {
             setToastMsg("");
             // window.location.href = result?.data?.payment.authorization_url;
-            window.location.href = "/auth/sign-in";
+            window.location.href = result.data.payment.original.authorization_url;
           }, 2000);
 
           setLoading(false);

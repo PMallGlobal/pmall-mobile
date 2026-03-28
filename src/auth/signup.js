@@ -6,6 +6,8 @@ import { useState } from "react";
 import { useVendor } from "../context/AuthContext";
 import Toaster from "../utils/toaster";
 import ButtonLoader from "../utils/buttonLoader";
+import Toast from "../utils/Toast";
+import Loading from "../utils/loading";
 
 const SignUp = () => {
   const onEnter = (e) => {
@@ -26,6 +28,7 @@ const SignUp = () => {
     onAffilateSubmitHandler,
     toastMsg,
     toastType,
+    setToast,
     loading,
     submittedValues,
   } = useVendor();
@@ -35,6 +38,7 @@ const SignUp = () => {
   console.log(loading)
   return (
     <div className="signup-screen">
+       {<Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />}
       <div className="w-100 flex all-center main-logo">
           <img src="/images/new PMALL logo.png" alt="" />
       </div>
@@ -107,7 +111,7 @@ const SignUp = () => {
                   onClick={signUpHandler}
                   disabled={loading}
                   >
-                   {loading ?<ButtonLoader /> : "Continue"} 
+                   {loading ?<ButtonLoader/> : "Continue"} 
                 </button> 
                   : completeReg ? 
                   <button

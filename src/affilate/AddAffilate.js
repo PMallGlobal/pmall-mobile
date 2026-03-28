@@ -58,7 +58,8 @@ export default function AddAffilate() {
           });
     
           if (!response.ok) {
-            setToast({ message: "Failed to register Affiliate!", type: "error" });
+            const result = await response.json();
+            setToast({ message: `${result.message}`, type: "error" });
                   setTimeout(() => setToast(null), 7000);
             setLoading(false);
           }
@@ -141,7 +142,7 @@ export default function AddAffilate() {
       },[])
       
   return (
-    <div className='new-product edit-profile '>
+    <div className='new-product edit-profile  px-10'>
                {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         <CategoryHeader title="Add Affilate" image="true" />
         

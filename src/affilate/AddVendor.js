@@ -22,6 +22,7 @@ export default function AddVendor() {
         loading,
         setLoading,
         toastMsg,
+        toastType,
         setToastType,
       } = useVendor();
 
@@ -122,7 +123,8 @@ export default function AddVendor() {
           });
     
           if (!response.ok) {
-            setToast({ message: "Failed to register vendor!", type: "error" });
+            const result = await response.json();
+            setToast({ message: `${result.message}`, type: "error" });
             setTimeout(() => setToast(null), 7000);
             setLoading(false);
           }else{
@@ -202,7 +204,7 @@ export default function AddVendor() {
       fetchVendors();
     },[])
   return (
-    <div className='new-product edit-profile '>
+    <div className='new-product edit-profile px-10'>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
         <CategoryHeader title="Add Vendor" image="true" />
         <form style={{ width: "100%" }} onSubmit={handleSubmit}  className="new flex flex-col g-20 w-full">
