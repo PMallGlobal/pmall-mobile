@@ -207,7 +207,7 @@ const VendorCreateProduct = async(e) => {
     },[])
 
   return (
-    <div className='new-product'>
+    <div className='new-product mb-20'>
     <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
 
         <CategoryHeader title="New Product" />
