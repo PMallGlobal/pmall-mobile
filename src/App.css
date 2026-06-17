@@ -1812,7 +1812,7 @@ button {
   font-size: 12px;
 }
 
-.orders, .ratings, .support-center,.products, .new-product, .edit-product,.vendor-profile,{
+.orders, .ratings, .support-center,.products, .new-product, .edit-product,.vendor-profile{
   background: #F2F2F2;
   padding:  30px;
   display: flex;
