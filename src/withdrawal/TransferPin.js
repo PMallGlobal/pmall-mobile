@@ -7,8 +7,6 @@ export default function TransferPinPage() {
   const [pin, setPin] = useState('');
   const maxLength = 4;
   const inputRef = useRef(null);
-
-  // Auto-focus hidden input on mount (helps mobile keyboard)
   useEffect(() => {
     if (inputRef.current) {
       inputRef.current.focus();
@@ -19,15 +17,9 @@ export default function TransferPinPage() {
     if (pin.length < maxLength) {
       const newPin = pin + digit;
       setPin(newPin);
-
-      // Vibration feedback on mobile (optional)
       if (navigator.vibrate) navigator.vibrate(30);
-
-      // Auto-submit / next step when 4 digits are entered
       if (newPin.length === maxLength) {
         console.log('PIN entered:', newPin);
-        // → Here you would call your transfer confirmation API
-        // Example: confirmTransfer(newPin);
       }
     }
   };
@@ -46,7 +38,6 @@ export default function TransferPinPage() {
           Enter your 4-digit transaction pin.
         </p>
 
-        {/* PIN dots */}
         <div className="pin-dots">
           {Array.from({ length: maxLength }).map((_, i) => (
             <div
@@ -56,7 +47,6 @@ export default function TransferPinPage() {
           ))}
         </div>
 
-        {/* Hidden input – captures physical keyboard */}
         <input
           ref={inputRef}
           type="tel"
@@ -72,7 +62,6 @@ export default function TransferPinPage() {
           autoFocus
         />
 
-        {/* Keypad */}
         <div className="keypad">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
             <button
@@ -98,7 +87,6 @@ export default function TransferPinPage() {
       <div className='flex g-40 justsb w-full '> 
             <button
                 className="login-btn login w-full"
-                // disabled={loading}
                 type="submit"
                 // onClick={handleLogin}
                 >

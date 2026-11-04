@@ -1,247 +1,204 @@
-import React from 'react'
-import CategoryHeader from '../components/CategoryHeader'
-import { useState, useEffect } from "react";
-import { useUser } from "../context/UserContext";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
-import moment from "moment";
-import Box from "@mui/material/Box";
-import Toaster from "../utils/toaster";
-import ButtonLoader from "../utils/buttonLoader";
-import Typography from "@mui/material/Typography";
-import { useVendor, useVendorr } from "../context/VendorSignupContext";
-import Modal from "@mui/material/Modal";
-import Loading from "../utils/loading";
-import currency from "../utils/formatCurrency";
-import Toast from "../utils/Toast";
-import PackageName from "../utils/accountPackages"
-import { BASE_URL } from "../utils/config"; 
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CategoryHeader from '../components/CategoryHeader';
+import Toast from '../utils/Toast';
+import ButtonLoader from '../utils/buttonLoader';
+import { useUser } from '../context/UserContext';
+import { useVendorr } from '../context/VendorSignupContext';
+import { BASE_URL } from '../utils/config';
+
+// Icons
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
+import PhoneAndroidOutlinedIcon from '@mui/icons-material/PhoneAndroidOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import './Withdraw.css';
 
 export default function Withdraw() {
+  const navigate = useNavigate();
+  const { user } = useUser();
+  const { wallet } = useVendorr();
+  
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
+  
+  const [method, setMethod] = useState('Bank Transfer');
+  const [amount, setAmount] = useState('');
+  const [remarks, setRemarks] = useState('');
 
-    const [withdrawals, setWithdrawals] = useState([]);
-    const [newWithdrawalModal, setNewWithdrawalModal] = useState(false);
-    const [toast, setToast] = useState(null);
-    const [loading, setLoading] =useState(false);
-    const [loadingId, setLoadingId] = useState(null);
-    const navigate = useNavigate();
-    const [toastType, setToastType] = useState("");
-    const [toastMsg, setToastMsg] = useState("");
-    const { user } = useUser();
-    const [balanceInsufficient, setBalanceInsufficient] = useState(false);
-    const {inputValues, setState, onChangeHandler,  visible, setVisible,} = useVendor();
-    const handleModalClose = () => setNewWithdrawalModal(false);
-    const { vendorProductAmt, wallet, orderAmt} = useVendorr();
+  const availableBalance = Number(wallet?.amount || 0);
+  const numericAmount = Number(amount) || 0;
+  const isInsufficient = numericAmount > availableBalance;
+  const isValid = numericAmount > 0 && !isInsufficient;
 
-    console.log(wallet)
+  const formatCurrency = (val) => Number(val || 0).toLocaleString();
 
-    const handleChange = (event, newValue) => {
-        const selectedTitles = newValue.join(', ');
-        console.log(selectedTitles);
-      
-        setState((inputValues) => ({
-          ...inputValues,
-          tags: selectedTitles,
-        }));
-      };
-      
-      const fetchAllWithdrawalRequests = () => {
-        setLoading(true);
-      let adminUrl = `${BASE_URL}/admin-withdrawal/list`;
-      let otherAccountUrl = `${BASE_URL}/withdrawal/history`;
-      let url = user.accountType === 'Admin' ? adminUrl : otherAccountUrl;
-    
-    
-        fetch(url, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                Accept: "application/json",
-                Authorization: "Bearer " + user?.token,
-            },
-        })
-            .then((resp) => resp.json())
-            .then((result) => {
-              console.log(result);
-              setWithdrawals(result.withdrawals);
-              setLoading(false);
-            })
-            .catch((err) => {
-                console.log(err);
-                setToast({ message: "Error Fetching Withdrawal log", type: "error" });
-                setTimeout(() => setToast(null), 5000);
-                setLoading(false);
-            });
-    };
-    
-    const handleWithdrawalAction = (action, transactionId) => {
-      setLoadingId(transactionId);
-      var endpoints = {
-        approve: `${BASE_URL}/admin-withdrawal/approve/${transactionId}`,
-        reject: `${BASE_URL}/admin-withdrawal/reject/${transactionId}`,
-        complete: `${BASE_URL}/admin-withdrawal/complete/${transactionId}`
-      };
-      
-      var url = endpoints[action];
-    
-      fetch(url, {
-        method: "POST",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                Accept: "application/json",
-                Authorization: "Bearer " + user?.token,
-            },
-      })
-      .then(function(response) {
-        if (!response.ok) {
-          setToast({ message: 'Network response was not ok: ' + response.statusText, type: "error" });
-          setLoadingId(null); 
-        }
-        return response.json();
-      })
-      .then(function(result) {
-        setToast({ message: 'Withdrawal ' + action + 'd successfully!', type: action == 'reject' ? 'error' : 'success' });
-        setLoadingId(null); 
-        fetchAllWithdrawalRequests();
-      })
-      .catch(function(error) {
-        setToast({ message: 'Error performing withdrawal action:', type: "error" }); 
-        setLoadingId(null); 
-      });
+  const handleQuickSelect = (value) => {
+    if (value === 'max') {
+      setAmount(availableBalance.toString());
+    } else {
+      setAmount(value.toString());
     }
-    
-    
-    const validateWallet = (value) => {
-      const amount = parseFloat(value);
-      const walletBalance = parseFloat(user.wallet);
-    
-      if (!isNaN(amount) && amount > walletBalance) {
-        setBalanceInsufficient(true);
-      } else {
-        setBalanceInsufficient(false);
-      }
-    };
-    
-    
-    const makeWithdrawal = async(e) => {
-      if (e) {
-        e.preventDefault(); 
-        setLoading(true)
-        console.log(inputValues)
-      try {
-        const response = await fetch(
-          `${BASE_URL}/withdrawal/request?wallet_id=${wallet?.id}&amount=${inputValues.amount}&method=${inputValues.method}&remarks=${inputValues.remarks}`, {
+  };
+
+  const makeWithdrawal = async (e) => {
+    e.preventDefault();
+    if (!isValid) return;
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        `${BASE_URL}/withdrawal/request?wallet_id=${wallet?.id}&amount=${amount}&method=${method}&remarks=${remarks}`,
+        {
           method: 'POST',
-          headers:{ 
-            'Content-Type': 'application/json;charset=UTF-8', 
-            "Accept": "application/json" ,
-            'Authorization': `Bearer ${user?.token}`
+          headers: {
+            'Content-Type': 'application/json;charset=UTF-8',
+            Accept: 'application/json',
+            Authorization: `Bearer ${user?.token}`,
           },
-        });
-        if (response.ok) {
-          const data = await response.json();
-          console.log('request:', data); 
-          setToast({ message: "Great! Request submitted successfully", type: "success" });
-          fetchAllWithdrawalRequests();
-          setInterval(() => {
-            setToastMsg("");
-    }, 5000);
-          setLoading(false)
-          // setNewWithdrawalModal(data)
-          handleModalClose()
-        } else {
-          const error = await response.text();
-          console.error('Error posting request:', error);
-          setLoading(false)
-          setToastMsg("Oops! there seems to be an error. Fill in correct credentials")
-          setToastType("error")
-          setInterval(() => {
-            setToastMsg("");
-    }, 3000);
         }
-      } catch (error) {
-        console.error('Network error:', error);
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setToast({ message: 'Withdrawal request submitted successfully!', type: 'success' });
+        setAmount('');
+        setRemarks('');
+        setTimeout(() => navigate('/dashboard'), 2000);
+      } else {
+        let errorMsg = 'Failed to submit request.';
+        if (typeof data?.message === 'string') errorMsg = data.message;
+        else if (data?.errors) {
+          const firstError = Object.values(data.errors)[0];
+          errorMsg = Array.isArray(firstError) ? firstError[0] : firstError;
+        }
+        setToast({ message: errorMsg, type: 'error' });
       }
+    } catch (error) {
+      console.error('Network error:', error);
+      setToast({ message: 'Network error. Please try again.', type: 'error' });
+    } finally {
+      setLoading(false);
     }
-    };
-    
-    useEffect(()=> {
-      console.log(user);
-      fetchAllWithdrawalRequests();
-    },[])
+  };
+
   return (
-    <div className='withdraw'>
-            <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
-        <CategoryHeader title="Withdraw Funds" />
-        <form action="">
-            <div className='flex flex-col g-20'>
-                <div className='flex flex-col g-10'>
-                    <p>Available Balance</p>
-                    <div className='available'>
-                        <p>NGN 65,000.00</p>
-                    </div>
-                </div>
-               
-                <div className="flex flex-col g-10 ">
-                  <p> Withdrawal Method</p>
-                  <select
-                  className="form-control-input "
-                  name="method"
-                    onChange={onChangeHandler}
-                    value={inputValues?.method || ""}
-                    >
-                    <option value="default"> Select Withdrawal Method</option>
-                    
-                      <option value="Bank Transfer">Bank Transfer</option>
-                      <option value="Wallet">Wallet</option>
-                  </select>
-                </div>
-                <div className='flex flex-col g-10'>
-                    <p>Amount to Withdraw</p>
-                   <input
-                    type="number"
-                    className='w-full bg-white p-20'
-                    name="amount"
-                    placeholder="500"
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      onChangeHandler(e);
-                      validateWallet(value);
-                    }}
-                    value={inputValues?.amount || ""}
-                  />
-                  {balanceInsufficient && <p className="insufficient">Insufficient Balance</p> }
-                </div>
-                <div className='flex flex-col g-10'>
-                    <p>Remark</p>
-                   <textarea
-                    placeholder=""
-                    className='w-full bg-white p-20'
-                    name="remarks"
-                    onChange={onChangeHandler}
-                    value={inputValues?.remarks || ""}
-                    ></textarea>
-                </div>
-            </div>
-        </form>
-        <div className='flex g-40 justsb w-full '> 
-            <button
-                className="login-btn login w-full"
-                disabled={balanceInsufficient}
-                 onClick={ makeWithdrawal}
-                // disabled={loading}
-                >
-                {loading ?<ButtonLoader /> : "Initiate Withdrawal"}
-            </button>
-            <button
-                className="login-btn cancel w-full"
-                // disabled={loading}
-                type="submit"
-                // onClick={handleLogin}
-                >
-                Close
-            </button>
+    <div className="wd-page">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      <CategoryHeader title="Withdraw Funds" image="true" />
+
+      <form className="wd-form" onSubmit={makeWithdrawal}>
+        
+        <div className="wd-balance-card">
+          <div className="wd-balance-icon">
+            <AccountBalanceWalletOutlinedIcon />
+          </div>
+          <div className="wd-balance-info">
+            <p>Available Balance</p>
+            <h2>₦{formatCurrency(availableBalance)}</h2>
+          </div>
         </div>
+
+        <div className="wd-section">
+          <label className="wd-label">Amount to Withdraw</label>
+          <div className={`wd-amount-wrapper ${isInsufficient ? 'error' : ''}`}>
+            <span className="wd-currency-symbol">₦</span>
+            <input
+              type="number"
+              className="wd-amount-input"
+              placeholder="0.00"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              min="1"
+              max={availableBalance}
+            />
+          </div>
+          
+          {isInsufficient ? (
+            <p className="wd-error-text">
+              <InfoOutlinedIcon fontSize="small" /> Insufficient balance. You can only withdraw up to ₦{formatCurrency(availableBalance)}.
+            </p>
+          ) : (
+            <p className="wd-helper-text">Enter an amount between ₦100 and ₦{formatCurrency(availableBalance)}.</p>
+          )}
+
+          <div className="wd-quick-chips">
+            {[1000, 5000, 10000].map((val) => (
+              <button 
+                key={val} 
+                type="button" 
+                onClick={() => handleQuickSelect(val)}
+                className={amount === val.toString() ? 'active' : ''}
+              >
+                ₦{formatCurrency(val)}
+              </button>
+            ))}
+            <button 
+              type="button" 
+              onClick={() => handleQuickSelect('max')}
+              className={amount === availableBalance.toString() ? 'active' : ''}
+            >
+              Max
+            </button>
+          </div>
+        </div>
+        <div className="wd-section">
+          <label className="wd-label">Withdrawal Method</label>
+          <div className="wd-methods">
+            <div 
+              className={`wd-method-card ${method === 'Bank Transfer' ? 'selected' : ''}`}
+              onClick={() => setMethod('Bank Transfer')}
+            >
+              <div className="wd-method-icon">
+                <AccountBalanceOutlinedIcon />
+              </div>
+              <div>
+                <h4>Bank Transfer</h4>
+                <p>Direct to your bank</p>
+              </div>
+            </div>
+
+            <div 
+              className={`wd-method-card ${method === 'Wallet' ? 'selected' : ''}`}
+              onClick={() => setMethod('Wallet')}
+            >
+              <div className="wd-method-icon">
+                <PhoneAndroidOutlinedIcon />
+              </div>
+              <div>
+                <h4>Wallet</h4>
+                <p>To your Pmall wallet</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="wd-section">
+          <label className="wd-label">Remark (Optional)</label>
+          <textarea
+            className="wd-textarea"
+            placeholder="Add a note for this withdrawal..."
+            value={remarks}
+            onChange={(e) => setRemarks(e.target.value)}
+            rows={3}
+          />
+        </div>
+
+        <div className="wd-sticky-footer">
+          <button type="button" className="wd-btn-cancel" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            className="wd-btn-submit" 
+            disabled={!isValid || loading}
+          >
+            {loading ? <ButtonLoader /> : 'Initiate Withdrawal'}
+          </button>
+        </div>
+      </form>
     </div>
-  )
+  );
 }

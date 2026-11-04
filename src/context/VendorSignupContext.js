@@ -75,7 +75,7 @@ export const VendorSignupProvider = ({ children }) => {
 
      
       const handleLogin = async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); 
         setLoading(false);
         const loginData = { ...inputValues, device_name: 1234 };
       
@@ -98,14 +98,14 @@ export const VendorSignupProvider = ({ children }) => {
       
           const data = await response.json();
           const token = data.data.token;
-          localStorage.setItem("userToken", token);
+          localStorage.setItem("authToken", token);
       
           console.log("Login successful:", data);
           Toaster("Successful", "success");
       setLoading(false);
           setTimeout(() => {
             window.location.href = "/app/dashboard";
-          }, 500); // Redirect after 0.5s
+          }, 500);
         } catch (error) {
           console.error("Unexpected error:", error);
           Toaster("Something went wrong. Please try again.", "error");
@@ -136,11 +136,10 @@ export const VendorSignupProvider = ({ children }) => {
         }
       };
       const handleResetPassword = async(e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); 
         setLoading(true);
         inputValues.email = "mualiyuoox@gmail.com";
       
-        // Validate credentials 
       
         fetch("https://api.pmall.com.ng/api/v1/reset-password",{
           method:"POST",
@@ -160,10 +159,9 @@ export const VendorSignupProvider = ({ children }) => {
       };
 
       const handleVerifyToken = async(e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
         setLoading(true);
         inputValues.email = "mualiyuoox@gmail.com";
-        // Validate credentials 
       
         fetch("https://api.pmall.com.ng/api/v1/verify-code",{
           method:"POST",
@@ -254,6 +252,7 @@ export const VendorSignupProvider = ({ children }) => {
         })
           .then((resp) => resp.json())
           .then((result) => {
+            console.log(result?.data.user.wallet);
             setWallet(result?.data.user.wallet)
           })
           .catch((err) => {
@@ -263,12 +262,15 @@ export const VendorSignupProvider = ({ children }) => {
 
       
       const getOrders = () => {
-        fetch("https://api.pmall.com.ng/api/v1/sales/vendorsales",{
+        const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+        if (!token) return;
+
+        fetch("https://api.pmall.com.ng/api/v1/sales/vendorsales", {
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
             Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("authToken"),
+            Authorization: "Bearer " + token,
           },
         })
           .then((resp) => resp.json())
@@ -281,44 +283,54 @@ export const VendorSignupProvider = ({ children }) => {
           console.log("result");
       };
 
-      
-     const getNotifications = async () => {
-      const url = `https://api.pmall.com.ng/api/v1/user/notification`;
+
+      const getNotifications = async () => {
+        const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+        if (!token) return; 
     
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json;charset=UTF-8",
-          Accept: "application/json",
-          Authorization: "Bearer " + localStorage.getItem("authToken"),
-        },
-      });
+        const url = `https://api.pmall.com.ng/api/v1/user/notification`;
+        
+        try {
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json;charset=UTF-8",
+              Accept: "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.status === 401) {
+            console.warn("Unauthorized: Token is invalid or expired.");
+            return; 
+          }
     
-      if (!response.ok) {
-        throw new Error(`Failed to fetch notification: ${response.status} ${response.statusText}`);
-      }
-    
-      const result = await response.json();
-      const notifs = result.notifications;
-      setNotifications(result.notifications)
-      setUnreadNotifs(result.unread_count)
-      console.log(result.notifications)
-    
-      if (!notifs) {
-        throw new Error("No notification data returned");
-      }
-     
-    };
+          if (!response.ok) {
+            throw new Error(`Failed to fetch notification: ${response.status}`);
+          }
+        
+          const result = await response.json();
+          
+          if (result.notifications) {
+            setNotifications(result.notifications);
+            setUnreadNotifs(result.unread_count);
+          }
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      };
 
 
 
       useEffect(()=>{
-        getProfileDetails()
-        getOrders()
-        if(user.loggedIn){
-          getNotifications()
+        const token = localStorage.getItem("authToken") || localStorage.getItem("authToken");
+        if (token) {
+          getProfileDetails();
+          getOrders();
+          getNotifications();
         }
       },[])
+
   return (
     <VendorSignupContext.Provider value={{ inputValues, setState, onChangeHandler, onSubmitHandler,handleLogin,onAffilateSubmitHandler,onForgotPasswordHandler,handleResetPassword, handleVerifyToken,VendorUpdateProfile,newVendorModal,setNewVendorModal, handleModalClose,profileDetails,setProfileDetails,submittedValues,loading, setLoading,visible,setVisible,vendorProductAmt,setVendorProductAmt, wallet, setWallet, orderAmt, setOrderAmt,searchInput, setSearchInput,debouncedSearch,notifications,unreadNotifs,getNotifications}}>
       {children}

@@ -9,7 +9,6 @@ export const getCart = () => {
   }
 };
 
-// cartUtils.js
 
 export const removeFromCart = (productId) => {
   try {
@@ -21,10 +20,10 @@ export const removeFromCart = (productId) => {
     // Save back to localStorage
     localStorage.setItem("pmallCart", JSON.stringify(updatedCart));
 
-    return updatedCart; // return updated cart so you can update UI/count
+    return updatedCart; 
   } catch (error) {
     console.error("Failed to remove item from cart:", error);
-    return getCart(); // return current cart on failure
+    return getCart();
   }
 };
 
@@ -32,10 +31,10 @@ export const clearCart = () => {
   try {
     localStorage.removeItem("pmallCart");
     console.log("Cart cleared successfully");
-    return []; // return empty array so you can update state
+    return []; 
   } catch (error) {
     console.error("Failed to clear cart:", error);
-    return getCart() || []; // return current (failed to clear)
+    return getCart() || []; 
   }
 };
 let cart = getCart() || [];

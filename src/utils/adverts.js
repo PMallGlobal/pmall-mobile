@@ -9,10 +9,10 @@ const AdvertCarousel = ({ adverts, interval = 3000 }) => {
       setCurrentIndex((prevIndex) => (prevIndex + 1) % adverts.length);
     }, interval);
 
-    return () => clearInterval(timer); // Cleanup on unmount
+    return () => clearInterval(timer); 
   }, [adverts, interval]);
 
-  if (!adverts || adverts.length === 0) return null; // Handle empty array
+  if (!adverts || adverts.length === 0) return null; 
 
   return (
     <div className="advert-carousel">

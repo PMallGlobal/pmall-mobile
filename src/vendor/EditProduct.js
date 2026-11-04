@@ -216,10 +216,8 @@ export default function EditProduct() {
                     parsedTags = product.tags;
                   }
               
-                  // Clean up (optional: trim strings)
                   parsedTags = parsedTags.map(tag => (typeof tag === 'string' ? tag.trim() : tag));
               
-                  // Now set inputValues with real array
                   setState({
                     ...product,
                     tags: parsedTags,

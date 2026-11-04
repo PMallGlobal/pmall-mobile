@@ -5,140 +5,155 @@ import Person4Icon from '@mui/icons-material/Person4';
 import { copyToClipboard } from "../utils/copyTextToClipboard";
 import Loading from "../utils/loading";
 import moment from "moment";
-import Toast from "../utils/Toast"
-import { BASE_URL } from "../utils/config"
+import Toast from "../utils/Toast";
+import { BASE_URL } from "../utils/config";
 import Popup from "../utils/popUp";
 import CategoryHeader from "../components/CategoryHeader";
-import { Link } from "react-router-dom";
+import UserAvatar from "../utils/UserAvatar";
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import './GenealogyTree.css';
 
-function  GenealogyTree() {
-    const { user } = useUser();
-	  const [toast, setToast] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [allDownlines, setAllDownlines] = useState(null);
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [hoveredUser, setHoveredUser] = useState(null);
+export default function GenealogyTree() {
+  const { user } = useUser();
+  const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [allDownlines, setAllDownlines] = useState([]);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [hoveredUser, setHoveredUser] = useState(null);
+  const [copied, setCopied] = useState(false);
 
-    const getMyNetwork = () => {
-        setLoading(true);
-        fetch(`${BASE_URL}/profile/hierarchy-all-downline`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                Accept: "application/json",
-                Authorization: "Bearer " + user?.token,
-            },
-        })
-            .then((resp) => resp.json())
-            .then((result) => {
-				console.log(result.data)
-                setAllDownlines(result?.data?.allDownline || []);
-                setLoading(false);
-            })
-            .catch((err) => {
-                setLoading(false);
-            });
+  const getMyNetwork = () => {
+    setLoading(true);
+    fetch(`${BASE_URL}/profile/hierarchy-all-downline`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        Accept: "application/json",
+        Authorization: "Bearer " + user?.token,
+      },
+    })
+      .then((resp) => resp.json())
+      .then((result) => {
+        setAllDownlines(result?.data?.allDownline || []);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
+
+  const handleCopy = () => {
+    if (!user?.refId) {
+      setToast({ message: "No referral ID found!", type: "error" });
+      setTimeout(() => setToast(null), 3000);
+      return;
+    }
+    copyToClipboard(`https://pmall.com.ng/auth/app/Signup?refLink=${user.refId}`, (message, type) => {
+      setToast({ message, type });
+      setTimeout(() => setToast(null), 3000);
+    });
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  useEffect(() => {
+    if (user?.token) getMyNetwork();
+  }, [user?.token]);
+
+  
+  const countTotalDownlines = (persons) => {
+    let count = 0;
+    const countRecursive = (userList) => {
+      if (!userList || userList.length === 0) return;
+      userList.forEach((u) => {
+        count++;
+        if (u.all_downline?.length > 0) countRecursive(u.all_downline);
+      });
     };
+    countRecursive(persons);
+    return count;
+  };
 
-	const handleCopy = () => {
-		if (!user?.refId) {
-			setToast({ message: "No referral ID found!", type: "error" });
-			setTimeout(() => setToast(null), 5000);
-			return;
-		}
-	
-		copyToClipboard(`https://pmall.com.ng/auth/app/Signup?refLink=${user.refId}`, (message, type) => {
-			setToast({ message, type });
-			setTimeout(() => setToast(null), 5000);
-		});
-	};
-	
+  const directDownlines = allDownlines?.length || 0;
+  const totalDownlines = countTotalDownlines(allDownlines);
+  const indirectDownlines = totalDownlines - directDownlines;
 
-    const countTotalDownlines = (persons) => {
-        let count = 0;
-        const countRecursive = (userList) => {
-            if (!userList || userList.length === 0) return;
-            userList.forEach((user) => {
-                count++;
-                if (user.all_downline?.length > 0) {
-                    countRecursive(user.all_downline);
-                }
-            });
-        };
-        countRecursive(persons);
-        return count;
-    };
+  return (
+    <div className="gt-page">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      <CategoryHeader title="Genealogy Tree" image="true" />
 
-	const countDirectDownlines = (users) => {
-		return users?.length ;
-	};
-
-    const UserHierarchy = ({ allDownlines }) => {
-        const renderHierarchy = (downlines) => {
-            return (
-                <ul>
-                    {downlines?.map((user) => (
-                        <li key={user.id}>
-                            <a
-                                className="title-case"
-                                href="#"
-                                title={user.fname}
-                                onClick={() => {
-                                    setHoveredUser(user);
-                                    setIsPopupOpen(true);
-                                }}
-                            >
-								<Person4Icon/>
-								<p>{user.user_type === "Vendor" ? user.store_name : user.username}</p>
-
-								
-                                <br />
-                                {`${user.my_ref_id}`}
-                            </a>
-                            {user.all_downline?.length > 0 && renderHierarchy(user.all_downline)}
-                        </li>
-                    ))}
-                </ul>
-            );
-        };
-
-        return <div>{allDownlines?.length > 0 ? renderHierarchy(allDownlines) : <p>No downlines found.</p>}</div>;
-    };
-
-    useEffect(() => {
-        if (user?.token) {
-            getMyNetwork();
-        }
-    }, [user?.token]);
-
-    const totalDownlines = countTotalDownlines(allDownlines);
- const directDownlines = countDirectDownlines(allDownlines);
-    return (
-        <div className="geneology-tree flex flex-col g-20 ">
-          {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-          <CategoryHeader title="Geneology" image="true" />
-          <div className="flex flex-col g-20 w-100 vbczsds">
-            <p class="flex alc" onClick={handleCopy} > My Referral ID <span className="text-muted py-5"> {user?.refId} </span> <ContentCopyIcon title="Click to copy" 
-                onClick={handleCopy} 
-                style={{ cursor: 'pointer', marginLeft: '8px' }} /></p>
-            <p> Account Type <span className="text-muted py-5"> {user?.accountType} </span> </p>
-            <p> Total Downlines <span className="text-muted py-5"> {totalDownlines} </span> </p>
-            <p> Direct Referral <span className="text-muted py-5"> {directDownlines} </span> </p>
-            <p> Indirect Referral <span className="text-muted py-5"> {totalDownlines - directDownlines } </span> </p>
-            <p> Member Since <span className="text-muted py-5"> {moment(user.regDate).format("DD MMM YYYY")} </span> </p>
+      <div className="gt-summary-card">
+        <div className="gt-summary-header">
+          <div>
+            <p className="gt-label">My Referral ID</p>
+            <div className="gt-ref-id" onClick={handleCopy}>
+              <span>{user?.refId}</span>
+              {copied ? <CheckCircleIcon className="text-green" /> : <ContentCopyIcon className="text-white" />}
+            </div>
           </div>
-          <div className="tree flex flex-col all-center g-40 w-full">
-            <Link to="/affiliate/genealogy/profile">
-              <p className="text-center flex flex-col alc" style={{ marginTop: 120 }}>
-                  <Person4Icon/>
-                  {user?.fname} {user?.lname}
-              </p>
-            </Link>
-              {loading ? <Loading loading={loading}/> : <UserHierarchy allDownlines={allDownlines} />}
+          <div className="gt-badge">{user?.accountType}</div>
+        </div>
+
+        <div className="gt-stats-grid">
+          <div className="gt-stat">
+            <p>Direct</p>
+            <h3>{directDownlines}</h3>
           </div>
-          <Popup user={hoveredUser} isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
+          <div className="gt-stat border-left">
+            <p>Indirect</p>
+            <h3>{indirectDownlines}</h3>
+          </div>
+          <div className="gt-stat border-left">
+            <p>Total Network</p>
+            <h3>{totalDownlines}</h3>
+          </div>
+        </div>
+        <p className="gt-member-since">Member since {moment(user?.regDate).format("DD MMM YYYY")}</p>
       </div>
-    );
-}
+      <div className="gt-tree-section">
+        <div className="gt-section-title">
+          <AccountTreeIcon className="text-purple" />
+          <h3>Direct Referrals</h3>
+        </div>
 
-export default GenealogyTree;
+        {loading ? (
+          <Loading loading={loading} />
+        ) : allDownlines?.length === 0 ? (
+          <div className="gt-empty-state">
+            <Person4Icon style={{ fontSize: 60, color: '#d1d5db' }} />
+            <p>You don't have any direct referrals yet.</p>
+            <button onClick={handleCopy} className="gt-invite-btn">Invite Someone</button>
+          </div>
+        ) : (
+          <div className="gt-timeline">
+            {allDownlines.map((downline, index) => {
+              const displayName = downline.user_type === "Vendor" ? downline.store_name : downline.username;
+              const isLast = index === allDownlines.length - 1;
+
+              return (
+                <div className="gt-timeline-item" key={downline.id} onClick={() => { setHoveredUser(downline); setIsPopupOpen(true); }}>
+                   {!isLast && <div className="gt-timeline-line"></div>}
+                  
+                  <div className="gt-node-avatar">
+                    <UserAvatar name={downline.fname || displayName} size={44} />
+                  </div>
+                  <div className="gt-node-card">
+                    <div className="gt-node-info">
+                      <h4 className="gt-node-name">{displayName || "Unknown User"}</h4>
+                      <p className="gt-node-ref">{downline.my_ref_id}</p>
+                    </div>
+                    <div className={`gt-node-role ${downline.user_type.toLowerCase()}`}>
+                      {downline.user_type}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <Popup user={hoveredUser} isOpen={isPopupOpen} onClose={() => setIsPopupOpen(false)} />
+    </div>
+  );
+}

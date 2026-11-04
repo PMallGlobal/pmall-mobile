@@ -5,7 +5,6 @@ const UserContext = createContext();
 
 const UserProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    // Load user data from localStorage if available
     const storedUser = localStorage.getItem("user");
     return storedUser ? JSON.parse(storedUser)
       : {
@@ -28,7 +27,6 @@ const UserProvider = ({ children }) => {
 
 
   useEffect(() => {
-    // Save user data to localStorage whenever it changes
     localStorage.setItem("user", JSON.stringify(user));
   }, [user]);
 
@@ -39,7 +37,6 @@ const UserProvider = ({ children }) => {
   );
 };
 
-// Custom hook to access user context
 const useUser = () => {
   const context = useContext(UserContext);
   if (!context) {
@@ -48,7 +45,6 @@ const useUser = () => {
   return context;
 };
 
-// Custom hook for handling logout
 const useLogOut = () => {
   const navigate = useNavigate(); 
   const { setUser } = useUser(); 

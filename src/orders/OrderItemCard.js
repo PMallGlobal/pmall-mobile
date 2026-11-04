@@ -1,206 +1,225 @@
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom';
-import { useUser } from '../context/UserContext'
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 import { BASE_URL } from "../utils/config";
-import { useLocation } from "react-router-dom";
 import Toast from '../utils/Toast';
+import currency from '../utils/formatCurrency';
 
-export default function OrderItemCard({orderItem, title, status, handleOrderPaymentStatus, orderStatus, handleOrderStatus}) {
-    const user = useUser();
-    const [statuses, setStatuses] = useState("");
-    const [toast, setToast] = useState(null);
-    const [loading, setLoading] = useState(false);
-    const location = useLocation();
-    const [order, setOrder] = useState(location?.state?.order);
-    
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PendingOutlinedIcon from '@mui/icons-material/PendingOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
+import './OrderItemCard.css';
 
-    const handleStatusChange = async (orderState, e) => {
-        setLoading(true);
-        const selectedStatus = e?.target?.value;
-        console.log("Order:", orderState);
-        console.log("Selected Status:", selectedStatus);
+export default function OrderItemCard({ 
+  orderItem, 
+  title, 
+  status, 
+  handleOrderPaymentStatus, 
+  orderStatus, 
+  handleOrderStatus 
+}) {
+  const { user } = useUser(); 
+  const navigate = useNavigate();
+  const [toast, setToast] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const token = user?.token || localStorage.getItem("authToken");
+  const accountType = user?.accountType;
+
+  const products = orderItem?.products || [];
+  
+  const orderId = orderItem?.id || "N/A";
+  const paymentStatus = orderItem?.payment_status || "pending";
+  const orderStatusCode = orderItem?.status || "pending";
+  const date = orderItem?.created_at 
+    ? new Date(orderItem.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    : "N/A";
+
+  const orderTotal = products.reduce((sum, p) => {
+    return sum + (Number(p.selling_price || 0) * Number(p?.pivot?.quantity || 1));
+  }, 0);
+
+  const getStatusConfig = (statusCode) => {
+    switch (statusCode) {
+      case 'delivered': 
+        return { color: '#065f46', bg: '#d1fae5', icon: <CheckCircleIcon fontSize="small" />, label: 'Delivered' };
+      case 'out_for_delivery': 
+        return { color: '#1e40af', bg: '#dbeafe', icon: <LocalShippingOutlinedIcon fontSize="small" />, label: 'Out for Delivery' };
+      case 'packaging': 
+      case 'ongoing': 
+        return { color: '#92400e', bg: '#fef3c7', icon: <PendingOutlinedIcon fontSize="small" />, label: 'Packaging' };
+      case 'cancelled': 
+      case 'returned': 
+        return { color: '#991b1b', bg: '#fee2e2', icon: <CancelOutlinedIcon fontSize="small" />, label: 'Cancelled' };
+      default: 
+        return { color: '#4b5563', bg: '#f3f4f6', icon: <PendingOutlinedIcon fontSize="small" />, label: statusCode.replace(/_/g, ' ') };
+    }
+  };
+
+  const statusConfig = getStatusConfig(orderStatusCode);
+  const handleVendorAction = async (item, e) => {
+    const selectedStatus = e?.target?.value;
+    if (!selectedStatus) return;
     
-        const requestBody = {
-            stockist_id: orderItem?.stockist?.id,
-            sale_id: parseInt(orderState?.pivot?.sale_id),
-            product_id: parseInt(orderState?.pivot?.product_id),
-          };
-          console.log(selectedStatus);
-        // 👉 Check if the selected status is "push-to-stockist"
-        if (selectedStatus === "push-to-stockist") {
-          try {
-            const response = await fetch(`${BASE_URL}/orders/push`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                Accept: "application/json",
-                Authorization: "Bearer " + user?.user.token,
-              },
-              body: JSON.stringify(requestBody),
-            });
-      
-            const result = await response.json();
-            setLoading(false);
-            if (result.status) {
-              setToast({
-                message: `Successful!... ${result.message}`,
-                type: "success",
-              });
-              setTimeout(() => setToast(null), 5000);
-            //   getProductDetails();
-              console.log("Pushing Result:", result);
-            } else {
-              setToast({ message: `Failed!... ${result.message}`, type: "error" });
-              setStatuses("");
-              setTimeout(() => setToast(null), 5000);
-            }
-          } catch (error) {
-            console.error("Error:", error);
-            setToast({ message: `Failed... ${error}`, type: "error" });
-            setTimeout(() => setToast(null), 5000);
-            setLoading(false);
-            setStatuses("");
-            return false; //  failed
-          }
-        } 
-        
-        if (selectedStatus === "deliver-to-stockist") {
-          try {
-            const response = await fetch(`${BASE_URL}/orders/delivertostockist`, {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json;charset=UTF-8",
-                Accept: "application/json",
-                Authorization: "Bearer " + user?.user.token,
-              },
-              body: JSON.stringify(requestBody),
-            });
-      
-            const result = await response.json();
-            setLoading(false);
-            if (result.status) {
-              setToast({
-                message: `Successful!... ${result.message}`,
-                type: "success",
-              });
-              setTimeout(() => setToast(null), 5000);
-            //   getProductDetails();
-              console.log("Delivered Result:", result);
-            } else {
-              setToast({ message: `Failed!... ${result.message}`, type: "error" });
-              setStatuses("");
-              setTimeout(() => setToast(null), 5000);
-            }
-          } catch (error) {
-            console.error("Error:", error);
-            setToast({ message: `Failed... ${error}`, type: "error" });
-            setTimeout(() => setToast(null), 5000);
-            setLoading(false);
-            setStatuses("");
-            return false; //  failed
-          }
-        } 
+    setLoading(true);
+    const requestBody = {
+      stockist_id: orderItem?.stockist?.id,
+      sale_id: parseInt(item?.pivot?.sale_id),
+      product_id: parseInt(item?.pivot?.product_id),
+    };
+
+    const endpoint = selectedStatus === "push-to-stockist" ? "orders/push" : "orders/delivertostockist";
     
-        setLoading(false);
-      };
+    try {
+      const response = await fetch(`${BASE_URL}/${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(requestBody),
+      });
+      const result = await response.json();
+      
+      if (result.status) {
+        setToast({ message: result.message, type: "success" });
+      } else {
+        setToast({ message: result.message, type: "error" });
+      }
+    } catch (error) {
+      setToast({ message: "Failed to update order", type: "error" });
+    } finally {
+      setLoading(false);
+      setTimeout(() => setToast(null), 4000);
+    }
+  };
+
   return (
-      <>
-              {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-    {orderItem?.products.map((item)=>(
-    <div className="cart-item flex alc w-full g-20 orderItem ">
-        <div className='cartimg'>
-            <img src={item?.image} alt="" />
-        </div>
-        <div className='w-full flex flex-col g-10'>
-            <div className='cart-item-category'>
-                <p>{item?.category_id}</p>
-            </div>
-            <div className='cart-item-name'>
-            <p className='bold'> {item?.name}</p>
-            </div>
-            <div className='flex justsb alc'>
-                <div className='cart-item-sellp flex flex-col g-10'>
-                    <p className='order-num'>Order Number: {item?.pivot.sale_id}</p>
-                    {user?.user.accountType == "Admin" && <p className='order-num'>Payment Status: {orderItem?.payment_status}</p>}
-                    <p className='dd'>Date Delivered: {item?.date_delivered}</p>
-                </div>
-            </div>
-        </div>
-       {title != "details" ? <div>
-          <Link to={`/order/${orderItem.id}/details`}> <h1 className='order-details-link'>Details</h1></Link> 
-        </div> :user.user.accountType == "Vendor" ?
-         <select
-         name="order-status"
-         className="last-name form-control"
-         value={statuses} 
-         onChange={(e) => handleStatusChange(item, e)}
-         style={{
-           marginTop: 4,
-           textTransform: "capitalize",
-         }}
-       >
-         <option value="">Manage Order</option>
-         <option value="push-to-stockist">
-           Push to Stockist
-         </option>
-         <option value="deliver-to-stockist">
-           Deliver to Stockist
-         </option>
-       </select>:
-       <h1></h1>
+    <>
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      
+      <div className="oic-card">
         
-    }
-
-    {title != "details" && user.user.accountType == "Stockist" &&
-
-        <select
-        name="pickup_location"
-        className="last-name form-control"
-        value={orderStatus}
-        onChange={(e) => handleOrderStatus(orderItem, e)}
-        style={{marginTop: 18, textTransform: 'capitalize', width: '60%', height: 37,
-        padding: 10}}>
-        <option value="">Manage Order</option>
-        <option value="out_for_delivery">Out for Delivery</option>
-        <option value="packaging">Packaging</option>
-        <option value="returned">Returned</option>
-        <option value="cancelled">Cancelled</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="delivered">Delivered</option>
-        <option value="customer_did_not_answer">Customer Didn't Answer Call</option>
-        </select>
-    }
-        {orderItem?.status ?
-        <div className={`delivered-btn ${orderItem?.status == "pending" ? "pending" :orderItem?.status=="ongoing" ? "ongoing" : "delivered" }`}>
-            {orderItem?.status }
-        </div>:
-        <div className={`delivered-btn ${item?.refund ? "refund"  : "replacement" }`}>
-            {item?.refund ?  <p>{status || "Refund"}</p> : <p>Replacement</p> }
+        <div className="oic-header">
+          <div>
+            <p className="oic-label">Order</p>
+            <p className="oic-order-id">#{orderId}</p>
+          </div>
+          <div 
+            className="oic-status-badge"
+            style={{ color: statusConfig.color, backgroundColor: statusConfig.bg }}
+          >
+            {statusConfig.icon}
+            <span>{statusConfig.label}</span>
+          </div>
         </div>
-        }
-        {title == "details" || title == "Rating" && 
-         <div className='buy-again'>
-           <p>{title == "Rating" ? "Rate this Product" : "Buy Again"}</p>
-        </div>}
-        {user?.user.accountType === 'Admin' && (
-            <>
-            <select
-                name="mark_order"
-                className="order-status "
-                value={orderStatus}
-                onChange={(e) => handleOrderPaymentStatus(orderItem, e)}
-                style={{marginTop: 4, textTransform: 'capitalize', width: '60%'}}>
-                <option value="">Manage Order</option>
-                <option value="paid">Paid</option>
-                <option value="not-paid">Not Paid</option>
+
+        <div className="oic-body">
+          {products.length === 0 ? (
+            <p className="oic-empty-text">No products in this order.</p>
+          ) : (
+            products.map((item, idx) => (
+              <div className="oic-product" key={item.id || idx}>
+                <div className="oic-img-box">
+                  <img 
+                    src={item?.image || '/default-image.jpg'} 
+                    alt={item?.name} 
+                    onError={(e) => (e.target.src = '/default-image.jpg')}
+                  />
+                </div>
+                <div className="oic-product-info">
+                  <p className="oic-product-name">{item?.name || "Unnamed Product"}</p>
+                  <p className="oic-product-qty">
+                    Qty: {item?.pivot?.quantity || 1} · {currency(item?.selling_price || 0)}
+                  </p>
+                  <p className="oic-product-date">Order #{item?.pivot?.sale_id}</p>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="oic-meta">
+          <span>Placed on {date}</span>
+          <span className={`oic-payment-pill ${paymentStatus}`}>{paymentStatus}</span>
+        </div>
+
+        <div className="oic-footer-top">
+          <div>
+            <p className="oic-total-label">Total</p>
+            <p className="oic-total-amount">{currency(orderTotal)}</p>
+          </div>
+          {title !== "details" && (
+            <Link to={`/order/${orderItem?.id}/details`} className="oic-details-link">
+              Details <ChevronRightIcon fontSize="small" />
+            </Link>
+          )}
+        </div>
+
+        <div className="oic-actions">
+          {title === "details" && accountType === "Vendor" && (
+            <select 
+              className="oic-select"
+              onChange={(e) => handleVendorAction(products[0], e)}
+              defaultValue=""
+            >
+              <option value="" disabled>Manage Order</option>
+              <option value="push-to-stockist">Push to Stockist</option>
+              <option value="deliver-to-stockist">Deliver to Stockist</option>
             </select>
-          </>
-        )} 
+          )}
 
-       
+          {title !== "details" && accountType === "Stockist" && (
+            <select 
+              className="oic-select"
+              value={orderStatus}
+              onChange={(e) => handleOrderStatus(orderItem, e)}
+            >
+              <option value="">Manage Order</option>
+              <option value="out_for_delivery">Out for Delivery</option>
+              <option value="packaging">Packaging</option>
+              <option value="returned">Returned</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="delivered">Delivered</option>
+              <option value="customer_did_not_answer">Customer Didn't Answer</option>
+            </select>
+          )}
 
-    </div>
-    ))}
+          {accountType === "Admin" && (
+            <select 
+              className="oic-select"
+              value={orderStatus}
+              onChange={(e) => handleOrderPaymentStatus(orderItem, e)}
+            >
+              <option value="">Manage Payment</option>
+              <option value="paid">Mark as Paid</option>
+              <option value="not-paid">Mark as Not Paid</option>
+            </select>
+          )}
+
+          {(title === "details" || title === "Rating") && (
+            <button 
+              className="oic-action-btn primary"
+              onClick={() => navigate(`/product/${products[0]?.id}`)}
+            >
+              {title === "Rating" ? "Rate this Product" : "Buy Again"}
+            </button>
+          )}
+        </div>
+
+        {(orderItem?.refund || products[0]?.refund) && (
+          <div className="oic-refund-banner">
+            <ReplayOutlinedIcon fontSize="small" />
+            <span>{orderItem?.refund || products[0]?.refund ? "Refund / Replacement Requested" : ""}</span>
+          </div>
+        )}
+
+      </div>
     </>
-  )
+  );
 }

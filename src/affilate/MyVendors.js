@@ -1,136 +1,141 @@
-import React, { useEffect, useState } from 'react'
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import CategoryHeader from '../components/CategoryHeader';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import CategoryHeader from '../components/CategoryHeader';
 import Toast from '../utils/Toast';
+import UserAvatar from '../utils/UserAvatar'; 
+import { BASE_URL } from '../utils/config';
 
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import './MyVendors.css';
 
 export default function MyVendors() {
-    const [vendors, setVendors] = useState()
-    const orders = [
-        {
-          id: 1,
-          name: "CARICH Cool Algal Fluoride-Free Toothpaste",
-          image: "https://api.pmall.com.ng/storage/productImages/40_1759017056.png",
-          category_name: "PERSONAL CARE",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 67,
-          name: "Wireless Bluetooth Headphones Pro",
-          image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
-          category_name: "ELECTRONICS",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 89,
-          name: "Organic Cotton T-Shirt – Black",
-          image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-          category_name: "FASHION",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 124,
-          name: "Smart LED Bulb – 10W RGB",
-          image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
-          category_name: "HOME & LIVING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 203,
-          name: "Premium Stainless Steel Water Bottle 1L",
-          image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800",
-          category_name: "KITCHEN & DINING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        }
-      ];
-      const [toast, setToast] = useState()
-      const getVendors = () => {
-        fetch("https://api.pmall.com.ng/api/v1/get-all-vendors",{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8",
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("authToken"),
-          },
-        })
-          .then((resp) => resp.json())
-          .then((result) => {
-            console.log(result);
-            setVendors(result.data.vendors)
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      };
+  const [vendors, setVendors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
-      useEffect(()=>{
-        getVendors()
-      },[])
-    
+  const getVendors = () => {
+    fetch(`${BASE_URL}/get-all-vendors`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        Accept: "application/json",
+        Authorization: "Bearer " + localStorage.getItem("authToken"),
+      },
+    })
+      .then((resp) => resp.json())
+      .then((result) => {
+        setVendors(result?.data?.vendors || []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setToast({ message: "Failed to load vendors", type: "error" });
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    getVendors();
+  }, []);
+
+  // Calculate Stats
+  const totalVendors = vendors.length;
+  const activeVendors = vendors.filter(v => v.status === "1" || v.isActive).length;
+
   return (
-    <div className='my-vendors ratings'>
+    <div className="mv-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="My Vendors" image="true" />
-        {/* <div className=' add-addy'>
-            <Link to="/add-vendor">
-                <div className='flex g-10 alc new-addy pointer'>
-                    <AddCircleOutlineOutlinedIcon />
-                    <p>Add Account</p>
-                </div>
-            </Link>
-        </div> */}
-        {vendors?.length > 0 ?
-          <div className='flex flex-col g-20' >
-              {vendors?.map((item)=>(
-                <div className=' flex bg-white p-20 g-40 my-vendors alc'>
-                      <div className=''>
-                          {/* <img src="/images/Ellipse 280.png" alt="" /> */}
-                          <AccountCircleOutlinedIcon className='pfp' />
-                      </div>
-                      <div className='flex flex-col g-10 w-full'>
-                          <p className='name uppercase'>{item.store_name}</p>
-                          <h3 className='capitalize'>{item.fname} {item.lname} (N/A)</h3>
-                          <p className='email'>{item.email}</p>
-                          <div className='edit-delete flex justsb w-full'>
-                              <p className='num'>{item.phone}</p>
-                              <div className='flex g-10'>
-                                  <div className='edit'>
-                                      <ModeEditOutlinedIcon />
-                                  </div>
-                                  <div className='delete'>
-                                      <DeleteOutlineOutlinedIcon />
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                      <div className='delivered-btn '>
-                          <p>Active</p>
-                      </div>
-                  </div>
-              ))}
-          </div> :
-          <p className='w-full flex all-center'>You have no vendors yet</p>
-          }
-        <Link to="/add-vendor">
-          <div className="add-product">
-              <AddOutlinedIcon />
+      <CategoryHeader title="My Vendors" image="true" />
+
+      
+      <div className="mv-stats-banner">
+        <div className="mv-stat-box">
+          <StorefrontOutlinedIcon className="mv-stat-icon" />
+          <div>
+            <p>Total Vendors</p>
+            <h3>{loading ? "..." : totalVendors}</h3>
           </div>
-        </Link>
+        </div>
+        <div className="mv-stat-divider"></div>
+        <div className="mv-stat-box">
+          <CheckCircleOutlinedIcon className="mv-stat-icon text-green" />
+          <div>
+            <p>Active</p>
+            <h3>{loading ? "..." : activeVendors}</h3>
+          </div>
+        </div>
+      </div>
+
+      
+      <div className="mv-list-container">
+        {loading ? (
+          <div className="mv-loading">Loading vendors...</div>
+        ) : vendors.length === 0 ? (
+          <div className="mv-empty-state">
+            <StorefrontOutlinedIcon style={{ fontSize: 60, color: '#d1d5db' }} />
+            <h3>No Vendors Yet</h3>
+            <p>You haven't added any vendors to your network.</p>
+            <Link to="/add-vendor" className="mv-empty-btn">Add Your First Vendor</Link>
+          </div>
+        ) : (
+          vendors.map((item) => {
+            const isActive = item.status === "1" || item.isActive;
+            const displayName = item.store_name || `${item.fname} ${item.lname}`;
+
+            return (
+              <div className="mv-card" key={item.id}>
+                <div className="mv-card-header">
+                  <div className="mv-user-info">
+                    <UserAvatar name={displayName} size={48} />
+                    <div className="mv-name-group">
+                      <h3 className="mv-storename">{item.store_name || "Unnamed Store"}</h3>
+                      <p className="mv-owner">{item.fname} {item.lname}</p>
+                    </div>
+                  </div>
+                  <div className={`mv-status ${isActive ? 'active' : 'inactive'}`}>
+                    {isActive ? 'Active' : 'Inactive'}
+                  </div>
+                </div>
+
+                <div className="mv-card-body">
+                  <div className="mv-contact-row">
+                    <EmailOutlinedIcon className="mv-icon" />
+                    <span>{item.email || "N/A"}</span>
+                  </div>
+                  <div className="mv-contact-row">
+                    <PhoneOutlinedIcon className="mv-icon" />
+                    <span>{item.phone || "N/A"}</span>
+                  </div>
+                </div>
+
+                <div className="mv-card-footer">
+                  <div className="mv-ref-id">
+                    ID: <span>{item.my_ref_id || item.store_id || "N/A"}</span>
+                  </div>
+                  <div className="mv-actions">
+                    <button className="mv-action-btn edit" aria-label="Edit">
+                      <EditOutlinedIcon fontSize="small" />
+                    </button>
+                    <button className="mv-action-btn delete" aria-label="Delete">
+                      <DeleteOutlineOutlinedIcon fontSize="small" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      
+      <Link to="/add-vendor" className="mv-fab">
+        <AddIcon />
+      </Link>
     </div>
-  )
+  );
 }

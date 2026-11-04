@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Toaster from "../utils/toaster";
 import Toast from "../utils/Toast";
 import { useUser } from "./UserContext";
@@ -13,13 +14,14 @@ export const AuthProvider = ({ children }) => {
   const [toastType, setToastType] = useState("");
   const [toast, setToast] = useState(null);
   const [packages, setPackages] = useState({});
-  const [customer, setCustomer] = useState(null); // Store user data
+  const [customer, setCustomer] = useState(null); 
 
   const { setUser } = useUser();
+  const navigate = useNavigate();
 
   // Vendor Registration
   const onSubmitHandler = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
@@ -67,7 +69,7 @@ export const AuthProvider = ({ children }) => {
 
   // Start Affiliate Registration
   const onAffilateSubmitHandler = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
     inputValues.device_name = 1234;
 
@@ -116,7 +118,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const onCustomerSubmitHandler = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
@@ -161,183 +163,199 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
-  // User Login function
-
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    console.log(loading);
+    e.preventDefault();
     setLoading(true);
-    inputValues.device_name = 1234;
-
-    fetch("https://api.pmall.com.ng/api/v1/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(inputValues),
-    })
-      .then((resp) => resp.json())
-      .then((result) => {
-        setLoading(false);
-        console.log(result);
-        if (result.status) {
-          localStorage.setItem("authToken", result.data.token);
-          setUser({
-            id: result.data.user.id,
-            username: result.data.user.username,
-            email: result.data.user.email,
-            token: result.data.token,
-            accountType: result.data.user.user_type,
-            storeName: result.data.user.store_name,
-            storeId: result.data.user.store_id,
-            loggedIn: true,
-            fname: result.data.user.fname,
-            lname: result.data.user.lname,
-            userAvatar: result.data.user.photo,
-            regDate: result.data.user.created_at,
-            refId: result.data.user.my_ref_id,
-          });
-          setToast({ message: "Boom! Login successful. It's great to have you back!", type: "success" });
-            setTimeout(() => setToast(null), 5000);
+    const payload = { ...inputValues, device_name: "1234" };
+  
+    try {
+      const response = await fetch("https://api.pmall.com.ng/api/v1/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      const result = await response.json();
+      setLoading(false);
+  
+      
+      if (!result.status) {
+        setToastMsg(`Oops! ${result.message || "Login failed"}`);
+        setToastType("error");
+        setTimeout(() => setToastMsg(""), 4000);
+        return;
+      }
+  
+      // 2. Handle Unpaid Affiliate/Vendor Accounts
+      // We check if the status is "0" OR 0 (just in case the API returns a number)
+      if (result.data.user.status === "0" || result.data.user.status === 0) {
+        setToastMsg("Please complete your payment to access your account.");
+        setToastType("error");
+        
+        //  redirect to payment if the link exists
+        if (result?.payment?.authorization_url) {
           setTimeout(() => {
-            window.location.href = "/dashboard";
+            window.location.href = result.payment.authorization_url;
           }, 2000);
-
-          setLoading(false);
         } else {
-          console.log(result.message);
-          if(result.message == "kindly complete your payment"){
-            window.location.href = result?.payment.authorization_url;
-          }
-          setToastMsg(
-            `Oops! ${result.message}`);
-          setToastType("error");
-          setTimeout(() => {
-            setToastMsg("");
-          }, 4000);
-          setLoading(false);
+          // If no link exists, just show the error
+          console.error("No payment URL returned for unpaid user.");
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
+        return;
+      }
+  
+      localStorage.setItem("authToken", result.data.token);
+      
+      setUser({
+        id: result.data.user.id,
+        username: result.data.user.username,
+        email: result.data.user.email,
+        token: result.data.token,
+        accountType: result.data.user.user_type,
+        storeName: result.data.user.store_name,
+        storeId: result.data.user.store_id,
+        loggedIn: true,
+        fname: result.data.user.fname,
+        lname: result.data.user.lname,
+        userAvatar: result.data.user.photo,
+        regDate: result.data.user.created_at,
+        refId: result.data.user.my_ref_id,
       });
-      console.log(loading);
+  
+      setToast({ message: "Login successful. Welcome back!", type: "success" });
+      
+      setTimeout(() => {
+        setToast(null);
+        navigate("/dashboard"); 
+      }, 1500);
+  
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setToastMsg("Network error. Please try again.");
+      setToastType("error");
+      setTimeout(() => setToastMsg(""), 4000);
+    }
   };
+
   const handleLogin2 = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    console.log(loading);
+    e.preventDefault();
     setLoading(true);
-    inputValues.device_name = 1234;
+    const payload = { ...inputValues, device_name: "1234" };
 
-    fetch("https://api.pmall.com.ng/api/v1/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(inputValues),
-    })
-      .then((resp) => resp.json())
-      .then((result) => {
-        setLoading(false);
-        console.log(result);
-        if (result.status) {
-          localStorage.setItem("authToken", result.data.token);
-          setUser({
-            id: result.data.user.id,
-            username: result.data.user.username,
-            email: result.data.user.email,
-            token: result.data.token,
-            accountType: result.data.user.user_type,
-            storeName: result.data.user.store_name,
-            storeId: result.data.user.store_id,
-            loggedIn: true,
-            fname: result.data.user.fname,
-            lname: result.data.user.lname,
-            userAvatar: result.data.user.photo,
-            regDate: result.data.user.created_at,
-            refId: result.data.user.my_ref_id,
-          });
-          setToast({ message: "Boom! Login successful. It's great to have you back!", type: "success" });
-            setTimeout(() => setToast(null), 5000);
-
-          setLoading(false);
-        } else {
-          console.log(result.message);
-          setToastMsg(
-            `Oops! ${result.message}`);
-          setToastType("error");
-          setTimeout(() => {
-            setToastMsg("");
-          }, 4000);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
+    try {
+      const response = await fetch("https://api.pmall.com.ng/api/v1/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
       });
-      console.log(loading);
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (result.status) {
+        localStorage.setItem("authToken", result.data.token);
+        
+        setUser({
+          id: result.data.user.id,
+          username: result.data.user.username,
+          email: result.data.user.email,
+          token: result.data.token,
+          accountType: result.data.user.user_type,
+          storeName: result.data.user.store_name,
+          storeId: result.data.user.store_id,
+          loggedIn: true,
+          fname: result.data.user.fname,
+          lname: result.data.user.lname,
+          userAvatar: result.data.user.photo,
+          regDate: result.data.user.created_at,
+          refId: result.data.user.my_ref_id,
+        });
+
+        setToast({ message: "Login successful. Welcome back!", type: "success" });
+        
+        setTimeout(() => {
+          setToast(null);
+          navigate("/dashboard"); 
+        }, 1500);
+
+      } else {
+        if (result.message === "kindly complete your payment") {
+          window.location.href = result?.payment.authorization_url;
+        } else {
+          setToastMsg(`Oops! ${result.message}`);
+          setToastType("error");
+          setTimeout(() => setToastMsg(""), 4000);
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setToastMsg("Network error. Please try again.");
+      setToastType("error");
+    }
   };
 
   const customerLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault();
     setLoading(true);
+    const payload = { ...inputValues, device_name: "1234" };
 
-    fetch("https://api.pmall.com.ng/api/v1/customer/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-      },
-      body: JSON.stringify(inputValues),
-    })
-      .then((resp) => resp.json())
-      .then((result) => {
-        setLoading(false);
-        console.log(result);
-        if (result.status) {
-          localStorage.setItem("authToken", result?.token);
-          // dispatch(
-          setUser({
-            id: result.customer.id,
-            username: result.customer.username,
-            email: result.customer.email,
-            token: result.token,
-            accountType: result.customer.user_type,
-            loggedIn: true,
-            fname: result.customer.fname,
-            lname: result.customer.lname,
-            regDate: result.customer.created_at,
-            refId: result.customer.my_ref_id,
-          });
-          // );
-          setToastMsg("Boom! Login successful");
-          setToastType("success");
-          setLoading(false);
-          window.location.reload();
-        } else {
-          console.log(result.message);
-          setToastMsg(
-            "Oops! there seems to be an error. Confirm login credientials"
-          );
-          setToastType("error");
-          setTimeout(() => {
-            setToastMsg("");
-          }, 4000);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        setLoading(false);
+    try {
+      const response = await fetch("https://api.pmall.com.ng/api/v1/customer/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+        },
+        body: JSON.stringify(payload),
       });
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (result.status) {
+        localStorage.setItem("authToken", result?.token);
+        
+        setUser({
+          id: result.customer.id,
+          username: result.customer.username,
+          email: result.customer.email,
+          token: result.token,
+          accountType: result.customer.user_type,
+          loggedIn: true,
+          fname: result.customer.fname,
+          lname: result.customer.lname,
+          regDate: result.customer.created_at,
+          refId: result.customer.my_ref_id,
+        });
+        
+        setToastMsg("Boom! Login successful");
+        setToastType("success");
+        
+        setTimeout(() => {
+          setToastMsg("");
+          navigate("/checkout"); 
+        }, 1500);
+      } else {
+        setToastMsg("Oops! there seems to be an error. Confirm login credentials");
+        setToastType("error");
+        setTimeout(() => setToastMsg(""), 4000);
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+    }
   };
 
   const stockistLogin = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
 
     fetch("https://api.pmall.com.ng/api/v1/stockists/login", {
@@ -354,8 +372,7 @@ export const AuthProvider = ({ children }) => {
         console.log(result);
         if (result.status) {
           localStorage.setItem("authToken", result?.token);
-          
-          // dispatch(
+         
           setUser({
             id: result.stockist.id,
             username: result.stockist.username,
@@ -372,12 +389,11 @@ export const AuthProvider = ({ children }) => {
             affiliate_id: result.stockist.affiliate_id,
             phone: result.stockist.phone
           });
-          // );
           setToastMsg("Boom! Login successful");
           setToastType("success");
           setLoading(false);
           setTimeout(() => {
-            window.location.href = "/orders";
+            navigate("/orders"); 
           }, 2000);
 
         } else {
@@ -398,9 +414,9 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
-  // Start Forgot Password
+
   const onForgotPasswordHandler = async (e) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
     inputValues.device_name = 1234;
     fetch("https://api.pmall.com.ng/api/v1/forgot-password", {
@@ -445,7 +461,6 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
-  // Reset New Password Function
   const handleResetPassword = async (e) => {
     e.preventDefault(); 
   
@@ -500,10 +515,9 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Verify token function
 
   const handleVerifyToken = async (e, email) => {
-    e.preventDefault(); // Prevent default form submission
+    e.preventDefault(); 
     setLoading(true);
     inputValues.email = email
     fetch("https://api.pmall.com.ng/api/v1/verify-code", {
@@ -546,27 +560,20 @@ export const AuthProvider = ({ children }) => {
       });
   };
 
+
   const onChangeHandler = (e) => {
-    if (!e?.persist) {
-      setState(inputValues, {
-        ...inputValues,
-        [e?.target.name]: e?.target.value,
-      });
-    } else {
-      e?.persist();
-      const target = e?.target;
-      if (target?.name) {
-        setState((inputValues) => ({
-          ...inputValues,
-          [target.name]: target.value,
-        }));
-      }
+    const { name, value } = e.target;
+    if (name) {
+      setState((prevValues) => ({
+        ...prevValues,
+        [name]: value,
+      }));
     }
   };
 
-  const getPackages = async (e) => {
-    // setLoading(true);
 
+  const getPackages = async (e) => {
+    setLoading(true);
     fetch("https://api.pmall.com.ng/api/v1/account-packages/all", {
       method: "GET",
       headers: {
@@ -590,7 +597,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    getPackages();
+    fetch("https://api.pmall.com.ng/api/v1/account-packages/all", {
+      headers: { Accept: "application/json" }
+    })
+      .then((resp) => resp.json())
+      .then((result) => {
+        if (result.status) setPackages(result.data);
+      })
+      .catch((err) => console.log(err));
   }, []);
 
   return (
@@ -626,10 +640,8 @@ export const AuthProvider = ({ children }) => {
 
 export const useVendor = () => {
   const context = useContext(AuthContext);
-
   if (!context) {
-    throw new Error("useVendor must be used within a VendorSignupProvider ");
+    throw new Error("useVendor must be used within an AuthProvider");
   }
-
   return context;
 };

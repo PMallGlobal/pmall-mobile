@@ -1,137 +1,134 @@
-import React, { useEffect, useState } from 'react'
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import ModeEditOutlinedIcon from '@mui/icons-material/ModeEditOutlined';
-import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
-import CategoryHeader from '../components/CategoryHeader';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import CategoryHeader from '../components/CategoryHeader';
 import Toast from '../utils/Toast';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
+import UserAvatar from '../utils/UserAvatar'; 
+import { BASE_URL } from '../utils/config';
 
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import AddIcon from '@mui/icons-material/Add';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import './MyAffiliates.css';
 
+export default function MyAffiliates() {
+  const [affiliates, setAffiliates] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
 
-export default function MyAffilates() {
-    const [affilates, setAffilates] = useState()
-    const orders = [
-        {
-          id: 1,
-          name: "CARICH Cool Algal Fluoride-Free Toothpaste",
-          image: "https://api.pmall.com.ng/storage/productImages/40_1759017056.png",
-          category_name: "PERSONAL CARE",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 67,
-          name: "Wireless Bluetooth Headphones Pro",
-          image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
-          category_name: "ELECTRONICS",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 89,
-          name: "Organic Cotton T-Shirt – Black",
-          image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-          category_name: "FASHION",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 124,
-          name: "Smart LED Bulb – 10W RGB",
-          image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
-          category_name: "HOME & LIVING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 203,
-          name: "Premium Stainless Steel Water Bottle 1L",
-          image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800",
-          category_name: "KITCHEN & DINING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        }
-      ];
-      const [toast, setToast] = useState()
-      
-      const getAffilates = () => {
-        fetch("https://api.pmall.com.ng/api/v1/get-all-affiliates",{
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json;charset=UTF-8",
-            Accept: "application/json",
-            Authorization: "Bearer " + localStorage.getItem("authToken"),
-          },
-        })
-          .then((resp) => resp.json())
-          .then((result) => {
-            console.log(result);
-            setAffilates(result.data.affiliates)
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-      };
+  const getAffiliates = () => {
+    fetch(`${BASE_URL}/get-all-affiliates`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json;charset=UTF-8",
+        Accept: "application/json",
+        Authorization: "Bearer " + localStorage.getItem("authToken"),
+      },
+    })
+      .then((resp) => resp.json())
+      .then((result) => {
+        setAffiliates(result?.data?.affiliates || []);
+      })
+      .catch((err) => {
+        console.error(err);
+        setToast({ message: "Failed to load affiliates", type: "error" });
+      })
+      .finally(() => setLoading(false));
+  };
 
-      useEffect(()=>{
-        getAffilates()
-      },[])
+  useEffect(() => {
+    getAffiliates();
+  }, []);
+
+  const totalAffiliates = affiliates.length;
+  const activeAffiliates = affiliates.filter(a => a.status === "1" || a.isActive).length;
+
   return (
-    <div className='my-vendors ratings'>
+    <div className="ma-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="My Affilates" image="true" />
-        {/* <div className=' add-addy'>
-            <Link to="/affiliate/add-affiliate">
-                <div className='flex g-10 alc new-addy pointer'>
-                    <AddCircleOutlineOutlinedIcon />
-                    <p>Add Account</p>
-                </div>
-            </Link>
-        </div> */}
-        {affilates?.length > 0 ?
-        <div className='flex flex-col g-20' >
-            {affilates?.map((item)=>(
-               <div className=' flex bg-white p-20 g-40 my-vendors alc'>
-                    <div>
-                        {/* <img src="/images/Ellipse 280.png" alt="" /> */}
-                        <AccountCircleOutlinedIcon className='pfp' />
-                    </div>
-                    <div className='flex flex-col g-10 w-full'>
-                        <p className='name'>{item?.username} </p>
-                        <h3 className='capitalize'>{item?.fname} {item?.lname} </h3>
-                        <p className='email'>{item?.email} </p>
-                        <div className='edit-delete flex justsb w-full'>
-                            <p className='num'>{item?.phone} </p>
-                            <div className='flex g-10'>
-                                <div className='edit'>
-                                    <ModeEditOutlinedIcon />
-                                </div>
-                                <div className='delete'>
-                                    <DeleteOutlineOutlinedIcon />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div className='delivered-btn '>
-                    {item?.is_active ? <p>Active</p> : <p>Inactive</p>}
-                    </div>
-                </div>
-            ))}
-        </div> :
-        <p className='w-full flex all-center'>You have no affiliates yet</p>
-      }
-       <Link to="/affiliate/add-affiliate">
-          <div className="add-product">
-              <AddOutlinedIcon />
+      <CategoryHeader title="My Affiliates" image="true" />
+
+      <div className="ma-stats-banner">
+        <div className="ma-stat-box">
+          <PeopleAltOutlinedIcon className="ma-stat-icon" />
+          <div>
+            <p>Total Affiliates</p>
+            <h3>{loading ? "..." : totalAffiliates}</h3>
           </div>
-        </Link>
+        </div>
+        <div className="ma-stat-divider"></div>
+        <div className="ma-stat-box">
+          <CheckCircleOutlinedIcon className="ma-stat-icon text-green" />
+          <div>
+            <p>Active</p>
+            <h3>{loading ? "..." : activeAffiliates}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="ma-list-container">
+        {loading ? (
+          <div className="ma-loading">Loading affiliates...</div>
+        ) : affiliates.length === 0 ? (
+          <div className="ma-empty-state">
+            <UserAvatar name="?" size={80} className="mb-4" />
+            <h3>No Affiliates Yet</h3>
+            <p>You haven't added any affiliates to your network.</p>
+          </div>
+        ) : (
+          affiliates.map((item) => {
+            const isActive = item.status === "1" || item.isActive;
+            
+            return (
+              <div className="ma-card" key={item.id}>
+                <div className="ma-card-header">
+                  <div className="ma-user-info">
+                    <UserAvatar name={item.fname || item.username} size={48} />
+                    <div className="ma-name-group">
+                      <h3 className="ma-fullname">{item.fname} {item.lname}</h3>
+                      <p className="ma-username">@{item.username}</p>
+                    </div>
+                  </div>
+                  <div className={`ma-status ${isActive ? 'active' : 'inactive'}`}>
+                    {isActive ? 'Active' : 'Inactive'}
+                  </div>
+                </div>
+
+                <div className="ma-card-body">
+                  <div className="ma-contact-row">
+                    <EmailOutlinedIcon className="ma-icon" />
+                    <span>{item.email}</span>
+                  </div>
+                  <div className="ma-contact-row">
+                    <PhoneOutlinedIcon className="ma-icon" />
+                    <span>{item.phone}</span>
+                  </div>
+                </div>
+
+                <div className="ma-card-footer">
+                  <div className="ma-ref-id">
+                    Ref: <span>{item.my_ref_id}</span>
+                  </div>
+                  <div className="ma-actions">
+                    <button className="ma-action-btn edit" aria-label="Edit">
+                      <EditOutlinedIcon fontSize="small" />
+                    </button>
+                    <button className="ma-action-btn delete" aria-label="Delete">
+                      <DeleteOutlineOutlinedIcon fontSize="small" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <Link to="/affiliate/add-affiliate" className="ma-fab">
+        <AddIcon />
+      </Link>
     </div>
-  )
+  );
 }

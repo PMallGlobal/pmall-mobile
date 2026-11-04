@@ -1,498 +1,352 @@
+import React, { useState, useEffect } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import Chip from '@mui/material/Chip';
-import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
-import React, { useState } from 'react'
-import { useEffect } from 'react';
-import Toast from '../utils/Toast';
-
-import CategoryHeader from '../components/CategoryHeader'
+import CategoryHeader from '../components/CategoryHeader';
 import { useVendor } from "../context/AuthContext";
 import { useUser } from '../context/UserContext';
-
+import Toast from '../utils/Toast';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import CloseIcon from '@mui/icons-material/Close';
+import './NewProduct.css';
 
 export default function NewProduct() {
-    // const [inputValues, setState] = useState({});
-    const [categories, setCategories] = useState();
-    const [brands, setBrands] = useState();
-    const [subCategories, setSubCategories] = useState([]);
-    const user = useUser()
-    const [moreImages, setMoreImages] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState("");
-    const [toast, setToast] = useState()
+  const [categories, setCategories] = useState([]);
+  const [brands, setBrands] = useState([]);
+  const [subCategories, setSubCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [toast, setToast] = useState(null);
+  
+  // Custom states for image uploads
+  const [mainImage, setMainImage] = useState(null);
+  const [moreImages, setMoreImages] = useState([]);
+  const [uploadingImg, setUploadingImg] = useState(false);
 
-    const {
-      inputValues,
-      setState,
-      onChangeHandler,
-      setToastMsg,
-      loading,
-      setLoading,
-      toastMsg,
-      toastType,
-      setToastType,
-    } = useVendor();
+  const { user } = useUser();
+  const {
+    inputValues,
+    setState,
+    onChangeHandler,
+    setToastMsg,
+    loading,
+    setLoading,
+    toastMsg,
+    toastType,
+  } = useVendor();
 
-    const top100Films = [
-        { title: "Beauty" },
-        { title: "Phones" },
-        { title: "Gadgets" },
-        { title: "Electronics", year: 2008 },
-        { title: "Makeup", year: 1957 },
-        { title: "Cough", year: 1993 },
-        { title: " Summer", year: 1994 },
-        { title: "Clothing", year: 2001 },
-        { title: "Ceramics", year: 1971 },
-        { title: "Footwear", year: 2007 },
-        { title: "Foodstuff", year: 1976 },
-        { title: "Toys", year: 1962 },
-        { title: "Children", year: 1944 },
-      ];
-
-      const handleChange = (event, newValue) => {
-        const selectedTags = newValue.map(tag => tag.title); 
-      
-        console.log("Selected tags array:", selectedTags);
-      
-        setState((prev) => ({
-          ...prev,
-          tags: selectedTags,  
-        }));
-      };
+  
+  useEffect(() => {
+    const token = user?.token || localStorage.getItem("authToken");
 
     
-  const getCategories = () => {
-    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all",{
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-        Authorization: "Bearer " + localStorage.getItem("authToken"),
-      },
+    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all", {
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     })
       .then((resp) => resp.json())
-      .then((result) => {
-        console.log(result);
-        setCategories(result.data.categories)
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+      .then((result) => setCategories(result.data.categories || []))
+      .catch((err) => console.log(err));
 
-  const getBrands = () => {
-    fetch("https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-        Authorization: `Bearer ${user?.user.token}`
-      },
+    
+    fetch(`https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=${user?.user?.storeId}`, {
+      headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     })
       .then((resp) => resp.json())
-      .then((result) => {
-        console.log(result);
-        setBrands(result.data.brands)
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+      .then((result) => setBrands(result.data.brands || []))
+      .catch((err) => console.log(err));
+  }, [user]);
+
+  // Handle Category Change & Subcategory population
+  const handleCategoryChange = (e) => {
+    const newCategory = e.target.value;
+    setSelectedCategory(newCategory);
+    
+    const matchingCat = categories.find((cat) => cat.id == newCategory);
+    setSubCategories(matchingCat?.sub_categories || []);
+    setState((prev) => ({
+      ...prev,
+      category_id: newCategory,
+      sub_category_id: "" 
+    }));
   };
 
-    const handleCategoryChange = (e) => {
-        const newCategory = e.target.value;
-        console.log(e);
-        setSelectedCategory(newCategory);
-        console.log(newCategory);
-        console.log(categories);
-        const matchingSubCategories = categories.find((category) => category.id == newCategory) || [];
-  
-        console.log(matchingSubCategories);
-        setSubCategories(matchingSubCategories?.sub_categories);
-        console.log(matchingSubCategories)
-        console.log(subCategories);
-        console.log(categories)
-        if(!e?.persist){
-            setState(inputValues, ({...inputValues, [e?.target.name]: e?.target.value })); 
-        }else {
-            e?.persist();
-            const target = e?.target;
-      if (target?.name) {
-        setState((inputValues) => ({
-          ...inputValues,
-          [target.name]: target.value,
-        }));
-        setState((prev) => ({ ...prev, category_id: newCategory }));
+  // Handle File Uploads
+  const handleFileUpload = async (e, isMain = true) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImg(true);
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch("https://api.pmall.com.ng/api/v1/products/upload-file", {
+        method: "POST",
+        body: formData,
+        headers: { Authorization: "Bearer " + localStorage.getItem("authToken") },
+      });
+      const data = await res.json();
+      
+      if (isMain) {
+        setMainImage(data.url);
+        setState(prev => ({ ...prev, image: data.url }));
+      } else {
+        setMoreImages(prev => [...prev, data.url]);
       }
-        }
+    } catch (error) {
+      console.error("Upload failed", error);
+      setToast({ message: "Image upload failed", type: "error" });
+    } finally {
+      setUploadingImg(false);
+    }
+  };
+
+  const removeMoreImage = (indexToRemove) => {
+    setMoreImages(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  
+  const VendorCreateProduct = async (e) => {
+    e.preventDefault();
+    if (!inputValues.image) {
+      setToast({ message: "Please upload a main product image.", type: "error" });
+      return;
+    }
+    setLoading(true);
+
+    const token = user?.token || localStorage.getItem("authToken");
+    if (!token) {
+      setToast({ message: "You are not logged in. Please log in again.", type: "error" });
+      setLoading(false);
+      return;
+    }
+
+    const payload = {
+      ...inputValues,
+      tags: inputValues.tags || [],
+      more_images: moreImages,
     };
 
-    const onBrandChangeHandler = (e) => {
-        if (!e?.persist) {
-          setState(inputValues, {
-            ...inputValues,
-            [e?.target.name]: e?.target.value,
-          });
-        } else {
-          e?.persist();
-          const target = e?.target;
-          if (target?.name) {
-            setState((inputValues) => ({
-              ...inputValues,
-              [target.name]: target.value,
-            }));
-          }
-        }
-        console.log(e.target.name)
-      };
-  
-
-const VendorCreateProduct = async(e) => {
-    if (e) {
-      e.preventDefault(); 
-      setLoading(true)
-      const tagsArray = inputValues.tags || []; 
-
-      const moreImagesArray = moreImages || []; 
-    
-      const payload = {
-        ...inputValues,
-        tags: tagsArray,                   
-        more_images: moreImagesArray,    
-      };
-      console.log("Sending payload:", payload);
     try {
       const response = await fetch('https://api.pmall.com.ng/api/v1/products/create', {
         method: 'POST',
-        headers:{ 
-          'Content-Type': 'application/json;charset=UTF-8', 
-          "Accept": "application/json" ,
-          'Authorization': `Bearer ${user?.user.token}`
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          "Accept": "application/json",
+          'Authorization': `Bearer ${token}`
         },
-          body:JSON.stringify(payload)
+        body: JSON.stringify(payload)
       });
-      console.log(inputValues)
-      if (response.ok) {
-        const data = await response.json();
-        console.log('product:', data); 
-        setToastMsg("Great! Product added successfully");
-        setToastType("success")
-        setInterval(() => {
-          setToastMsg("");
-        }, 5000);
-        setLoading(false)
-        window.location.href = "/products";
-        // setNewProduct(data)
 
+      if (response.ok) {
+        setToast({ message: "Great! Product added successfully.", type: "success" });
+        setTimeout(() => window.location.href = "/products", 1500);
       } else {
-        const error = await response.text();
-        console.error('Error posting product:', error);
-        setLoading(false)
-        setToastMsg("Oops! there seems to be an error. Fill in correct credentials")
-        setToastType("error")
-        setInterval(() => {
-          setToastMsg("");
- }, 3000);
+        let finalMessage = "Failed to create product. Please check your inputs.";
+        
+        try {
+          const clonedResponse = response.clone();
+          
+          try {
+            const errorData = await response.json();
+            if (typeof errorData?.message === 'string') {
+              finalMessage = errorData.message;
+            } 
+            else if (errorData?.errors && typeof errorData.errors === 'object') {
+              const firstErrorKey = Object.keys(errorData.errors)[0];
+              const firstError = errorData.errors[firstErrorKey];
+              finalMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            }
+            else if (errorData?.message && typeof errorData.message === 'object') {
+              const firstErrorKey = Object.keys(errorData.message)[0];
+              const firstError = errorData.message[firstErrorKey];
+              finalMessage = Array.isArray(firstError) ? firstError[0] : firstError;
+            }
+          } catch (jsonError) {
+            const textError = await clonedResponse.text();
+            if (textError) finalMessage = textError;
+          }
+        } catch (parseError) {
+          console.error("Could not parse error response:", parseError);
+        }
+
+        console.error("API Error:", finalMessage);
+        setToast({ message: finalMessage, type: "error" });
       }
     } catch (error) {
       console.error('Network error:', error);
+      setToast({ message: "Network error. Please check your internet connection.", type: "error" });
+    } finally {
+      setLoading(false);
     }
-  }
   };
 
-
-      useEffect(()=>{
-        getCategories()
-        getBrands()
-    },[])
-
   return (
-    <div className='new-product mb-20'>
-    <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
+    <div className="np-page">
+      <Toast message={toastMsg || toast?.message} type={toastType || toast?.type} onClose={() => setToast(null)} />
 
-        <CategoryHeader title="New Product" />
-        <form action="" className="new flex flex-col g-20 w-full">
-                <div className="pos-rel">
-                    <label className="abs py-10"> Product Name * </label>
-                    <input
-                        type="text"
-                        name="name"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.name}
-                        placeholder="Enter Product name"
-                    />
-                </div>
+      <form className="np-form" onSubmit={VendorCreateProduct}>
+        
+        <div className="np-section">
+          <h3 className="np-section-title">Basic Information</h3>
+          
+          <div className="np-input-group">
+            <label>Product Name *</label>
+            <input type="text" name="name" onChange={onChangeHandler} value={inputValues.name || ''} placeholder="e.g. Organic Shea Butter" required />
+          </div>
 
-                <div className="pos-rel w-full">
-                    <label className="abs py-10">Category* </label>
-                    <select
-                        name="category_id"
-                        className=" form-control w-full"
-                        default="Select category"
-                        onChange={handleCategoryChange}
-                        >
-                        {
-                            categories?.map((cat)=>(
-                            <option value={cat.id} key={cat.id}>{cat.name} </option>
-                            ))
-                        }
-                         <option value="Select category" className=''></option>
-                    </select>
-                </div>
-
-                <div className="pos-rel w-full">
-                    <label className="abs py-10">Sub Category* </label>
-                    <select
-                        name="sub_category_id"
-                        className="last-name form-control w-full"
-                        onChange={onChangeHandler}
-                        >
-                        {
-                            subCategories?.map((sub)=>(
-                            <option value={sub.id} key={sub.id}>{sub.name} </option>
-                            ))
-                        }
-                         <option value="Select a category"></option>
-                    </select>
-                </div>
-
-                <div className="pos-rel w-full">
-                    <label className="abs py-10">Brand* </label>
-                    <select
-                        name="brand_id"
-                        className="last-name form-control w-full"
-                        onChange={onBrandChangeHandler}
-                        >
-                        {
-                            brands?.map((brand)=>(
-                            <option value={brand.id} key={brand.id}>{brand.name} </option>
-                            ))
-                        }
-                        <option value="Enter brand name"></option>
-                    </select>
-                </div>
-                <div className="pos-rel">
-                    <label className="abs py-10"> Cost Price * </label>
-                    <input
-                        type="number"
-                        name="cost_price"
-                        className="last-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.cost_price }
-                        placeholder="Input price"
-                    />
-                </div>
-                <div className="pos-rel phone">
-                    <label className="abs py-10"> Selling Price *</label>
-                    <input
-                        type="number"
-                        name="selling_price"
-                        className="form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.selling_price}
-                        placeholder="Input price"
-                        autoComplete="false"
-                    />
-                </div>
-
-                <div className="pos-rel">
-                    <label className="abs py-10">Is Product available for sale?*</label>
-                  <select
-                  className="form-control-input "
-                    name="inStock"
-                    onChange={onChangeHandler}
-                    value={inputValues.inStock}
-                    >
-                    <option value="default"> Select Product availability</option>
-                    
-                      <option value={1}>In Stock</option>
-                      <option value={0}>Currently Out of Stock</option>
-                  </select>
-
-                </div>
-                <div className="pos-rel">
-                    <label className="abs py-10">Product Type</label>
-                  <select
-                  className="form-control-input "
-                    name="product_type"
-                    onChange={onChangeHandler}
-                    value={inputValues.product_type}
-                    >
-                    <option value="default"> Select Product Type</option>
-                    
-                      <option value={1}>Single</option>
-                      <option value={0}>Combo</option>
-                  </select>
-
-                </div>
-                <div className="pos-rel">
-                    <label className="abs py-10">Quantity Available * </label>
-                    <input
-                        type="number"
-                        name="quantity"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.quantity}
-                        placeholder="Input quantity"
-                    />
-                </div>
-                <div className="pos-rel phone">
-                    <label className="abs py-10"> Product Weight *</label>
-                    <input
-                        type="number"
-                        name="weight"
-                        className="form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.weight}
-                        placeholder="Input weight"
-                        autoComplete="false"
-                    />
-                </div>
-            <div className="pos-rel ">
-                <label className="abs py-10"> Describe this product(Weight, variant, size) *</label>
-                <input
-                type="text"
-                name="description"
-                className="form-control w-full"
-                onChange={onChangeHandler}
-                  value={inputValues.description}
-                placeholder="Enter product description"
-                />
-            </div>
-            
-            <div className="pos-rel">
-                <label style={{marginBottom: 7}}>Add Product Tags </label>
-                <Stack spacing={3} sx={{ width: "100%" }}>
-                  <Autocomplete
-                    multiple
-                    freeSolo
-                    id="tags-custom"
-                    options={[]} 
-                    value={inputValues.tags || []} 
-                    onChange={(event, newValue) => {
-                      const cleanedTags = newValue
-                        .map(tag => (typeof tag === 'string' ? tag.trim() : tag?.title || ''))
-                        .filter(tag => tag !== ''); 
-
-                      console.log("New custom tags:", cleanedTags);
-
-                      setState(prev => ({
-                        ...prev,
-                        tags: cleanedTags, 
-                      }));
-                    }}
-                    filterSelectedOptions
-                    renderTags={(value, getTagProps) =>
-                      value.map((option, index) => (
-                        <Chip
-                          key={index}
-                          variant="outlined"
-                          label={option}
-                          {...getTagProps({ index })}
-                        />
-                      ))
-                    }
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        placeholder="Type a tag and press enter"
-                        variant="outlined"
-                        helperText="Press Enter after each tag"
-                      />
-                    )}
-                  />
-                </Stack>
+          <div className="np-row">
+            <div className="np-input-group">
+              <label>Category *</label>
+              <select name="category_id" onChange={handleCategoryChange} value={selectedCategory} required>
+                <option value="">Select Category</option>
+                {categories?.map(cat => <option value={cat.id} key={cat.id}>{cat.name}</option>)}
+              </select>
             </div>
 
-            <div className="pos-rel w-full">
-              <label className="abs py-10">Product Image* </label>
-              <div className='add-img'>
-                <input
-                    type="file"
-                    className="form-control w-full flex all-center bg-white"
-                    name="image"
-                    accept=".jpg,.png,.jpeg"
-                    onChange={(e) => {
-                    //   if (selectedName == "") {
-                    //     setAlert("Please Select a file name");
-                    //     return;
-                    //   }
-                      const formData = new FormData();
-                      const files = e.target.files;
-                      files?.length && formData.append("file", files[0]);
-                      //setLoading(true);
-                      fetch(
-                        "https://api.pmall.com.ng/api/v1/products/upload-file",
-                        {
-                          method: "POST",
-                          body: formData,
-                          headers: {
-                            Authorization: "Bearer " + localStorage.getItem("authToken"),
-                          },
-                        }
-                      )
-                        .then((res) => res.json())
-                        .then((data) => {
-                          //setLoading(false);
-                          console.log(data)
-                          setState((inputValues) => ({
-                            ...inputValues,
-                            image: data.url, 
-                          }))
-                          console.log(inputValues)
-                        })
-                        .catch((error) => {
-                          //setLoading(false);
-                          console.log(error)
-                        });
-                    }}
-                  />
+            <div className="np-input-group">
+              <label>Sub Category *</label>
+              <select name="sub_category_id" onChange={onChangeHandler} value={inputValues.sub_category_id || ''} disabled={!selectedCategory} required>
+                <option value="">Select Sub Category</option>
+                {subCategories?.map(sub => <option value={sub.id} key={sub.id}>{sub.name}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="np-input-group">
+            <label>Brand *</label>
+            <select name="brand_id" onChange={onChangeHandler} value={inputValues.brand_id || ''} required>
+              <option value="">Select Brand</option>
+              {brands?.map(brand => <option value={brand.id} key={brand.id}>{brand.name}</option>)}
+            </select>
+          </div>
+        </div>
+
+        <div className="np-section">
+          <h3 className="np-section-title">Pricing & Inventory</h3>
+          
+          <div className="np-row">
+            <div className="np-input-group">
+              <label>Cost Price (₦) *</label>
+              <input type="number" name="cost_price" onChange={onChangeHandler} value={inputValues.cost_price || ''} placeholder="0.00" required />
+            </div>
+            <div className="np-input-group">
+              <label>Selling Price (₦) *</label>
+              <input type="number" name="selling_price" onChange={onChangeHandler} value={inputValues.selling_price || ''} placeholder="0.00" required />
+            </div>
+          </div>
+
+          <div className="np-row">
+            <div className="np-input-group">
+              <label>Quantity Available *</label>
+              <input type="number" name="quantity" onChange={onChangeHandler} value={inputValues.quantity || ''} placeholder="e.g. 50" required />
+            </div>
+            <div className="np-input-group">
+              <label>Weight (kg) *</label>
+              <input type="number" name="weight" onChange={onChangeHandler} value={inputValues.weight || ''} placeholder="e.g. 1.5" required />
+            </div>
+          </div>
+
+          <div className="np-row">
+             <div className="np-input-group">
+              <label>Status *</label>
+              <select name="inStock" onChange={onChangeHandler} value={inputValues.inStock ?? ''} required>
+                <option value="">Select Status</option>
+                <option value={1}>In Stock</option>
+                <option value={0}>Out of Stock</option>
+              </select>
+            </div>
+            <div className="np-input-group">
+              <label>Product Type</label>
+              <select name="product_type" onChange={onChangeHandler} value={inputValues.product_type ?? ''}>
+                <option value="">Select Type</option>
+                <option value={1}>Single Item</option>
+                <option value={0}>Combo Pack</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div className="np-section">
+          <h3 className="np-section-title">Product Details</h3>
+          
+          <div className="np-input-group">
+            <label>Description *</label>
+            <textarea 
+              name="description" 
+              onChange={onChangeHandler} 
+              value={inputValues.description || ''} 
+              placeholder="Describe the product features, size, and benefits..."
+              rows={4}
+              required
+            />
+          </div>
+
+          <div className="np-input-group">
+            <label>Search Tags (Keywords)</label>
+            <Autocomplete
+              multiple
+              freeSolo
+              options={[]}
+              value={inputValues.tags || []}
+              onChange={(event, newValue) => {
+                const cleanedTags = newValue.map(tag => typeof tag === 'string' ? tag.trim() : tag?.title || '').filter(Boolean);
+                setState(prev => ({ ...prev, tags: cleanedTags }));
+              }}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Chip variant="outlined" label={option} {...getTagProps({ index })} key={index} />
+                ))
+              }
+              renderInput={(params) => (
+                <TextField {...params} placeholder="Type a tag and press Enter (e.g. Organic, Vitamin C)" variant="outlined" size="small" />
+              )}
+            />
+          </div>
+        </div>
+
+        <div className="np-section">
+          <h3 className="np-section-title">Product Images</h3>
+          
+          <label className="np-label">Main Image *</label>
+          {mainImage ? (
+            <div className="np-image-preview-box">
+              <img src={mainImage} alt="Main Product" />
+              <button type="button" className="np-remove-img" onClick={() => {setMainImage(null); setState(prev => ({...prev, image: ""}))}}>
+                <CloseIcon fontSize="small" />
+              </button>
+            </div>
+          ) : (
+            <label className="np-upload-box">
+              <CloudUploadIcon className="np-upload-icon" />
+              <span>{uploadingImg ? "Uploading..." : "Tap to upload main image"}</span>
+              <input type="file" accept=".jpg,.png,.jpeg" onChange={(e) => handleFileUpload(e, true)} hidden />
+            </label>
+          )}
+
+          <label className="np-label" style={{marginTop: '20px', display: 'block'}}>Additional Images (Optional)</label>
+          <div className="np-more-images-grid">
+            {moreImages.map((img, idx) => (
+              <div key={idx} className="np-image-preview-box small">
+                <img src={img} alt={`View ${idx}`} />
+                <button type="button" className="np-remove-img" onClick={() => removeMoreImage(idx)}>
+                  <CloseIcon fontSize="small" />
+                </button>
               </div>
-              
-            </div>
+            ))}
+            
+            <label className="np-upload-box small">
+              <CloudUploadIcon />
+              <input type="file" accept=".jpg,.png,.jpeg" onChange={(e) => handleFileUpload(e, false)} hidden />
+            </label>
+          </div>
+        </div>
 
-            <div className="pos-rel w-full">
-                  <label>More Images </label>
-                  <div className='add-img'>
-                    <input
-                        type="file"
-                        className="form-control w-full flex all-center bg-white"
-                        name="more_images"
-                        accept=".jpg,.png,.jpeg"
-                        onChange={(e) => {
-                        const formData = new FormData();
-                        const files = e.target.files;
-                        files?.length && formData.append("file", files[0]);
-                        //setLoading(true);
-                        fetch(
-                            "https://api.pmall.com.ng/api/v1/products/upload-file",
-                            {
-                            method: "POST",
-                            body: formData,
-                            headers: {
-                                Authorization: "Bearer " + localStorage.getItem("authToken"),
-                            },
-                            }
-                        )
-                            .then((res) => res.json())
-                            .then((data) => {
-                            //setLoading(false);
-                            console.log(data)
-                            setMoreImages([...moreImages, data.url])
-                            console.log(moreImages)
-                            })
-                            .catch((error) => {
-                            //setLoading(false);
-                            console.log(error)
-                            });
-                        }}
-                        multiple
-                    />
-                  </div>
-                </div>
-            <button className='add-pd-btn' onClick={VendorCreateProduct}>Add Product</button>
-        </form>
+        <div className="np-sticky-footer">
+          <button type="submit" className="np-submit-btn" disabled={loading || uploadingImg}>
+            {loading ? "Publishing..." : "Publish Product"}
+          </button>
+        </div>
+      </form>
     </div>
-  )
+  );
 }

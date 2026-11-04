@@ -75,15 +75,14 @@ const PlainProductGrid = ({ categoryId = null }) => {
 
   const handleViewAll = useCallback(
     (category) => {
-      // Convert to lowercase and replace spaces/special chars with hyphens
       const slug = category.name
         .toLowerCase()
         .trim()
-        .replace(/\s+/g, '-')        // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
-        .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-        .replace(/^-+/, '')          // Trim - from start
-        .replace(/-+$/, '');         // Trim - from end
+        .replace(/\s+/g, '-')      
+        .replace(/[^\w\-]+/g, '')  
+        .replace(/\-\-+/g, '-')    
+        .replace(/^-+/, '')        
+        .replace(/-+$/, '');       
   
       navigate(`/category/${slug}`, { state: { category } });
     },

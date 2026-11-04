@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { AuthProvider } from './context/AuthContext';
 import { UserProvider } from './context/UserContext';
 import { VendorSignupProvider } from './context/VendorSignupContext';
+import { BrowserRouter } from 'react-router-dom';
 import {
   QueryClient,
   QueryClientProvider,
@@ -18,7 +19,6 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5,   
       gcTime: 1000 * 60 * 30,  
-      // refetchOnWindowFocus: false, 
     },
   },
 });
@@ -27,19 +27,18 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <UserProvider>
-        <AuthProvider>
-          <VendorSignupProvider>
-            <App />
-        </VendorSignupProvider>
-        </AuthProvider>
+      <BrowserRouter>
+        <UserProvider>
+          <AuthProvider>
+            <VendorSignupProvider>
+              <App />
+            </VendorSignupProvider>
+          </AuthProvider>
         </UserProvider>
-      {/* <ReactQueryDevtools initialIsOpen={false} /> */}
+      </BrowserRouter>
+      
     </QueryClientProvider>
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();

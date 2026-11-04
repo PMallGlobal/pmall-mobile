@@ -1,560 +1,313 @@
-import React, { useEffect, useState } from 'react'
-import CategoryHeader from '../components/CategoryHeader'
-import { useVendor } from '../context/AuthContext';
-import { useUser } from '../context/UserContext';
-import ButtonLoader from '../utils/buttonLoader';
-import nigeriaStates from '../components/nigeriaStateAndLgas.json'
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import CategoryHeader from '../components/CategoryHeader';
 import Toast from '../utils/Toast';
+import ButtonLoader from '../utils/buttonLoader';
+import UserAvatar from '../utils/UserAvatar'; 
+import { useUser } from '../context/UserContext';
+import nigeriaStates from '../components/nigeriaStateAndLgas.json';
+
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
+import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import './EditProfile.css';
 
 export default function EditProfile() {
-    const [toast, setToast] = useState()
-    const [selectedState, setSelectedState] = useState('');
-    const [selectedLga, setSelectedLga] = useState('');
-    const [profile, setProfile] = useState(null);
-    const [inputValues, setState] = useState({});
+  const navigate = useNavigate();
+  const { user } = useUser();
+  
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState(null);
+  
+  // Form State
+  const [formData, setFormData] = useState({
+    fname: '',
+    lname: '',
+    phone: '',
+    acct_name: '',
+    acct_number: '',
+    bank: '',
+    state: '',
+    lga: '',
+    address: '',
+    description: '',
+    photo: '',
+  });
 
-    const banks = ["UBA", "First Bank", "Unity Bank"]
 
-    const onChangeHandler = (e) => {
-        if (!e?.persist) {
-          setState(inputValues, {
-            ...inputValues,
-            [e?.target.name]: e?.target.value,
-          });
-        } else {
-          e?.persist();
-          const target = e?.target;
-          if (target?.name) {
-            setState((inputValues) => ({
-              ...inputValues,
-              [target.name]: target.value,
-            }));
-          }
-        }
-      };
-    
+  const [selectedState, setSelectedState] = useState('');
+  const [selectedLga, setSelectedLga] = useState('');
 
-    const {
-        setToastMsg,
-        loading,
-        setLoading,
-        toastMsg,
-        setToastType,
-      } = useVendor();
+  const banks = ["UBA", "First Bank", "Unity Bank", "Access Bank", "GTBank", "Zenith Bank"];
+  const isVendor = user?.accountType === "Vendor";
 
-      const user = useUser();
-
-      console.log(user.user)
-
-      const getProfile = () => {
-        fetch("https://api.pmall.com.ng/api/v1/profile", {
-          method: "GET",
+  useEffect(() => {
+    const getProfile = async () => {
+      try {
+        const res = await fetch("https://api.pmall.com.ng/api/v1/profile", {
           headers: {
-            "Content-Type": "application/json;charset=UTF-8",
+            "Content-Type": "application/json",
             Accept: "application/json",
             Authorization: "Bearer " + localStorage.getItem("authToken"),
           },
-        })
-          .then((resp) => resp.json())
-          .then((result) => {
-            console.log("Raw user:", result.data.user);
-    
-            const user = result?.data?.user;
-            if (!user) {
-              console.error("No user data received");
-              return;
-            }
-    
-            // Clean the user data (remove wallet, referrals, etc.)
-            const { 
-              wallet, 
-              referrals, 
-              vendor, 
-              ...cleanUser 
-            } = user;
-    
-            // Set profile
-            setProfile(cleanUser);
-            console.log(user.user)
-    
-            // Set form values AFTER profile is ready
-            if(user?.accountType  == "Vendor"){
-                setState({
-                fname: cleanUser.fname || '',
-                lname: cleanUser.lname || '',
-                email: cleanUser.email || '',
-                phone: cleanUser.phone || '',
-                state: cleanUser.state || '',
-                lga: cleanUser.lga || '',
-                acct_name: cleanUser.acct_name || '',
-                acct_number: cleanUser.acct_number || '',
-                });
-            }else{
-                setState({
-                    fname: cleanUser.fname || '',
-                    lname: cleanUser.lname || '',
-                    email: cleanUser.email || '',
-                    phone: cleanUser.phone || '',
-                    state: cleanUser.state || '',
-                    lga: cleanUser.lga || '',
-                    acct_name: cleanUser.acct_name || '',
-                    acct_number: cleanUser.acct_number || '',
-                    description: cleanUser.description || '',
-                    address: cleanUser.address || '',
-                    acct_type: cleanUser.acct_type || '',
-                    photo: cleanUser.photo || '',
-                });
-            }
-    
-            // Set location dropdowns
-            setSelectedState(cleanUser.state || '');
-            setSelectedLga(cleanUser.lga || '');
-          })
-          .catch((err) => {
-            console.error("Profile fetch error:", err);
+        });
+        const result = await res.json();
+        const cleanUser = result?.data?.user;
+
+        if (cleanUser) {
+          setFormData({
+            fname: cleanUser.fname || '',
+            lname: cleanUser.lname || '',
+            phone: cleanUser.phone || '',
+            acct_name: cleanUser.acct_name || '',
+            acct_number: cleanUser.acct_number || '',
+            bank: cleanUser.bank || '',
+            state: cleanUser.state || '',
+            lga: cleanUser.lga || '',
+            address: cleanUser.address || '',
+            description: cleanUser.description || '',
+            photo: cleanUser.photo || '',
           });
-      };
-
-    // Find the selected state's LGAs
-    const selectedStateData = nigeriaStates.find(
-        (stateObj) => stateObj.state === selectedState
-    );
-
-    const lgas = selectedStateData ? selectedStateData?.lgas : [];
-    console.log(selectedState)
-
-    const handleStateChange = (e) => {
-        const newState = e.target.value;
-        setSelectedState(newState);
-        setSelectedLga(''); // reset LGA when state changes
-        setState((prev) => ({ ...prev, state: newState }));
-      };
-    
-      // LGA change handler
-      const handleLgaChange = (e) => {
-        const newLga = e.target.value;
-        setSelectedLga(newLga);
-        setState((prev) => ({ ...prev, lga: newLga }));
-      };
-
-
-    const handleEditProfile = async(e) => {
-        if (e) {
-          e.preventDefault(); 
-          setLoading(true)
-        try {
-          const response = await fetch('https://api.pmall.com.ng/api/v1/profile/update', {
-            method: 'POST',
-            headers:{ 
-              'Content-Type': 'application/json;charset=UTF-8', 
-              Accept: "application/json" ,
-              Authorization: `Bearer ${user?.user.token}`
-            },
-              body:JSON.stringify(inputValues)
-          });
-          console.log(inputValues)
-          if (response.ok) {
-            const data = await response.json();
-            setToastMsg("Great! Vendor added successfully");
-            setToastType("success")
-            setInterval(() => {
-              setToastMsg("");
-            }, 5000);
-            setLoading(false)
-            console.log(data)
-            // setNewProduct(data)
-            window.location.href = "/profile";
-          } else {
-            const error = await response.text();
-            console.log('Error posting product:', error);
-            setLoading(false)
-            setToastMsg("Oops! there seems to be an error. Fill in correct credentials")
-            setToastType("error")
-            setInterval(() => {
-              setToastMsg("");
-     }, 3000);
-          }
-        } catch (error) {
-          console.error('Network error:', error);
+          setSelectedState(cleanUser.state || '');
+          setSelectedLga(cleanUser.lga || '');
         }
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to load profile", type: "error" });
       }
-      };
+    };
+    getProfile();
+  }, []);
 
-      useEffect(()=>{
-        getProfile()
-      }, []);
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleStateChange = (e) => {
+    const newState = e.target.value;
+    setSelectedState(newState);
+    setSelectedLga(''); // Reset LGA
+    setFormData({ ...formData, state: newState, lga: '' });
+  };
+
+  const handleLgaChange = (e) => {
+    const newLga = e.target.value;
+    setSelectedLga(newLga);
+    setFormData({ ...formData, lga: newLga });
+  };
+
+  const selectedStateData = nigeriaStates.find((s) => s.state === selectedState);
+  const lgas = selectedStateData ? selectedStateData.lgas : [];
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const formDataObj = new FormData();
+    formDataObj.append("file", file);
+
+    try {
+      const res = await fetch("https://api.pmall.com.ng/api/v1/products/upload-file", {
+        method: "POST",
+        body: formDataObj,
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("authToken"),
+        },
+      });
+      const data = await res.json();
+      setFormData((prev) => ({ ...prev, photo: data.url }));
+      setToast({ message: "Image uploaded successfully", type: "success" });
+    } catch (error) {
+      console.error(error);
+      setToast({ message: "Failed to upload image", type: "error" });
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const token = user?.token || localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch('https://api.pmall.com.ng/api/v1/profile/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8',
+          Accept: "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setToast({ message: "Profile updated successfully!", type: "success" });
+        setTimeout(() => navigate("/profile"), 1500);
+      } else {
+        let errorMsg = "Failed to update profile.";
+        if (typeof data?.message === 'string') errorMsg = data.message;
+        else if (data?.errors) {
+          const firstError = Object.values(data.errors)[0];
+          errorMsg = Array.isArray(firstError) ? firstError[0] : firstError;
+        }
+        setToast({ message: errorMsg, type: "error" });
+      }
+    } catch (error) {
+      console.error(error);
+      setToast({ message: "Network error. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className='new-product edit-profile '>
-        {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="Edit Profile" />
-        {user.acct_type == "Vendor" ? 
-        <form action="" className="new flex flex-col g-20 w-full">
-                <div className="pos-rel">
-                    <label className="abs py-10"> First Name </label>
-                    <input
-                        type="text"
-                        name="fname"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.fname || ""}
-                        placeholder="ROY"
-                    />
-                </div>
+    <div className="ep-page">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      <CategoryHeader title="Edit Profile" image="true" />
 
-                <div className="pos-rel">
-                    <label className="abs py-10"> Last Name </label>
-                    <input
-                        type="text"
-                        name="lname"
-                        className="last-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.lname || ""}
-                        placeholder="LINUS"
-                    />
-                </div>
-                {/* <div className="pos-rel phone">
-                    <label className="abs py-10"> Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        className="form-control w-full"
-                        // onChange={onChangeHandler}
-                        // value={inputValues.phone || ""}
-                        placeholder="mail@gmail.cm"
-                        autoComplete="false"
-                    />
-                </div> */}
-               
-                <div className="pos-rel">
-                    <label className="abs py-10">Phone </label>
-                    <input
-                        type="text"
-                        name="phone"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.phone}
-                        placeholder="09188771514"
-                    />
-                </div>
-            <div className="pos-rel ">
-                <label className="abs py-10">Account Name</label>
-                <input
-                type="text"
-                name="acct_name"
-                className="form-control w-full"
-                onChange={onChangeHandler}
-                  value={inputValues.acct_name}
-                placeholder="Roy Linus Theo"
-                />
+      <form className="ep-form" onSubmit={handleSubmit}>
+        <div className="ep-avatar-section">
+          <div className="ep-avatar-wrap">
+            {formData.photo ? (
+              <img src={formData.photo} alt="Profile" className="ep-avatar-img" />
+            ) : (
+              <UserAvatar name={formData.fname || formData.lname} size={90} />
+            )}
+            <label htmlFor="avatar-upload" className="ep-avatar-badge">
+              <CameraAltIcon fontSize="small" />
+            </label>
+            <input 
+              id="avatar-upload" 
+              type="file" 
+              accept=".jpg,.png,.jpeg" 
+              onChange={handleImageUpload} 
+              hidden 
+            />
+          </div>
+          <p className="ep-avatar-hint">Tap the camera to change your photo</p>
+        </div>
+        <div className="ep-card">
+          <div className="ep-card-header">
+            <PersonOutlineIcon className="ep-icon" />
+            <h3>Personal Information</h3>
+          </div>
+
+          <div className="ep-row">
+            <div className="ep-input-group">
+              <label>First Name</label>
+              <input type="text" name="fname" value={formData.fname} onChange={handleChange} placeholder="e.g. Roy" />
             </div>
-            
-            <div className="pos-rel email">
-                <label className="abs py-10"> Account Number</label>
-                <input
-                    type="number"
-                    name="acct_number"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                    value={inputValues.acct_number}
-                    placeholder="0019123444"
-                />
+            <div className="ep-input-group">
+              <label>Last Name</label>
+              <input type="text" name="lname" value={formData.lname} onChange={handleChange} placeholder="e.g. Linus" />
+            </div>
+          </div>
+
+          <div className="ep-input-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="e.g. 0803 000 0000" />
+          </div>
+        </div>
+        <div className="ep-card">
+          <div className="ep-card-header">
+            <AccountBalanceOutlinedIcon className="ep-icon" />
+            <h3>Bank Details</h3>
+          </div>
+
+          <div className="ep-input-group">
+            <label>Bank Name</label>
+            <select name="bank" value={formData.bank} onChange={handleChange}>
+              <option value="">Select Bank</option>
+              {banks.map((bank) => (
+                <option key={bank} value={bank}>{bank}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="ep-input-group">
+            <label>Account Name</label>
+            <input type="text" name="acct_name" value={formData.acct_name} onChange={handleChange} placeholder="e.g. Roy Linus Theo" />
+          </div>
+
+          <div className="ep-input-group">
+            <label>Account Number</label>
+            <input type="text" name="acct_number" value={formData.acct_number} onChange={handleChange} placeholder="e.g. 0012345678" />
+          </div>
+        </div>
+
+        <div className="ep-card">
+          <div className="ep-card-header">
+            <LocationOnOutlinedIcon className="ep-icon" />
+            <h3>Location Details</h3>
+          </div>
+
+          <div className="ep-row">
+            <div className="ep-input-group">
+              <label>State</label>
+              <select name="state" value={selectedState} onChange={handleStateChange}>
+                <option value="">Select State</option>
+                {nigeriaStates.map((s) => (
+                  <option key={s.state} value={s.state}>{s.state}</option>
+                ))}
+              </select>
             </div>
 
-                <div className="pos-rel w-full">
-                    <label className="abs py-10">Bank </label>
-                    <select
-                        name="bank"
-                        className=" form-control w-full"
-                        default="Select category"
-                        onChange={onChangeHandler}
-                        >
-                        {
-                            banks.map((bank)=>(
-                            <option value={bank} key={bank}>{bank} </option>
-                            ))
-                        }
-                         <option value="Select category" className=''></option>
-                    </select>
-                </div>
-
-                <div className="pos-rel">
-                    <label className="abs py-10"> State </label>
-                    <select
-                        name="state"
-                        className="form-control"
-                        value={selectedState}
-                        onChange={handleStateChange}  // ← dedicated handler
-                        required
-                        >
-                        <option value="">Select State</option>
-                        {nigeriaStates.map((stateObj) => (
-                            <option key={stateObj.state} value={stateObj.state}>
-                            {stateObj.state}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="pos-rel">
-                    <label className="abs py-10"> LGA </label>
-                    <select
-                    name="lga"
-                    className="form-control"
-                    value={selectedLga}
-                    onChange={handleLgaChange}  // ← dedicated handler
-                    disabled={!selectedState || lgas.length === 0}
-                    required
-                    >
-                        <option value="">Select LGA</option>
-                        {lgas.map((lgaName) => (
-                            <option key={lgaName} value={lgaName}>
-                            {lgaName}
-                            </option>
-                        ))}
-                        {lgas.length === 0 && selectedState && (
-                            <option disabled>No LGAs available</option>
-                        )}
-                    </select>
-                </div>
-                
-                <div className='flex g-40 justsb w-full mt-20 '> 
-                    <button
-                        className="login-btn login w-full"
-                        disabled={loading}
-                        type="submit"
-                        onClick={handleEditProfile}
-                        >
-                         {loading ? <ButtonLoader /> : "Save"}
-                    </button>
-                    <button
-                        className="login-btn cancel w-full"
-                        // disabled={loading}
-                        type="submit"
-                        // onClick={handleLogin}
-                        >
-                        Close
-                    </button>
-                </div>
-        </form> :
-           <form action="" className="new flex flex-col g-20 w-full">
-                <div className="pos-rel">
-                    <label className="abs py-10"> First Name </label>
-                    <input
-                        type="text"
-                        name="fname"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.fname || ""}
-                        placeholder="ROY"
-                    />
-                </div>
-
-                <div className="pos-rel">
-                    <label className="abs py-10"> Last Name </label>
-                    <input
-                        type="text"
-                        name="lname"
-                        className="last-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.lname || ""}
-                        placeholder="LINUS"
-                    />
-                </div>
-
-                <div className="pos-rel">
-                    <label className="abs py-10">Phone </label>
-                    <input
-                        type="text"
-                        name="phone"
-                        className="first-name form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.phone}
-                        placeholder="09188771514"
-                    />
-                </div>
-                <div className="pos-rel ">
-                    <label className="abs py-10">Account Name</label>
-                    <input
-                    type="text"
-                    name="acct_name"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                        value={inputValues.acct_name}
-                    placeholder="Roy Linus Theo"
-                    />
-                </div>
-                
-                <div className="pos-rel email">
-                    <label className="abs py-10"> Account Number</label>
-                    <input
-                        type="number"
-                        name="acct_number"
-                        className="form-control w-full"
-                        onChange={onChangeHandler}
-                        value={inputValues.acct_number}
-                        placeholder="0019123444"
-                    />
-                </div>
-
-                <div className="pos-rel w-full">
-                    <label className="abs py-10">Bank </label>
-                    <select
-                        name="bank"
-                        className=" form-control w-full"
-                        default="Select category"
-                        onChange={onChangeHandler}
-                        >
-                        {
-                            banks.map((bank)=>(
-                            <option value={bank} key={bank}>{bank} </option>
-                            ))
-                        }
-                            <option value="Select category" className=''></option>
-                    </select>
-                </div>
-
-                <div className="pos-rel">
-                    <label className="abs py-10"> State </label>
-                    <select
-                        name="state"
-                        className="form-control"
-                        value={selectedState}
-                        onChange={handleStateChange}  // ← dedicated handler
-                        required
-                        >
-                        <option value="">Select State</option>
-                        {nigeriaStates.map((stateObj) => (
-                            <option key={stateObj.state} value={stateObj.state}>
-                            {stateObj.state}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-                <div className="pos-rel">
-                    <label className="abs py-10"> LGA </label>
-                    <select
-                    name="lga"
-                    className="form-control"
-                    value={selectedLga}
-                    onChange={handleLgaChange}  // ← dedicated handler
-                    disabled={!selectedState || lgas.length === 0}
-                    required
-                    >
-                        <option value="">Select LGA</option>
-                        {lgas.map((lgaName) => (
-                            <option key={lgaName} value={lgaName}>
-                            {lgaName}
-                            </option>
-                        ))}
-                        {lgas.length === 0 && selectedState && (
-                            <option disabled>No LGAs available</option>
-                        )}
-                    </select>
-                </div>
-
-                <div className="pos-rel ">
-                    <label className="abs py-10">Address</label>
-                    <input
-                    type="text"
-                    name="address"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                        value={inputValues?.address}
-                    placeholder="Your address"
-                    />
-                </div>
-
-                <div className="pos-rel ">
-                    <label className="abs py-10">Description</label>
-                    <input
-                    type="text"
-                    name="description"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                        value={inputValues?.description}
-                    placeholder="Roy Linus Theo"
-                    />
-                </div>
-
-                <div className="pos-rel ">
-                    <label className="abs py-10">Account Type</label>
-                    <input
-                    type="text"
-                    name="acct_type"
-                    className="form-control w-full"
-                    onChange={onChangeHandler}
-                    value={inputValues.acct_type}
-                    placeholder="Roy Linus Theo"
-                    />
-                </div>
-
-                <div className="pos-rel w-full">
-              <label className="abs py-10">Photo </label>
-              <div className='add-img'>
-                <input
-                    type="file"
-                    className="form-control w-full flex all-center bg-white"
-                    name="photo"
-                    accept=".jpg,.png,.jpeg"
-                    onChange={(e) => {
-                    //   if (selectedName == "") {
-                    //     setAlert("Please Select a file name");
-                    //     return;
-                    //   }
-                      const formData = new FormData();
-                      const files = e.target.files;
-                      files?.length && formData.append("file", files[0]);
-                      //setLoading(true);
-                      fetch(
-                        "https://api.pmall.com.ng/api/v1/products/upload-file",
-                        {
-                          method: "POST",
-                          body: formData,
-                          headers: {
-                            Authorization: "Bearer " + localStorage.getItem("authToken"),
-                          },
-                        }
-                      )
-                        .then((res) => res.json())
-                        .then((data) => {
-                          //setLoading(false);
-                          console.log(data)
-                          setState((inputValues) => ({
-                            ...inputValues,
-                            photo: data.url, 
-                          }))
-                          console.log(inputValues)
-                        })
-                        .catch((error) => {
-                          //setLoading(false);
-                          console.log(error)
-                        });
-                    }}
-                  />
-              </div>
-              
+            <div className="ep-input-group">
+              <label>LGA</label>
+              <select name="lga" value={selectedLga} onChange={handleLgaChange} disabled={!selectedState}>
+                <option value="">Select LGA</option>
+                {lgas.map((lga) => (
+                  <option key={lga} value={lga}>{lga}</option>
+                ))}
+              </select>
             </div>
-                
-                <div className='flex g-40 justsb w-full mt-20 '> 
-                    <button
-                        className="login-btn login w-full"
-                        disabled={loading}
-                        type="submit"
-                        onClick={handleEditProfile}
-                        >
-                            {loading ? <ButtonLoader /> : "Save"}
-                    </button>
-                    <button
-                        className="login-btn cancel w-full"
-                        // disabled={loading}
-                        type="submit"
-                        // onClick={handleLogin}
-                        >
-                        Close
-                    </button>
-                </div>
-        </form>
-    }
+          </div>
+
+          <div className="ep-input-group">
+            <label>Street Address</label>
+            <input type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Enter your full address" />
+          </div>
+        </div>
+
+        {isVendor && (
+          <div className="ep-card">
+            <div className="ep-card-header">
+              <InfoOutlinedIcon className="ep-icon" />
+              <h3>Vendor Information</h3>
+            </div>
+
+            <div className="ep-input-group">
+              <label>Account Type</label>
+              <input type="text" name="acct_type" value={formData.acct_type || ''} onChange={handleChange} placeholder="e.g. Corporate" />
+            </div>
+
+            <div className="ep-input-group">
+              <label>Description</label>
+              <textarea 
+                name="description" 
+                value={formData.description} 
+                onChange={handleChange} 
+                placeholder="Describe your business..." 
+                rows={3}
+              />
+            </div>
+          </div>
+        )}
+
+       
+        <div className="ep-sticky-footer">
+          <button type="button" className="ep-btn-cancel" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          <button type="submit" className="ep-btn-submit" disabled={loading}>
+            {loading ? <ButtonLoader /> : "Save Changes"}
+          </button>
+        </div>
+
+      </form>
     </div>
-  )
+  );
 }

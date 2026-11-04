@@ -1,254 +1,214 @@
-import React, { useEffect, useState, useCallback } from 'react'
-import CategoryHeader from '../components/CategoryHeader'
-import { useParams, Link } from "react-router-dom";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { VendorAvatar } from '../vendor/VendorAvatar';
 import ChatOutlinedIcon from '@mui/icons-material/ChatOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
-import LimitWord from '../utils/limitWord';
-import SingleCategoryGrid from './SingleCategoryGrid';
 import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
 import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { useNavigate } from 'react-router-dom';
-import { useCart } from "../context/CartContext"
-import { getCart } from "../utils/cartUtils";
+import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+import VerifiedIcon from '@mui/icons-material/Verified';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
+import ShieldOutlinedIcon from '@mui/icons-material/ShieldOutlined';
+
+import SingleCategoryGrid from './SingleCategoryGrid';
+import LimitWord from '../utils/limitWord';
+import { getCart } from '../utils/cartUtils';
 import Toast from '../utils/Toast';
-import { useQuery } from '@tanstack/react-query';
 
+import './Details.css';
 
+const API = 'https://api.pmall.com.ng/api/v1/public/products/single-product';
+
+async function fetchProductById(productId) {
+  const url = `${API}?product_id=${productId}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json;charset=UTF-8",
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch product: ${response.status} ${response.statusText}`);
+  }
+
+  const result = await response.json();
+  const product = result?.data;
+console.log(product);
+  if (!product) {
+    throw new Error("No product data returned");
+  }
+  let parsedImages = [];
+
+  if (typeof product.more_images === 'string') {
+    const trimmed = product.more_images.trim();
+    
+    if (trimmed.startsWith('[')) {
+      
+      try {
+        const parsed = JSON.parse(trimmed);
+        if (Array.isArray(parsed)) {
+          parsedImages = parsed;
+        }
+      } catch (err) {
+        console.error("Failed to parse more_images as JSON:", err);
+      }
+    } else if (trimmed.includes(',')) {
+      
+      parsedImages = trimmed.split(',').map(s => s.trim());
+    } else if (trimmed.length > 0) {
+      
+      parsedImages = [trimmed];
+    }
+  } else if (Array.isArray(product.more_images)) {
+    parsedImages = product.more_images;
+  }
+
+  parsedImages = parsedImages
+    .map((img) => (typeof img === 'string' ? img.trim() : ''))
+    .filter((img) => img !== '');
+
+  return {
+    ...product,
+    more_images: parsedImages,
+  };
+}
+
+const fmt = (n) => Number(n || 0).toLocaleString('en-NG');
 
 export default function Details() {
-  const [loading, setLoading] = useState(null);
   const { id } = useParams();
-  const [moreImages, setMoreImages] = useState([]);
-  const [value, setValue] = useState(4);
-
-  const [wordLimit, setWordLimit] = useState(30);
-  const [showReadMore, setShowReadMore] = useState(true);
-  const [numOfItems, setNumOfItems] = useState(1)
   const navigate = useNavigate();
-  const [cartMessage, setCartMessage] = useState("");
-  const [cartCount, setCartCount] = useState(0)
-  const [tags, setTags] = useState([])
-  const [toast, setToast] = useState()
 
-  const fetchProductById = async (productId) => {
-    const url = `https://api.pmall.com.ng/api/v1/public/products/single-product?product_id=${productId}`;
-
-    const response = await fetch(url, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json;charset=UTF-8",
-        Accept: "application/json",
-        // Authorization: `Bearer ${user?.token || ''}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch product: ${response.status} ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    const product = result?.data;
-
-    if (!product) {
-      throw new Error("No product data returned");
-    }
-
-    // Parse more_images safely
-    let parsedImages = [];
-
-    if (typeof product.more_images === 'string') {
-      try {
-        parsedImages = JSON.parse(product.more_images);
-        if (!Array.isArray(parsedImages)) parsedImages = [];
-      } catch (err) {
-        console.error("Failed to parse more_images:", err);
-        parsedImages = [];
-      }
-    } else if (Array.isArray(product.more_images)) {
-      parsedImages = product.more_images;
-    }
-
-    // Clean up
-    parsedImages = parsedImages
-      .map((tag) => (typeof tag === 'string' ? tag.trim() : ''))
-      .filter((tag) => tag !== '');
-
-    // Return enriched product
-    return {
-      ...product,
-      more_images: parsedImages,   // consistent array
-      tags: parsedImages,          // if you want both fields
-    };
-  };
-
-  const {
-    data: product,
-    isPending,
-    isError,
-    error,
-    isFetching,
-  } = useQuery({
+  const { data: product, isPending, isError, error } = useQuery({
     queryKey: ['product', id],
     queryFn: () => fetchProductById(id),
     enabled: !!id,
-    staleTime: 1000 * 60 * 5,    // 5 min
+    staleTime: 1000 * 60 * 5,
     gcTime: 1000 * 60 * 30,
   });
 
-
-  const [mainImage, setMainImage] = useState('https://placehold.net/400x400.png');
-
+  const [qty, setQty] = useState(1);
+  const [activeImg, setActiveImg] = useState(0);
+  const [expanded, setExpanded] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const [toast, setToast] = useState(null);
+  const trackRef = useRef(null);
 
   useEffect(() => {
-    if (product?.image) {
-      setMainImage(product.image);
-    }
-  }, [product?.image]);
+    setQty(1);
+    setActiveImg(0);
+    setExpanded(false);
+    if (trackRef.current) trackRef.current.scrollLeft = 0;
+  }, [id]);
 
-  const handleThumbnailClick = (imageUrl) => {
-    setMainImage(imageUrl);
+  useEffect(() => {
+    const cart = getCart() || [];
+    setCartCount(cart.reduce((s, i) => s + (i.amtItems || 1), 0));
+  }, []);
+
+  const stock = Number(product?.quantity ?? 0);       
+  const selling = Number(product?.selling_price ?? 0);
+  const original = Number(product?.price ?? 0);
+  const hasDiscount = original > selling && selling > 0;
+  const discountPct = hasDiscount
+    ? Math.round((1 - selling / original) * 100)
+    : 0;
+
+  const images = useMemo(() => {
+    const list = [product?.image, ...(product?.more_images || [])].filter(Boolean);
+    return list.length ? list : ['https://placehold.net/400x400.png'];
+  }, [product?.image, product?.more_images]);
+
+  const fullDesc = product?.description || '';
+  const descWordCount = useMemo(
+    () => (fullDesc ? fullDesc.trim().split(/\s+/).length : 0),
+    [fullDesc]
+  );
+  const canTruncate = descWordCount > 30;
+  const displayDesc =
+    expanded || !canTruncate ? fullDesc : LimitWord(fullDesc, 30);
+
+  const handleScroll = () => {
+    const el = trackRef.current;
+    if (!el || !el.clientWidth) return;
+    setActiveImg(Math.round(el.scrollLeft / el.clientWidth));
   };
 
+  const goToImg = (i) => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' });
+  };
 
-
-
-
-  function countWords(text) {
-    if (!text || typeof text !== 'string') return 0;
-
-    // Remove extra spaces, trim, then split by whitespace
-    return text
-      .trim()
-      .split(/\s+/)
-      .filter(word => word.length > 0)
-      .length;
-  }
-
-  const readMore = () => {
-    setWordLimit(countWords(product?.description))
-  }
-
-  const addCommasToNumberString = (numberString) => {
-    return numberString?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-
-  const incAmt = () => {
-    if (numOfItems < Number(product?.inStock)) {
-      setNumOfItems(numOfItems + 1)
-    }
-  }
-
-  const decAmt = () => {
-    if (numOfItems > 1) {
-      setNumOfItems(numOfItems - 1)
-    }
-  }
-
+  const decQty = useCallback(() => setQty((p) => Math.max(1, p - 1)), []);
+  const incQty = useCallback(
+    () => setQty((p) => Math.min(stock || 1, p + 1)),
+    [stock]
+  );
 
   const handleAddToCart = useCallback(() => {
-    // Safety: product must exist
-    if (!product || !product.id) {
-      console.log("Cannot add: product product missing");
-      setCartMessage(<div className="error">Product data missing</div>);
-      setToast({
-        message: cartMessage,
-        type: "error"
-      })
+    if (!product?.id) {
+      setToast({ message: 'Product data missing', type: 'error' });
+      return;
+    }
+    if (stock <= 0) {
+      setToast({ message: 'This product is out of stock', type: 'error' });
       return;
     }
 
-    // Prevent adding if out of stock
-    if (Number(product?.inStock) <= 0 || product.quantity <= 0) {
-      setCartMessage(<div className="error">Out of stock</div>);
-      console.log("Out of stock")
-      console.log(product)
-
-      setToast({
-        message: cartMessage,
-        type: "error"
-      })
-
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 3000);
-      return;
-    }
-
-
-    let cart = getCart() || [];
-
-    const existingItemIndex = cart.findIndex(item => item?.id === product.id);
+    const cart = getCart() || [];
+    const idx = cart.findIndex((i) => i?.id === product.id);
 
     let updatedCart;
+    let message;
 
+    if (idx !== -1) {
+      const existing = cart[idx];
+      const currentQty = existing.amtItems || 1;
+      const nextQty = Math.min(stock, currentQty + qty);
+      const added = nextQty - currentQty;
 
-    if (existingItemIndex !== -1) {
-      // Update quantity of existing item
-      updatedCart = [...cart];
-      if (updatedCart[existingItemIndex].amtItems < Number(product.inStock) && updatedCart[existingItemIndex].amtItems + numOfItems <= Number(product.inStock)) {
-        updatedCart[existingItemIndex] = {
-          ...updatedCart[existingItemIndex],
-          amtItems: Math.max(1, (updatedCart[existingItemIndex].amtItems || 1) + numOfItems),
-        };
+      if (added <= 0) {
+        setToast({ message: `Only ${stock} in stock — cannot add more`, type: 'error' });
+        return;
       }
-
-      console.log(updatedCart)
-
-      setCartMessage(
-        <div className="success">
-          Quantity updated for <strong>{product.name}</strong> (+{numOfItems}) <br />
-          <Link to="/cart" style={{ color: "orange", textDecoration: "underline" }}>
-            View Cart
-          </Link>
-        </div>
-      );
+      updatedCart = [...cart];
+      updatedCart[idx] = { ...existing, amtItems: nextQty };
+      message = `Added ${added} more · ${product.name}`;
     } else {
-      updatedCart = [
-        ...cart,
-        { ...product, amtItems: numOfItems }
-      ];
-
-      setCartMessage(
-        <div className="success">
-          <strong>{product.name}</strong> added to cart ({numOfItems} ×) <br />
-          <Link to="/cart" style={{ color: "orange", fontWeight: 700, textDecoration: "underline" }}>
-            View Cart
-          </Link>
-        </div>
-      );
+      updatedCart = [...cart, { ...product, amtItems: qty }];
+      message = `Added to cart · ${product.name}`;
     }
 
     try {
-      localStorage.setItem("pmallCart", JSON.stringify(updatedCart));
-      navigate('/cart')
-    } catch (err) {
-      console.error("Failed to save cart:", err);
-      setCartMessage(<div className="error">Failed to save cart</div>);
+      localStorage.setItem('pmallCart', JSON.stringify(updatedCart));
+    } catch {
+      setToast({ message: 'Failed to save cart', type: 'error' });
       return;
     }
 
+    const newTotal = updatedCart.reduce((s, i) => s + (i.amtItems || 1), 0);
+    setCartCount(newTotal);
+    setToast({ message, type: 'success' });
+    setQty(1);
+    setTimeout(() => navigate('/cart'), 400);
+  }, [product, stock, qty, navigate]);
 
-    if (typeof setCartCount === 'function') {
-      const newTotal = updatedCart.reduce((sum, item) => sum + (item.amtItems || 1), 0);
-      setCartCount(newTotal);
-    }
-
-    setTimeout(() => setCartMessage(""), 7000);
-
-    console.log(cart)
-
-  }, [product, numOfItems, setCartMessage, setCartCount]);
-
+  
   if (isPending) {
     return (
-      <div className="p-6 animate-pulse space-y-6">
-        <div className="h-80 w-full bg-gray-200 rounded-xl" />
-        <div className="h-10 w-3/4 bg-gray-200 rounded" />
-        <div className="grid grid-cols-4 gap-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 bg-gray-200 rounded-lg" />
-          ))}
+      <div className="pd-page">
+        <div className="pd-skeleton">
+          <div className="pd-skeleton__block" style={{ aspectRatio: '1/1' }} />
+          <div className="pd-skeleton__block" style={{ height: 24, marginTop: 16, width: '80%' }} />
+          <div className="pd-skeleton__block" style={{ height: 16, marginTop: 12, width: '50%' }} />
+          <div className="pd-skeleton__block" style={{ height: 40, marginTop: 16, width: '60%' }} />
         </div>
       </div>
     );
@@ -256,128 +216,224 @@ export default function Details() {
 
   if (isError || !product) {
     return (
-      <div className="p-6 text-red-600">
-        {error?.message || "Product not found"}
-        <button onClick={() => window.location.reload()} className="ml-4 underline">
-          Retry
-        </button>
+      <div className="pd-page">
+        <div className="pd-topbar">
+          <button className="pd-topbar__back" onClick={() => navigate(-1)} aria-label="Back">
+            <ArrowBackIosNewIcon fontSize="small" />
+          </button>
+          <h1 className="pd-topbar__title">Product</h1>
+          <span style={{ width: 40 }} />
+        </div>
+        <div style={{ padding: 32, textAlign: 'center', color: '#b91c1c' }}>
+          {error?.message || 'Product not found'}
+        </div>
       </div>
     );
   }
 
-  const { image: primaryImage, more_images = [], name, price, description } = product;
+  const stockVariant =
+    stock <= 0 ? 'out' : stock <= 5 ? 'low' : 'in';
+  const stockLabel =
+    stock <= 0
+      ? 'Out of stock'
+      : stock <= 5
+      ? `Only ${stock} left in stock`
+      : `In stock · ${stock} available`;
+
   return (
-    <div className='details main'>
-      {toast && <Toast message={toast?.message} type={toast?.type} onClose={() => setToast(null)} />}
-      <div className='details-t'>
-        <CategoryHeader title='Product Details' />
-        <div className="product-images-container">
-          {/* Main large image */}
-          <div className="main-image-wrapper">
-            <img
-              src={mainImage}
-              alt={product?.name || "Product"}
-              className="main-image"
-              onError={(e) => (e.target.src = 'https://placehold.net/400x400.png')}
-            />
-          </div>
+    <div className="pd-page">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
 
-          {/* Thumbnails */}
-          {moreImages?.length > 0 && (
-            <div className="moreImages">
-              <div className="moreImagesItems">
-                {/* Primary image as first thumbnail */}
-                <img
-                  src={product?.image || '/default-image.jpg'}
-                  alt="Main product"
-                  className={`thumbnail ${mainImage === product?.image ? 'active' : ''}`}
-                  onClick={() => handleThumbnailClick(product?.image || '/images/image-skelet0n.webp')}
-                  onError={(e) => (e.target.style.display = 'none')}
-                />
-
-                {/* Additional images */}
-                {moreImages.map((image, index) => (
-                  <img
-                    key={index}
-                    src={image.trim()}
-                    alt={`Product view ${index + 1}`}
-                    className={`thumbnail ${mainImage === image.trim() ? 'active' : ''}`}
-                    onClick={() => handleThumbnailClick(image.trim())}
-                    onError={(e) => (e.target.style.display = 'none')}
-                  />
-                ))}
-              </div>
+      <header className="pd-topbar">
+        <button
+          className="pd-topbar__back"
+          onClick={() => navigate(-1)}
+          aria-label="Go back"
+        >
+          <ArrowBackIosNewIcon fontSize="small" />
+        </button>
+        <h1 className="pd-topbar__title">{product.name || 'Product'}</h1>
+        <Link to="/cart" className="pd-topbar__cart" aria-label="Cart">
+          <ShoppingCartOutlinedIcon />
+          {cartCount > 0 && (
+            <span className="pd-topbar__badge">{cartCount > 99 ? '99+' : cartCount}</span>
+          )}
+        </Link>
+      </header>
+      <section className="pd-carousel" aria-label="Product images">
+        <div
+          className="pd-carousel__track"
+          ref={trackRef}
+          onScroll={handleScroll}
+        >
+          {images.map((src, i) => (
+            <div className="pd-carousel__slide" key={i}>
+              <img
+                src={src}
+                alt={`${product.name} — view ${i + 1}`}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://placehold.net/400x400.png';
+                }}
+              />
             </div>
+          ))}
+        </div>
+
+        {images.length > 1 && (
+          <>
+            <div className="pd-carousel__dots" aria-hidden>
+              {images.map((_, i) => (
+                <button
+                  key={i}
+                  className={`pd-carousel__dot ${activeImg === i ? 'is-active' : ''}`}
+                  onClick={() => goToImg(i)}
+                  aria-label={`Go to image ${i + 1}`}
+                />
+              ))}
+            </div>
+            <div className="pd-carousel__counter">
+              {activeImg + 1} / {images.length}
+            </div>
+          </>
+        )}
+      </section>
+      <section className="pd-section">
+        {product?.category?.name && (
+          <span className="pd-chip">{product.category.name}</span>
+        )}
+
+        <h2 className="pd-name">{product.name}</h2>
+
+        <div className="pd-meta">
+          {product?.brand?.name && <span>Brand: {product.brand.name}</span>}
+          {product?.brand?.name && <span className="pd-meta__divider" />}
+          <span>Ships from {product?.vendor?.store_name || 'Pmall'}</span>
+        </div>
+
+        <div className="pd-price-row">
+          <span className="pd-price">
+            <span className="pd-price__currency">₦</span>
+            {fmt(selling)}
+          </span>
+          {hasDiscount && (
+            <>
+              <span className="pd-price-old">₦{fmt(original)}</span>
+              <span className="pd-price-off">-{discountPct}%</span>
+            </>
           )}
         </div>
-      </div>
-      <div className='details-b'>
-        <div className='db1'>
-          <div className='cat-name-container'>
-            <div className='cat-name'>
-              <p>{product?.category.name}</p>
-            </div>
-          </div>
-          <p className='product-name'>{product?.name}</p>
-          <p className='brand-name'>Brand: {product?.brand.name}</p>
-          <p className='in-stock'><span className='num'>{product?.inStock}</span> available in stock</p>
+
+        <div className={`pd-stock pd-stock--${stockVariant}`}>
+          <span className="pd-stock__dot" />
+          {stockLabel}
         </div>
-        <div className='db2 flex justsb'>
-          <div className='flex g-20 all-center'>
-            <div>
-              <img src={product?.vendor.photo} alt="img" />
-              {/* <img src="/images/Ellipse 280.png" alt="" /> */}
+      </section>
+
+      
+      {product?.vendor && (
+        <section className="pd-section">
+          <div className="pd-vendor">
+            <VendorAvatar 
+        name={product.vendor.store_name} 
+        photo={product.vendor.photo} 
+      />
+            <div className="pd-vendor__info">
+              <p className="pd-vendor__name">
+                {product.vendor.store_name}
+                <VerifiedIcon fontSize="small" style={{ color: '#6d28d9' }} />
+              </p>
+              <p className="pd-vendor__label">Verified seller · Usually replies in minutes</p>
             </div>
-            <div className='flex flex-col g-5'>
-              <p className='store-name'>{product?.vendor.store_name}</p>
-              <p className='seller'>seller</p>
-            </div>
+            <button className="pd-icon-btn" aria-label="Chat seller">
+              <ChatOutlinedIcon fontSize="small" />
+            </button>
+            <button className="pd-icon-btn" aria-label="Call seller">
+              <PhoneOutlinedIcon fontSize="small" />
+            </button>
           </div>
-          <div className='flex all-center g-40'>
-            <div className='icon-container'>
-              <ChatOutlinedIcon className='chat-icon icon' />
-            </div>
-            <div className='icon-container'>
-              <PhoneOutlinedIcon className='call-icon icon' />
-            </div>
-          </div>
+        </section>
+      )}
+
+      <section className="pd-trust">
+        <div className="pd-trust__item">
+          <LocalShippingOutlinedIcon className="pd-trust__icon" />
+          <span>Fast delivery</span>
         </div>
-        <div className='db3 flex-col'>
-          <div className='product-info' >
-            <p>Product Information</p>
+        <div className="pd-trust__item">
+          <ReplayOutlinedIcon className="pd-trust__icon" />
+          <span>7-day returns</span>
+        </div>
+        <div className="pd-trust__item">
+          <ShieldOutlinedIcon className="pd-trust__icon" />
+          <span>100% authentic</span>
+        </div>
+      </section>
+
+      <section className="pd-section">
+        <h3 className="pd-section__title">Product Information</h3>
+        <p className="pd-desc">
+          {displayDesc}
+          {canTruncate && (
+            <button
+              className="pd-desc__toggle"
+              onClick={() => setExpanded((v) => !v)}
+            >
+              {expanded ? 'Read less' : 'Read more'}
+            </button>
+          )}
+        </p>
+      </section>
+
+      {product?.category?.id && (
+        <section className="pd-related">
+          <div className="pd-related__header">
+            <h3 className="pd-section__title" style={{ margin: 0 }}>
+              You may also like
+            </h3>
           </div>
-          <p className='product-desc'>{LimitWord(product?.description || "Unnamed description", wordLimit)} {showReadMore && <span onClick={readMore} className="read-more">READ MORE</span>}</p>
+          <div className="pd-related__scroll">
+            <SingleCategoryGrid categoryId={product.category.id} related={true} />
+          </div>
+        </section>
+      )}
+
+      <div className="pd-sticky">
+        <div className="pd-qty" aria-label="Quantity selector">
+          <button
+            className="pd-qty__btn"
+            onClick={decQty}
+            disabled={qty <= 1}
+            aria-label="Decrease quantity"
+          >
+            <RemoveOutlinedIcon fontSize="small" />
+          </button>
+          <span className="pd-qty__num">{qty}</span>
+          <button
+            className="pd-qty__btn"
+            onClick={incQty}
+            disabled={stock <= 0 || qty >= stock}
+            aria-label="Increase quantity"
+          >
+            <AddOutlinedIcon fontSize="small" />
+          </button>
         </div>
 
-        <div className='db4'>
-          <p className='page-title'>Related Products</p>
-          <div>
-            <SingleCategoryGrid categoryId={product?.category.id} related={true} />
-          </div>
-        </div>
-      </div>
-      <div className='details-footer'>
-        <div className='flex-col g-10'>
-          <p className='price'>&#x20A6;{addCommasToNumberString(product?.selling_price)}</p>
-          <div className='flex alc g-20'>
-            <p>Quantity:</p>
-            <div className='flex alc g-20'>
-              <div className={`quantity-icon ${numOfItems == 1 && "dec"}`} onClick={decAmt}>
-                <RemoveOutlinedIcon className='icon' />
-              </div>
-              <p className='quantity-num'>{numOfItems}</p>
-              <div className={`quantity-icon ${numOfItems == product?.inStock && "dec"}`} onClick={incAmt}>
-                <AddOutlinedIcon className='icon' />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="add-cart-btn flex alc g-20 pointer" onClick={handleAddToCart}>
-          <ShoppingCartOutlinedIcon />
-          <p>Add to Cart</p>
-        </div>
+        <button
+          className="pd-cta"
+          onClick={handleAddToCart}
+          disabled={stock <= 0}
+        >
+          <ShoppingCartOutlinedIcon fontSize="small" />
+          {stock <= 0 ? 'Out of stock' : `Add to Cart · ₦${fmt(selling * qty)}`}
+        </button>
       </div>
     </div>
-  )
+  );
 }
-

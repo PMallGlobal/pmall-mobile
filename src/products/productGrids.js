@@ -31,15 +31,6 @@ const ProductGrid = ({ categoryId = null }) => {
     return data.data; 
   };
   
-  // const fetchProducts = async () => {
-
-  //     const { data } = {storeId ? await axios.get("https://api.pmall.com.ng/api/v1/public/products/list-all-by-vendor?store_id=" + storeId) : await axios.get(PRODUCTS_ENDPOINT)};
-   
-  //   if (!data?.data || !Array.isArray(data.data)) {
-  //     throw new Error("Invalid product data format");
-  //   }
-  //   return data.data; 
-  // };
 
   const fetchProducts = async () => {
     let response;
@@ -174,11 +165,11 @@ const ProductGrid = ({ categoryId = null }) => {
       const slug = category.name
         .toLowerCase()
         .trim()
-        .replace(/\s+/g, '-')        // Replace spaces with -
-        .replace(/[^\w\-]+/g, '')    // Remove all non-word chars
-        .replace(/\-\-+/g, '-')      // Replace multiple - with single -
-        .replace(/^-+/, '')          // Trim - from start
-        .replace(/-+$/, '');         // Trim - from end
+        .replace(/\s+/g, '-')     
+        .replace(/[^\w\-]+/g, '')  
+        .replace(/\-\-+/g, '-')    
+        .replace(/^-+/, '')        
+        .replace(/-+$/, '');       
   
       navigate(`/category/${slug}`, { state: { category } });
     },
@@ -330,7 +321,7 @@ const ProductGrid = ({ categoryId = null }) => {
                   ))}
                 </div>
               }
-              {/* Category Header */}
+              
               <div
                 className="flex justsb style-header"
                 style={{ backgroundColor: categoryBackgrounds[category.id] }}
@@ -347,10 +338,9 @@ const ProductGrid = ({ categoryId = null }) => {
                 </div>
               </div>
   
-              {/* Carousel Section */}
+              
               <div style={{ padding: "25px", paddingTop: "0px" }}>
                 <div className="carousel-wrapper">
-                  {/* Left Arrow */}
                   <button
                     className="carousel-arrow left"
                     onClick={prevSlide}
@@ -358,8 +348,6 @@ const ProductGrid = ({ categoryId = null }) => {
                   >
                     <ChevronLeft fontSize="large" />
                   </button>
-  
-                  {/* Products Track */}
                   <div className="carousel-container">
                     <div
                       className="carousel-track flex"
@@ -421,7 +409,6 @@ const ProductGrid = ({ categoryId = null }) => {
 
                   </div>
   
-                  {/* Right Arrow */}
                   <button
                     className="carousel-arrow right"
                     onClick={nextSlide}

@@ -1,117 +1,139 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useVendor } from "../context/AuthContext";
-import Toaster from "../utils/toaster";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import VisibilityIcon from "@mui/icons-material/Visibility";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import ButtonLoader from "../utils/buttonLoader";
 import Toast from "../utils/Toast";
-
+import "./Login.css"; 
 
 const Login = () => {
-  const [toast, setToast] = useState()
-
-  const onEnter = (e) => {
-    e.stopPropagation();
-    if (e.key === "Enter") {
-      loginHandler();
-    }
-  };
-
-  const loginHandler = () => {
-    // console.log(inputValues);
-  };
-
+  const [toast, setToast] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
-
-  const togglePassword = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+  const navigate = useNavigate();
 
   const {
     inputValues,
     onChangeHandler,
     handleLogin,
-    stockistLogin,
     loading,
     toastMsg,
     toastType,
   } = useVendor();
-  console.log(loading)
-  
+
+  const togglePassword = () => {
+    setShowPassword((prevState) => !prevState);
+  };
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    handleLogin(e);
+  };
+
   return (
-    <section>
-       {<Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />}
-      <div className="login-screen">
+    <div className="login-page">
+      <div className="bg-orb orb-1"></div>
+      <div className="bg-orb orb-2"></div>
+      <div className="bg-orb orb-3"></div>
 
-        <div className="right">
-          <div className="container">
-            <div className="w-100 flex all-center main-logo">
-                <img src="/images/new PMALL logo.png" alt="" />
-            </div>
-            {/* <Toaster text={toastMsg} className={toastType} /> */}
-            <h1>Hello again!</h1>
-            <p className="bold">Welcome back, you've been missed!</p>
-            <form action="">
-              <div className="pos-rel">
-                <label className="abs"> Username </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="username"
-                  onChange={onChangeHandler}
-                  placeholder="username or email"
-                  value={inputValues.username || ""}
-                />
-              </div>
+      {toastMsg && (
+        <Toast 
+          message={toastMsg} 
+          type={toastType} 
+          onClose={() => setToast(null)} 
+        />
+      )}
 
-              <div className="pos-rel">
-                <label className="abs"> Your Password</label>
-                <div
-                  className="pos-rel">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control"
-                    name="password"
-                    onChange={onChangeHandler}
-                    value={inputValues.password || ""}
-                    placeholder="********"
-                  />
-                  <span onClick={togglePassword} className="cnwjien">
-                    {/* {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />} */}
-                  </span>
-                </div>
-                <div className="forgotten">
-                    <Link to="/auth/app/reset-account" className=" bold">
-                        <p className=" purple">Forgot Password?</p>
-                    </Link>
-                    <p className="">Click <Link to='/' ><span className="purple "> HERE </span> </Link>to go back to Mall</p>
-                </div>
-              </div>
-            
-              <button
-                className="login-btn bold"
-                disabled={loading}
-                type="submit"
-                onClick={handleLogin}
-                >
-                 {loading ? <ButtonLoader /> : "Login"}
-                </button>
-              <div className="flex all-center flex-col g-20 Register-btn w-full">
-                <p className="center">Don't have an account yet?</p>
-                <Link to="/auth/sign-up" className="flex w-full all-center purple">
-                    <button className="create-account bold purple">Register Now</button>
-                </Link>
-              </div>
-            </form>
-            <div className="form-logo">
-            <img src="/pmall-logo 1.png" alt="" />
-          </div>
-          </div>
-          
+      <div className="login-card">
+        
+        
+        <div className="login-header">
+          <img src="/images/new PMALL logo.png" alt="PMALL" className="login-logo" />
+          <h1 className="login-title">Hello again!</h1>
+          <p className="login-subtitle">Welcome back, you've been missed!</p>
         </div>
+
+        
+        <form className="login-form" onSubmit={onSubmitHandler}>
+          
+          
+          <div className="input-group">
+            <label>Username</label>
+            <div className="input-wrapper">
+              <PersonOutlineIcon className="input-icon" />
+              <input
+                type="text"
+                name="username"
+                onChange={onChangeHandler}
+                placeholder="Enter username or email"
+                value={inputValues.username || ""}
+                autoComplete="username"
+                required
+              />
+            </div>
+          </div>
+
+          
+          <div className="input-group">
+            <label>Password</label>
+            <div className="input-wrapper">
+              <LockOutlinedIcon className="input-icon" />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                onChange={onChangeHandler}
+                value={inputValues.password || ""}
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                required
+              />
+              <button 
+                type="button" 
+                className="toggle-password" 
+                onClick={togglePassword}
+                aria-label="Toggle password visibility"
+              >
+                {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+              </button>
+            </div>
+          </div>
+
+          
+          <div className="login-options">
+            <Link to="/auth/app/reset-account" className="forgot-link">
+              Forgot Password?
+            </Link>
+            <Link to="/" className="back-link">
+              Back to Mall
+            </Link>
+          </div>
+
+          
+          <button
+            className="login-submit-btn"
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? <ButtonLoader /> : "Login"}
+          </button>
+        </form>
+
+        
+        <div className="login-footer">
+          <p>Don't have an account yet?</p>
+          <Link to="/auth/sign-up" className="register-btn">
+            Register Now
+          </Link>
+        </div>
+        
+        <div className="login-watermark">
+          <img src="/pmall-logo 1.png" alt="Pmall Watermark" />
+        </div>
+
       </div>
-    </section>
+    </div>
   );
 };
 

@@ -1,0 +1,267 @@
+.wd-page {
+    min-height: 100vh;
+    background: #f8f9fa;
+    padding-bottom: 160px; 
+  }
+  
+  .wd-form {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .wd-balance-card {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%); 
+    border-radius: 20px;
+    padding: 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #ffffff;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2);
+    margin-top: 8px;
+  }
+  
+  .wd-balance-icon {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 12px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .wd-balance-info p {
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.9;
+  }
+  
+  .wd-balance-info h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+  }
+  
+  .wd-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .wd-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  .wd-amount-wrapper {
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 0 16px;
+    height: 64px;
+    transition: border-color 0.2s;
+  }
+  
+  .wd-amount-wrapper:focus-within {
+    border-color: #6d28d9;
+    box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1);
+  }
+  
+  .wd-amount-wrapper.error {
+    border-color: #ef4444;
+    background: #fef2f2;
+  }
+  
+  .wd-currency-symbol {
+    font-size: 24px;
+    font-weight: 700;
+    color: #6b7280;
+    margin-right: 8px;
+  }
+  
+  .wd-amount-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 28px;
+    font-weight: 800;
+    color: #1a1a1a;
+    outline: none;
+    width: 100%;
+  }
+  
+  .wd-amount-input::placeholder {
+    color: #d1d5db;
+  }
+  
+  /* Remove arrows from number input */
+  .wd-amount-input::-webkit-outer-spin-button,
+  .wd-amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  
+  /* Helper & Error Text */
+  .wd-helper-text {
+    margin: 0;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  
+  .wd-error-text {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ef4444;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  /* Quick Chips */
+  .wd-quick-chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+  }
+  
+  .wd-quick-chips button {
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .wd-quick-chips button.active {
+    background: #f3e8ff;
+    border-color: #6d28d9;
+    color: #6d28d9;
+  }
+  
+  /* --- METHOD SELECTION --- */
+  .wd-methods {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  
+  .wd-method-card {
+    background: #ffffff;
+    border: 2px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .wd-method-card.selected {
+    border-color: #6d28d9;
+    background: #fdfaff;
+    box-shadow: 0 4px 12px rgba(109, 40, 217, 0.08);
+  }
+  
+  .wd-method-icon {
+    color: #6b7280;
+    background: #f3f4f6;
+    padding: 8px;
+    border-radius: 10px;
+    width: fit-content;
+  }
+  
+  .wd-method-card.selected .wd-method-icon {
+    background: #6d28d9;
+    color: #ffffff;
+  }
+  
+  .wd-method-card h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+  }
+  
+  .wd-method-card p {
+    margin: 0;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  
+  /* --- REMARKS --- */
+  .wd-textarea {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 14px;
+    color: #1a1a1a;
+    font-family: inherit;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  
+  .wd-textarea:focus {
+    border-color: #6d28d9;
+    box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.1);
+  }
+  
+  
+  .wd-sticky-footer {
+    position: fixed;
+    bottom: 75px; 
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    padding: 12px 16px;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 40;
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+    border-top: 1px solid #f0f0f0;
+  }
+  
+  .wd-btn-cancel,
+  .wd-btn-submit {
+    flex: 1;
+    padding: 14px;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+  }
+  
+  .wd-btn-cancel {
+    background: #f3f4f6;
+    color: #4b5563;
+  }
+  
+  .wd-btn-submit {
+    background: #6d28d9;
+    color: #ffffff;
+    flex: 2;
+  }
+  
+  .wd-btn-submit:disabled {
+    background: #a78bfa;
+    cursor: not-allowed;
+  }
