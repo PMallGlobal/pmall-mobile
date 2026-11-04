@@ -1,0 +1,192 @@
+.store-container {
+    background: #f8f9fa;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+  
+  /* Header & Banner */
+  .store-header-section {
+    background: #fff;
+    padding-bottom: 10px;
+  }
+  
+  /* Common Section Header */
+  .store-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+  }
+  .store-section-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+  }
+  .see-all-link {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6d28d9;
+    text-decoration: none;
+  }
+  
+  /* Category Pills (Horizontal Scroll) */
+  .store-categories-wrap {
+    background: #fff;
+    padding-bottom: 20px;
+    margin-bottom: 12px;
+  }
+  .category-pills-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 0 16px;
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+  }
+  .category-pills-scroll::-webkit-scrollbar { display: none; }
+  
+  .category-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    flex: 0 0 auto;
+    width: 70px;
+  }
+  .category-pill-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #f3f4f6;
+    display: grid;
+    place-items: center;
+    padding: 12px;
+  }
+  .category-pill-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .category-pill p {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #4b5563;
+    text-align: center;
+    line-height: 1.2;
+    /* Limit to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  /* Product Sections */
+  .store-sections-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .category-section {
+    background: #fff;
+    padding-bottom: 16px;
+  }
+  
+  /* Horizontal Product Scroll */
+  .product-scroll-container {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding: 0 16px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .product-scroll-container::-webkit-scrollbar { display: none; }
+  
+  /* Product Card */
+  .sf-product-card {
+    flex: 0 0 160px; /* Fixed width for mobile scrolling */
+    scroll-snap-align: start;
+    text-decoration: none;
+    color: inherit;
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid #f0f0f0;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sf-card-img-wrap {
+    width: 100%;
+    aspect-ratio: 1/1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8f9fa;
+    margin-bottom: 10px;
+  }
+  .sf-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Keeps products looking clean */
+  }
+  
+  .sf-card-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .sf-card-title {
+    margin: 0 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1a1a1a;
+    line-height: 1.3;
+    /* Truncate long titles */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 34px;
+  }
+  
+  .sf-card-price {
+    margin-top: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .sf-card-price .current {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1a1a1a;
+  }
+  .sf-card-price .old {
+    font-size: 11px;
+    color: #9ca3af;
+    text-decoration: line-through;
+  }
+  
+  /* Skeletons */
+  .sf-product-card.skeleton {
+    border: none;
+    background: #f3f4f6;
+  }
+  .img-skeleton {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .text-skeleton {
+    height: 12px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .text-skeleton.short { width: 60%; }

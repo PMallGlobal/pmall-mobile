@@ -15,7 +15,6 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
     const [selectedState, setSelectedState] = useState('');
     const [selectedLga, setSelectedLga] = useState('');
 
-    // Find the selected state's LGAs
     const selectedStateData = nigeriaStates.find(
         (stateObj) => stateObj.state === selectedState
     );
@@ -26,12 +25,10 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
     const handleStateChange = (e) => {
         const newState = e.target.value;
         setSelectedState(newState);
-        setSelectedLga(''); // reset LGA when state changes
-        // Also update inputValues if you want to save state there
+        setSelectedLga(''); 
         setInputValues((prev) => ({ ...prev, state: newState }));
       };
     
-      // LGA change handler
       const handleLgaChange = (e) => {
         const newLga = e.target.value;
         setSelectedLga(newLga);
@@ -106,7 +103,7 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
                         name="state"
                         className="form-control"
                         value={selectedState}
-                        onChange={handleStateChange}  // ← dedicated handler
+                        onChange={handleStateChange}  
                         required
                         >
                         <option value="">Select State</option>
@@ -123,7 +120,7 @@ export default function New({onCustomerSubmitHandler,onChangeHandler,inputValues
                     name="lga"
                     className="form-control"
                     value={selectedLga}
-                    onChange={handleLgaChange}  // ← dedicated handler
+                    onChange={handleLgaChange}  
                     disabled={!selectedState || lgas.length === 0}
                     required
                     >

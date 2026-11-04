@@ -167,7 +167,7 @@ export default function Products({categoryId = null,related=false }) {
                                           <h3 className="red bold product__cost">
                                               {currency(product.selling_price || 0)}
                                               &nbsp;
-                                              {product.cost_price && (  // Fixed typo: ccst_price → cost_price
+                                              {product.cost_price && (  
                                               <span className="cost__price">
                                                   {currency(product.cost_price)}
                                               </span>

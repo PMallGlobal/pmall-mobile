@@ -1,105 +1,138 @@
-import React, { useEffect, useState } from 'react'
-import CategoryHeader from '../components/CategoryHeader'
+import React, { useEffect, useState } from 'react';
+import CategoryHeader from '../components/CategoryHeader';
 import OrderItemCard from '../orders/OrderItemCard';
+import { BASE_URL } from '../utils/config';
+import Toast from '../utils/Toast';
+
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagOutlined';
+import PaymentsOutlinedIcon from '@mui/icons-material/PaymentsOutlined';
+import './VendorOrders.css';
 
 export default function VendorOrders() {
-    const orderss = [
-        {
-          id: 1,
-          name: "CARICH Cool Algal Fluoride-Free Toothpaste",
-          image: "https://api.pmall.com.ng/storage/productImages/40_1759017056.png",
-          category_name: "PERSONAL CARE",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 67,
-          name: "Wireless Bluetooth Headphones Pro",
-          image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800",
-          category_name: "ELECTRONICS",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 89,
-          name: "Organic Cotton T-Shirt – Black",
-          image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800",
-          category_name: "FASHION",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 124,
-          name: "Smart LED Bulb – 10W RGB",
-          image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800",
-          category_name: "HOME & LIVING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        },
-        {
-          id: 203,
-          name: "Premium Stainless Steel Water Bottle 1L",
-          image: "https://images.unsplash.com/photo-1605296867304-46d5465a13f1?w=800",
-          category_name: "KITCHEN & DINING",
-          order_number: "02080909",
-          date_delivered: "20-10-2025",
-          delivered: true,
-        }
-      ];
-      const [orders, setOrders] = useState();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [toast, setToast] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("all");
 
-      const getOrders = () => {
-          fetch("https://api.pmall.com.ng/api/v1/sales/vendorsales",{
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json;charset=UTF-8",
-              Accept: "application/json",
-              Authorization: "Bearer " + localStorage.getItem("authToken"),
-            },
-          })
-            .then((resp) => resp.json())
-            .then((result) => {
-              console.log(result.data);
-              setOrders(result.data)
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-            console.log("result");
-        };
-  
-        useEffect(()=>{
-          getOrders()
-        },[])
-  
+  const getOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${BASE_URL}/sales/vendorsales`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json;charset=UTF-8",
+          Accept: "application/json",
+          Authorization: "Bearer " + localStorage.getItem("authToken"),
+        },
+      });
+      const result = await response.json();
+      
+      const fetchedOrders = result?.data || result?.sales || [];
+      setOrders(fetchedOrders);
+    } catch (err) {
+      console.error(err);
+      setToast({ message: "Failed to load orders", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getOrders();
+  }, []);
+
+  const totalOrders = orders.length;
+  const totalRevenue = orders.reduce((sum, order) => {
+    return sum + Number(order?.total_amount || 0);
+  }, 0);
+
+  const filterTabs = [
+    { key: "all", label: "All Orders" },
+    { key: "paid", label: "Paid" },
+    { key: "pending", label: "Pending" },
+    { key: "delivered", label: "Delivered" },
+    { key: "cancelled", label: "Cancelled" },
+  ];
+
+  const filteredOrders = orders.filter((order) => {
+    if (activeFilter === "all") return true;
+    return (
+      order?.payment_status?.toLowerCase() === activeFilter || 
+      order?.status?.toLowerCase() === activeFilter
+    );
+  });
+
+  const handleOrderStatus = (order, e) => {
+    console.log("Stockist action not applicable here", order, e);
+  };
+  const handleOrderPaymentStatus = (order, e) => {
+    console.log("Admin action not applicable here", order, e);
+  };
+
   return (
-    <div className='orders'>
-        <CategoryHeader title = 'Orders/Transactions' />
-        <div className='flex flex-col g-20'>
-            <div className='flex alc justsb g-20'>
-                <p className=''>Filter by:</p>
-                <select
-                    name="package_id"
-                    className="last-name form-control "
-                    // onChange={onChangeHandler}
-                    >
-                    {
-                        // affiliatePackages.map((pack)=>(
-                        //   <option value={pack.id}>{pack.name} - {pack.price} </option>
-                        // ))
-                    }
-                </select>
-            </div>
-            <div className='flex flex-col g-20' >
-                {orders?.map((item)=>(
-                   <OrderItemCard orderItem={item}  />
-                ))}
-            </div>
+    <div className="vendor-orders-page">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
+      <div className="vo-stats-grid">
+        <div className="vo-stat-card">
+          <div className="vo-stat-icon bg-purple">
+            <ShoppingBagOutlinedIcon />
+          </div>
+          <div>
+            <p>Total Orders</p>
+            <h3>{loading ? "..." : totalOrders}</h3>
+          </div>
         </div>
+        <div className="vo-stat-card">
+          <div className="vo-stat-icon bg-green">
+            <PaymentsOutlinedIcon />
+          </div>
+          <div>
+            <p>Revenue</p>
+            <h3>₦{totalRevenue.toLocaleString()}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div className="vo-filter-tabs">
+        {filterTabs.map((tab) => (
+          <button
+            key={tab.key}
+            className={`vo-filter-tab ${activeFilter === tab.key ? "active" : ""}`}
+            onClick={() => setActiveFilter(tab.key)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="vo-list-container">
+        {loading ? (
+          <div className="vo-loading">
+            <div className="vo-spinner"></div>
+            <p>Fetching your transactions...</p>
+          </div>
+        ) : filteredOrders.length === 0 ? (
+          <div className="vo-empty-state">
+            <ShoppingBagOutlinedIcon style={{ fontSize: 64, color: '#d1d5db' }} />
+            <h3>No orders found</h3>
+            <p>
+              {activeFilter === "all" 
+                ? "You haven't received any orders yet." 
+                : `No orders match the "${activeFilter}" filter.`}
+            </p>
+          </div>
+        ) : (
+          filteredOrders.map((item) => (
+            <OrderItemCard 
+              key={item.id} 
+              orderItem={item} 
+              title="details" 
+              handleOrderStatus={handleOrderStatus}
+              handleOrderPaymentStatus={handleOrderPaymentStatus}
+            />
+          ))
+        )}
+      </div>
     </div>
-  )
+  );
 }

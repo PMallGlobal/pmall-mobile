@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   MapContainer,
@@ -10,28 +10,26 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import SearchIcon from '@mui/icons-material/Search';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-// Fix marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
+  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png"
 });
 
-// Move map when search result changes
 function ChangeMapView({ coords }) {
   const map = useMap();
-  if (coords) {
-    map.setView(coords, 16);
-  }
+  useEffect(() => {
+    if (coords) {
+      map.flyTo(coords, 16, { animate: true, duration: 1.5 });
+    }
+  }, [coords, map]);
   return null;
 }
 
-// Click picker
 function LocationPicker({ setPosition }) {
   useMapEvents({
     click(e) {
@@ -41,79 +39,113 @@ function LocationPicker({ setPosition }) {
   return null;
 }
 
-export default function MapComponent() {
+export default function MapComponent({ onLocationSelect }) {
   const [search, setSearch] = useState("");
   const [position, setPosition] = useState(null);
+  const [addressText, setAddressText] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = async () => {
+  const handleSearch = async (e) => {
+    e.preventDefault();
     if (!search) return;
 
-    const response = await axios.get(
-      "https://nominatim.openstreetmap.org/search",
-      {
+    setLoading(true);
+    try {
+      const response = await axios.get("https://nominatim.openstreetmap.org/search", {
         params: {
           q: search,
           format: "json",
-          countrycodes: "ng", // restrict to Nigeria
-          limit: 1
+          countrycodes: "ng", 
+          limit: 1,
+          addressdetails: 1
         }
-      }
-    );
+      });
 
-    if (response.data.length > 0) {
-      const { lat, lon } = response.data[0];
-      setPosition([parseFloat(lat), parseFloat(lon)]);
-    } else {
-      alert("Area not found. Try searching nearby area.");
+      if (response.data.length > 0) {
+        const { lat, lon, display_name } = response.data[0];
+        setPosition([parseFloat(lat), parseFloat(lon)]);
+        setAddressText(display_name);
+        if (onLocationSelect) onLocationSelect(display_name, [parseFloat(lat), parseFloat(lon)]);
+      } else {
+        alert("Area not found. Try searching a nearby landmark.");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  console.log(position)
+  useEffect(() => {
+    if (!position) return;
+    
+    const getAddress = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get("https://nominatim.openstreetmap.org/reverse", {
+          params: {
+            lat: position[0],
+            lon: position[1],
+            format: "json",
+          }
+        });
+        if (response.data && response.data.display_name) {
+          setAddressText(response.data.display_name);
+          if (onLocationSelect) onLocationSelect(response.data.display_name, position);
+        }
+      } catch (error) {
+        console.error("Reverse geocode error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!addressText) {
+       getAddress();
+    }
+  }, [position]); 
 
   return (
-    <div>
-      {/* Search Bar */}
-      <div style={{ marginBottom: "10px" }}>
+    <div className="map-wrapper">
+      <form onSubmit={handleSearch} className="map-search-bar">
         <input
           type="text"
-          placeholder="Search your area (e.g. Ikeja Lagos)"
+          placeholder="Search area, street, or landmark..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: "8px", width: "300px" }}
         />
-        <button
-          onClick={handleSearch}
-          style={{ padding: "8px", marginLeft: "5px" }}
-        >
-          Search
+        <button type="submit" disabled={loading}>
+          {loading ? "..." : <SearchIcon />}
         </button>
+      </form>
+      <div className="map-container-inner">
+        <MapContainer
+          center={[6.5244, 3.3792]} 
+          zoom={13}
+          style={{ height: "300px", width: "100%", borderRadius: "12px", zIndex: 0 }}
+        >
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          <ChangeMapView coords={position} />
+          <LocationPicker setPosition={setPosition} />
+
+          {position && (
+            <Marker position={position}>
+              <Popup>Selected Location</Popup>
+            </Marker>
+          )}
+        </MapContainer>
       </div>
 
-      <MapContainer
-        center={[6.5244, 3.3792]}
-        zoom={13}
-        style={{ height: "500px", width: "100%" }}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        <ChangeMapView coords={position} />
-        <LocationPicker setPosition={setPosition} />
-
-        {position && (
-          <Marker position={position}>
-            <Popup>
-              <strong>Selected Location</strong>
-              <br />
-              Latitude: {position[0]}
-              <br />
-              Longitude: {position[1]}
-            </Popup>
-          </Marker>
-        )}
-      </MapContainer>
+      {addressText && (
+        <div className="map-address-card">
+          <LocationOnIcon className="text-purple-600" />
+          <p>{addressText}</p>
+        </div>
+      )}
     </div>
   );
 }

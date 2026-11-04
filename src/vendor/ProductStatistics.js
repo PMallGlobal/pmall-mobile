@@ -59,7 +59,6 @@ export default function ProductStatistics() {
   function countWords(text) {
     if (!text || typeof text !== 'string') return 0;
     
-    // Remove extra spaces, trim, then split by whitespace
     return text
       .trim()
       .split(/\s+/)
@@ -161,7 +160,7 @@ const handleAddToCart = () => {
                             size="small"
                             sx={{
                             '& .MuiRating-iconFilled': {
-                                color: '#F9CE4E', // Amazon-style orange, or any color you want
+                                color: '#F9CE4E', 
                             }
                             }}
                         />
@@ -179,7 +178,7 @@ const handleAddToCart = () => {
                                 size="small"
                                 sx={{
                                 '& .MuiRating-iconFilled': {
-                                    color: '#F9CE4E', // Amazon-style orange, or any color you want
+                                    color: '#F9CE4E', 
                                 }
                                 }}
                             />
@@ -199,7 +198,7 @@ const handleAddToCart = () => {
                                 size="small"
                                 sx={{
                                 '& .MuiRating-iconFilled': {
-                                    color: '#F9CE4E', // Amazon-style orange, or any color you want
+                                    color: '#F9CE4E', 
                                 }
                                 }}
                             />
@@ -219,7 +218,7 @@ const handleAddToCart = () => {
                                 size="small"
                                 sx={{
                                 '& .MuiRating-iconFilled': {
-                                    color: '#F9CE4E', // Amazon-style orange, or any color you want
+                                    color: '#F9CE4E', 
                                 }
                                 }}
                             />

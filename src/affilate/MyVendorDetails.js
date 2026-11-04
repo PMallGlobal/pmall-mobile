@@ -98,7 +98,6 @@ export default function MyVendorDetails() {
             </div>
         </div>
         <div className="tabs-section">
-      {/* Tab Headers */}
       <div className="tabs-header">
         {tabs.map((tab) => (
           <button
@@ -110,8 +109,6 @@ export default function MyVendorDetails() {
           </button>
         ))}
       </div>
-
-      {/* Tab Content */}
       <div className="tabs-content">
         {renderContent()}
       </div>

@@ -1,62 +1,62 @@
-import React, { useState } from 'react'
-import RemoveOutlinedIcon from '@mui/icons-material/RemoveOutlined';
-import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
+import React from 'react';
+import { Link } from 'react-router-dom';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
-import currency from '../utils/formatCurrency';
+import RemoveIcon from '@mui/icons-material/Remove';
+import AddIcon from '@mui/icons-material/Add';
 
-
-export default function CartItemCard({cartItem, title,handleDeleteItem, handleQuantityChange}) {
-    console.log(cartItem)
+export default function CartItemCard({ cartItem, handleDeleteItem, handleQuantityChange }) {
+  const hasDiscount = Number(cartItem.cost_price) > Number(cartItem.selling_price);
   
-   
   return (
-    <div className={`cart-item flex alc w-full g-20 ${cartItem.inStock == "0" && "oos"}`}>
-        <div className='cartimg'>
-            <img src={cartItem.image} alt="" />
+    <div className="cart-item-card">
+      <Link to={`/product/${cartItem.id}`} className="cart-item-img-box">
+        <img 
+          src={cartItem.image || '/default-image.jpg'} 
+          alt={cartItem.name} 
+          onError={(e) => (e.target.src = '/default-image.jpg')}
+        />
+      </Link>
+
+    
+      <div className="cart-item-info">
+        <Link to={`/product/${cartItem.id}`} className="cart-item-title">
+          {cartItem.name}
+        </Link>
+        
+        <div className="cart-item-price-row">
+          <span className="cart-price-current">₦{Number(cartItem.selling_price).toLocaleString()}</span>
+          {hasDiscount && (
+            <span className="cart-price-old">₦{Number(cartItem.cost_price).toLocaleString()}</span>
+          )}
         </div>
-        <div className='w-full flex flex-col g-10'>
-            <div className='cart-item-name'>
-               <p> {cartItem.name}</p>
-            </div>
-            <div className='cart-item-category'>
-                <p>{cartItem.category_name}</p>
-            </div>
-            <div className='flex justsb alc'>
-                <div className='cart-item-sellp'>
-                    <p> {currency(cartItem.selling_price)}</p>
-                    <div className='flex alc g-5'>
-                        <p className='cart-item-costp'> {currency(cartItem.cost_price)}</p>
-                        <div>
-                            <p className='discount'>30%</p>
-                        </div>
-                    </div>
-                </div>
-                {cartItem.inStock ? (
-                    title === 'wishlist' ? (
-                        <div className="wishlist-cart-btn">
-                        <p>Add to Cart</p>
-                        </div>
-                    ) : (
-                        <div className="flex alc quant-btn g-10 justsb">
-                        <div className="icon" onClick={() => handleQuantityChange(cartItem.id, -1)}>
-                            <RemoveOutlinedIcon className="ic" />
-                        </div>
-                        <p className="ic">{cartItem.amtItems}</p>
-                        <div className="icon" onClick={() => handleQuantityChange(cartItem.id, 1)}>
-                            <AddOutlinedIcon className="ic" />
-                        </div>
-                        </div>
-                    )
-                    ) : (
-                    <div className='oos-btn'>
-                      <p>Out of Stock</p>  
-                    </div> 
-                )}
-            </div>
-        </div>
-        <div className='delete-cartitem' onClick={() => handleDeleteItem(cartItem.id)}>
+
+        <div className="cart-item-actions">
+          <div className="cart-qty-stepper">
+            <button 
+              className="qty-btn" 
+              onClick={() => handleQuantityChange(cartItem.id, -1)}
+              disabled={cartItem.amtItems <= 1}
+            >
+              <RemoveIcon fontSize="small" />
+            </button>
+            <span className="qty-value">{cartItem.amtItems}</span>
+            <button 
+              className="qty-btn" 
+              onClick={() => handleQuantityChange(cartItem.id, 1)}
+            >
+              <AddIcon fontSize="small" />
+            </button>
+          </div>
+
+          <button 
+            className="cart-delete-btn"
+            onClick={() => handleDeleteItem(cartItem.id)}
+            aria-label="Remove item"
+          >
             <DeleteOutlineOutlinedIcon />
+          </button>
         </div>
+      </div>
     </div>
-  )
+  );
 }

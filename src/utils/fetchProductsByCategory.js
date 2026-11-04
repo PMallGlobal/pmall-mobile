@@ -6,7 +6,7 @@ const fetchProductsByCategory = async (categoryId) => {
             throw new Error("Failed to fetch products");
         }
         const data = await response.json();
-        return data.products; // Assuming the response contains a `products` array
+        return data.products; 
     } catch (error) {
         console.error(`Error fetching products for category ${categoryId}:`, error);
         return [];

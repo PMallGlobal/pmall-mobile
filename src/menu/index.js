@@ -1,31 +1,71 @@
-import React from 'react'
-import CategoryHeader from '../components/CategoryHeader'
+import React from 'react';
+import CategoryHeader from '../components/CategoryHeader';
+import { useUser, useLogOut } from '../context/UserContext';
+import UserAvatar from '../utils/UserAvatar';
+
+import ShareOutlinedIcon from '@mui/icons-material/ShareOutlined';
+import ThumbUpAltOutlinedIcon from '@mui/icons-material/ThumbUpAltOutlined';
+import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import './Menu.css';
 
 export default function Menu() {
-  return (
-    <div className='funds-withdraw'>
-        <CategoryHeader title="Menu" />
+  const { user } = useUser();
+  const logOut = useLogOut();
 
-        <div className='flex flex-col g-20 w-full '>
-            <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>
-                <div className='flex g-20 alc'>
-                    <img src="/images/Connect.png" alt="" />
-                    <p>Connect Store to Social Media</p>
-                </div>
+  const handleConnectStore = () => {
+    alert("Social media connection coming soon!");
+  };
+  const handleFollowPage = () => {
+    window.open("https://instagram.com/pmall", "_blank"); 
+  };
+
+  return (
+    <div className="menu-page">
+
+      {/* ACTIONS LIST */}
+      <div className="menu-section">
+        <h3 className="menu-section-title">Store Settings</h3>
+        
+        <div className="menu-list">
+          <button className="menu-item" onClick={handleConnectStore}>
+            <div className="menu-item-left">
+              <div className="menu-icon bg-purple">
+                <ShareOutlinedIcon fontSize="small" />
+              </div>
+              <span className="menu-label">Connect Store to Social Media</span>
             </div>
-            <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>
-                <div className='flex g-20 alc'>
-                    <img src="/images/Group 1000006044 (2).png" alt="" />
-                    <p>Follow Our Page</p>
-                </div>
+            <ChevronRightIcon className="menu-chevron" />
+          </button>
+
+          <button className="menu-item" onClick={handleFollowPage}>
+            <div className="menu-item-left">
+              <div className="menu-icon bg-yellow">
+                <ThumbUpAltOutlinedIcon fontSize="small" />
+              </div>
+              <span className="menu-label">Follow Our Page</span>
             </div>
-            <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>
-                <div className='flex g-20 alc'>
-                    <img src="/images/Group 1000006043 (1).png" alt="" />
-                    <p>Log Out</p>
-                </div>
-            </div>
+            <ChevronRightIcon className="menu-chevron" />
+          </button>
         </div>
+      </div>
+
+      <div className="menu-section">
+        <h3 className="menu-section-title">Account</h3>
+        
+        <div className="menu-list">
+          <button className="menu-item danger" onClick={logOut}>
+            <div className="menu-item-left">
+              <div className="menu-icon bg-red">
+                <LogoutOutlinedIcon fontSize="small" />
+              </div>
+              <span className="menu-label">Log Out</span>
+            </div>
+            <ChevronRightIcon className="menu-chevron" />
+          </button>
+        </div>
+      </div>
+
     </div>
-  )
+  );
 }

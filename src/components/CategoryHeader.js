@@ -2,15 +2,18 @@ import React from 'react'
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import HeaderSearch from '../components/headerSearch';
+import { useUser } from '../context/UserContext'; 
 import { Link, useNavigate } from 'react-router-dom';
 import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { cartNum } from '../utils/cartUtils';
+import UserAvatar from '../utils/UserAvatar';
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
 
 export default function CategoryHeader({title, image, search}) {
     const navigate = useNavigate();
+    const { user } = useUser();
   return (
     <div className='category-t'>
         <div className='flex justsb category-head'>
@@ -31,8 +34,7 @@ export default function CategoryHeader({title, image, search}) {
               </div>
             ) : title === 'My Orders' || title === 'Order Details' || title === 'Products' || title === 'New Product' || title === 'Edit Product' || title == "Orders/Transactions" || title == "Fund Withdrawal" || title == "Withdraw Funds" || title == "Transfer Funds"  || title == "Menu" || title == "Transfer Pin" || title === 'Edit Profile' || image === 'true' ? (
               <div className="back-icon">
-                {/* <img src="/images/Ellipse 280.png" alt="Orders" className='profile-image' /> */}
-                <AccountCircleOutlinedIcon className='pfp' />
+                <UserAvatar name={user?.fname} size={50} className="db-avatar" />
               </div>
             ) : (
               <div className='cart-cont'>

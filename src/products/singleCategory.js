@@ -2,7 +2,7 @@ import React, { useEffect, useState,useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import CategoryHeader from '../components/CategoryHeader';
-import PlainProductGrid from './PlainProductGrid'; // or ProductGrid if you prefer
+import PlainProductGrid from './PlainProductGrid'; 
 import SingleCategoryGrid from './SingleCategoryGrid';
 import { BASE_URL } from '../utils/config';
 import { useQuery } from '@tanstack/react-query';
@@ -11,7 +11,7 @@ const PRODUCTS_ENDPOINT = `${BASE_URL}/public/products/list-all`;
 const CATEGORIES_ENDPOINT = `${BASE_URL}/public/products/get-all-categories`;
 
 const SingleCategory = () => {
-  const { categoryId } = useParams(); // e.g. "electronics", "fashion"
+  const { categoryId } = useParams(); 
   const [category, setCategory] = useState(null);
   // const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -73,14 +73,14 @@ const SingleCategory = () => {
           const toSlug = (str) =>
           str
             ?.toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '') // strip apostrophes & special chars
+            .replace(/[^a-z0-9\s-]/g, '') 
             .trim()
-            .replace(/\s+/g, '-');        // spaces → hyphens
+            .replace(/\s+/g, '-');        
 
           const foundCategory = data.data.find(
           (cat) =>
-            toSlug(cat.name) === categoryId ||       // "MEN'S HEALTHCARE" → "mens-healthcare"
-            String(cat.id) === String(categoryId)    // 2 === "2" ✅
+            toSlug(cat.name) === categoryId ||       
+            String(cat.id) === String(categoryId)    
           );
 
         if (!foundCategory) {
@@ -113,14 +113,12 @@ const SingleCategory = () => {
 
   return (
     <div className="category-container single">
-      {/* Dynamic header with category name */}
       <CategoryHeader title={category.name} />
 
       <div className="flex flex-col g-40 w-100">
         {category.length == 0 ? 
         <p>No products found under this category</p> :
         <div className="flex justsb g-10" style={{ width: '100%' }}>
-        {/* Pass the categoryId so PlainProductGrid shows only products from this category */}
         <SingleCategoryGrid categoryId={categoryId} />
       </div>
       }

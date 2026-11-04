@@ -1,144 +1,91 @@
-import React from 'react'
-import HomeOutlinedIcon from '@mui/icons-material/HomeOutlined';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import GridViewIcon from '@mui/icons-material/GridView';
-import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
-import BusinessCenterOutlinedIcon from '@mui/icons-material/BusinessCenterOutlined';
-import ShoppingBasketOutlinedIcon from '@mui/icons-material/ShoppingBasketOutlined';
-import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
-import PaymentOutlinedIcon from '@mui/icons-material/PaymentOutlined';
-import MessageOutlinedIcon from '@mui/icons-material/MessageOutlined';
-import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useUser } from '../context/UserContext';
+import './Footer.css'; 
+
+import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
+import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
+import PeopleAltOutlinedIcon from '@mui/icons-material/PeopleAltOutlined';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryOutlined';
+import AccountBalanceWalletOutlinedIcon from '@mui/icons-material/AccountBalanceWalletOutlined';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
+import MenuOutlinedIcon from '@mui/icons-material/MenuOutlined';
+import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 
-export default function Footer({vendorIn,stockist }) {
-    const {user} = useUser()
+export default function Footer({ vendorIn, stockist }) {
+  const { user } = useUser();
+  const location = useLocation(); 
+
+  const navConfigs = {
+    Vendor: [
+      { path: '/dashboard', label: 'Dashboard', icon: GridViewOutlinedIcon },
+      { path: `/vendor/${user?.storeId}`, label: 'My Store', icon: StorefrontOutlinedIcon },
+      { path: '/', label: 'Mall', icon: StorefrontOutlinedIcon }, // Or Home icon
+      { path: '/orders', label: 'Orders', icon: ReceiptLongOutlinedIcon },
+      { path: '/menu', label: 'Menu', icon: MenuOutlinedIcon },
+    ],
+    Stockist: [
+      { path: '/dashboard', label: 'Dashboard', icon: GridViewOutlinedIcon },
+      { path: '/funds-withdrawal', label: 'Withdrawal', icon: AccountBalanceWalletOutlinedIcon },
+      { path: '/chat', label: 'Chat', icon: ChatBubbleOutlineIcon }, // Update path if needed
+      { path: '/menu', label: 'Menu', icon: MenuOutlinedIcon },
+    ],
+    Affiliate: [
+      { path: '/', label: 'Mall', icon: StorefrontOutlinedIcon },
+      { path: '/affiliate/my-affiliates', label: 'Affiliates', icon: PeopleAltOutlinedIcon },
+      { path: '/affiliate/my-vendors', label: 'Vendors', icon: LocalShippingOutlinedIcon },
+      { path: '/dashboard', label: 'Dashboard', icon: GridViewOutlinedIcon },
+      { path: '/profile', label: 'Profile', icon: PersonOutlineIcon },
+    ],
+    Customer: [
+      { path: '/', label: 'Home', icon: StorefrontOutlinedIcon },
+      { path: '/cart', label: 'Cart', icon: ShoppingCartOutlinedIcon },
+      { path: '/wishlist', label: 'Wishlist', icon: FavoriteBorderOutlinedIcon },
+      { path: '/category', label: 'Category', icon: CategoryOutlinedIcon },
+      { path: '/customer/profile', label: 'Profile', icon: PersonOutlineIcon },
+    ],
+  };
+
+  let role = 'Customer'; 
+  
+  if (stockist && !vendorIn) {
+    role = 'Stockist';
+  } else if (user?.accountType === 'Vendor') {
+    role = 'Vendor';
+  } else if (user?.accountType === 'Affiliate') {
+    role = 'Affiliate';
+  }
+
+  const links = navConfigs[role];
+
   return (
-    <div className='footer-cont'>
-        {user?.accountType == "Vendor" ?
-        <div className='footer'>
-            <Link to="/dashboard">
-                <div className='footer-item'>
-                    <GridViewIcon className='footer-icon' />
-                    <p>Dashboard</p>
-                </div>
+    <nav className="bottom-nav">
+      <div className="bottom-nav-container">
+        {links.map((link) => {
+          const Icon = link.icon;
+          const isActive = 
+            location.pathname === link.path || 
+            (link.path !== '/' && location.pathname.startsWith(link.path));
+
+          return (
+            <Link 
+              to={link.path} 
+              key={link.label} 
+              className={`bottom-nav-item ${isActive ? 'active' : ''}`}
+            >
+              <div className="nav-icon-wrapper">
+                <Icon className="nav-icon" />
+                {isActive && <span className="active-dot"></span>}
+              </div>
+              <span className="nav-label">{link.label}</span>
             </Link>
-            <Link to={`/vendor/${user?.storeId}`} >
-                <div className='footer-item'>
-                    <StorefrontOutlinedIcon className='footer-icon' />
-                    <p>My Store</p>
-                </div>
-            </Link>
-            <Link to="/">
-                <div className='footer-item'>
-                    <BusinessCenterOutlinedIcon alt="" className='footer-icon' />
-                    <p>Mall</p>
-                </div>
-            </Link><Link to="/orders">
-                <div className='footer-item'>
-                    <ShoppingBasketOutlinedIcon className='footer-icon' />
-                    <p>My Orders</p>
-                </div>
-            </Link>
-            <Link to="/menu">
-                <div className='footer-item'>
-                    <MenuOutlinedIcon className='footer-icon' />
-                    <p>Menu</p>
-            </div>
-            </Link>
-        </div> : stockist && !vendorIn ?
-            <div className='footer'>
-                <Link to="/dashboard">
-                    <div className='footer-item'>
-                        <DashboardOutlinedIcon className='footer-icon' />
-                        <p>Dashboard</p>
-                    </div>
-                </Link>
-                <Link to="/funds-withdrawal">
-                    <div className='footer-item'>
-                        <img src="/images/uil_money-withdraw.png" alt="" className='footer-icon' />
-                        <p>Withdrawal</p>
-                    </div>
-                </Link>
-                <div className='footer-item'>
-                    <MessageOutlinedIcon className='footer-icon' />
-                    <p>Chat</p>
-                </div>
-                <Link to="/menu">
-                    <div className='footer-item'>
-                        <MenuOutlinedIcon className='footer-icon' />
-                        <p>Menu</p>
-                    </div>
-                </Link>
-            </div> : user?.accountType == "Affiliate" ?
-        <div className='footer'>
-            <Link to="/">
-                <div className='footer-item'>
-                    <HomeOutlinedIcon className='footer-icon' />
-                    <p>Mall</p>
-                </div>
-            </Link>
-            <Link to="/affiliate/my-affiliates">
-                <div className='footer-item'>
-                    <img src="/images/affilates.png" alt="" className='footer-icon' />
-                    <p>Affilates</p>
-                </div>
-            </Link>
-            <Link to="/affiliate/my-vendors">
-                <div className='footer-item'>
-                    <img src="/images/courier.png" alt="" className='footer-icon' />
-                    <p>My Vendor</p>
-                </div>
-            </Link>
-            <Link to="/dashboard">
-                <div className='footer-item'>
-                    <img src="/images/Group (3).png" alt="" className='footer-icon' />
-                    <p>dashboard</p>
-                </div>
-            </Link>
-            <Link to="/profile">
-                <div className='footer-item'>
-                    <AccountCircleOutlinedIcon className='footer-icon' />
-                    <p>Profile</p>
-                </div>
-            </Link>
-        </div> :
-        <div className='footer'>
-            <Link to="/">
-                <div className='footer-item'>
-                    <HomeOutlinedIcon className='footer-icon' />
-                    <p>Home</p>
-                </div>
-            </Link>
-            <Link to="/cart">
-                <div className='footer-item'>
-                    <ShoppingCartOutlinedIcon className='footer-icon' />
-                    <p>Cart</p>
-                </div>
-            </Link>
-            <Link to="/wishlist">
-                <div className='footer-item'>
-                    <FavoriteBorderOutlinedIcon className='footer-icon' />
-                    <p>Wishlist</p>
-                </div>
-            </Link>
-            <Link to="/category">
-                <div className='footer-item'>
-                    <img src="/images/Group (3).png" alt="" className='footer-icon' />
-                    <p>Category</p>
-                </div>
-            </Link>
-            <Link to="/customer/profile">
-                <div className='footer-item'>
-                    <AccountCircleOutlinedIcon className='footer-icon' />
-                    <p>Profile</p>
-                </div>
-            </Link>
-        </div>
-    }
-    </div>
-  )
+          );
+        })}
+      </div>
+    </nav>
+  );
 }

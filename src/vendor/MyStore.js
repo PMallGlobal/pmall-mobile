@@ -1,207 +1,192 @@
-import React, { useEffect, useState } from 'react'
-import Footer from '../components/footer';
-import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
-import HeaderSearch from '../components/headerSearch';
-import PlainProductGrid from '../products/PlainProductGrid';
+import React, { useEffect, useState } from 'react';
+import { Link } from "react-router-dom";
 import { useUser } from '../context/UserContext';
 import { useVendorr } from '../context/VendorSignupContext';
 import Toast from '../utils/Toast';
-import { Link } from "react-router-dom";
 import LimitWord from "../utils/limitWord";
 import currency from "../utils/formatCurrency";
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import Footer from '../components/footer';
 
-
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import Inventory2OutlinedIcon from '@mui/icons-material/Inventory2Outlined';
+import TrendingUpOutlinedIcon from '@mui/icons-material/TrendingUpOutlined';
+import LocalMallOutlinedIcon from '@mui/icons-material/LocalMallOutlined';
+import ReplayOutlinedIcon from '@mui/icons-material/ReplayOutlined';
+import SearchIcon from '@mui/icons-material/Search';
+import AddIcon from '@mui/icons-material/Add';
+import UserAvatar from '../utils/UserAvatar'; 
+import './MyStore.css';
 
 export default function MyStore() {
-    const user = useUser();
-    const { vendorProductAmt, wallet, orderAmt, setVendorProductAmt} = useVendorr();
-    const [copied, setCopied] = useState(false);
-    const [toast, setToast] = useState()
-    const [products, setProducts] = useState();
-    const WEB_URL = window.location.origin;
-    const related=false;
-    const getProducts = () => {
-        if(user?.user.accountType== "Vendor"){
-          fetch("https://api.pmall.com.ng/api/v1/products", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json;charset=UTF-8",
-              Accept: "application/json",
-              Authorization: "Bearer " + localStorage.getItem("authToken"),
-            },
-          })
-            .then((resp) => resp.json())
-            .then((result) => {
-              console.log(result);
-              setProducts(result.data);
-              setVendorProductAmt(result.data.length)
-            })
-            .catch((err) => {
-              console.log(err);
-            });
-        }
-      };
+  const { user } = useUser(); 
+  const { wallet, orderAmt, setVendorProductAmt } = useVendorr();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const WEB_URL = window.location.origin;
 
-
-    const copyToClipboard = (text) => {
-    
-        if (!text) return;
-    
-        navigator.clipboard.writeText(text)
-          .then(() => {
-            setCopied(true);
-            // Reset "Copied!" after 2 seconds
-            setTimeout(() => setCopied(false), 2000);
-            setToast({
-                message:"Copied to clipboard",
-                type: "success"
-            })
-          })
-          .catch((err) => {
-            console.error("Failed to copy:", err);
-          });
-      };
-
+  useEffect(() => {
+    const getProducts = async () => {
+      if (user?.accountType !== "Vendor") return;
       
-      useEffect(() => {
-        getProducts()
-      }, []);
+      try {
+        const res = await fetch("https://api.pmall.com.ng/api/v1/products", {
+          headers: {
+            "Content-Type": "application/json;charset=UTF-8",
+            Accept: "application/json",
+            Authorization: "Bearer " + localStorage.getItem("authToken"),
+          },
+        });
+        const result = await res.json();
+        setProducts(result.data || []);
+        if (setVendorProductAmt) setVendorProductAmt(result.data?.length || 0);
+      } catch (err) {
+        console.error(err);
+        setToast({ message: "Failed to load products", type: "error" });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getProducts();
+  }, [user]);
+
+  const copyToClipboard = (text) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      setToast({ message: "Store link copied!", type: "success" });
+    }).catch(() => {
+      setToast({ message: "Failed to copy link", type: "error" });
+    });
+  };
+
+  const filteredProducts = products.filter(p => 
+    p.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className='dashboard my-store  '>
-         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <div className='flex justsb alc'>
-            <div className='flex alc g-20 d-profile'>
-                <div>
-                    <h2 className='uppercase'>{user.user.fname} {user.user.lname}</h2>
-                    <p>{user.user.storeId}</p>
-                </div>
+    <div className="ms-page">
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-                <img src="/images/Ellipse 280.png" alt="" />
-            </div>
-            <div className='flex alc g-10 copy-store-link pointer' onClick={()=>copyToClipboard(`${WEB_URL}/store/${user.user.storeId}`)}>
-                <ContentCopyOutlinedIcon className='copy' />
-                <p>Copy my store link</p>
-            </div>
+      <div className="ms-header-card">
+        <div className="ms-profile-info">
+          <UserAvatar name={user?.storeName || user?.fname} size={56} />
+          <div className="ms-profile-text">
+            <h2 className="ms-store-name">{user?.storeName || "My Store"}</h2>
+            <p className="ms-owner-name">{user?.fname} {user?.lname}</p>
+            <p className="ms-store-id">ID: {user?.storeId}</p>
+          </div>
         </div>
+        
+        <button 
+          className={`ms-copy-btn ${copied ? 'copied' : ''}`}
+          onClick={() => copyToClipboard(`${WEB_URL}/store/${user?.storeId}`)}
+        >
+          {copied ? <CheckCircleIcon fontSize="small" /> : <ContentCopyIcon fontSize="small" />}
+          {copied ? 'Copied' : 'Copy Link'}
+        </button>
+      </div>
 
-        <div className='store-name'>
-            <p className='uppercase'>STORE NAME: {user.user.storeName}</p>
-        </div>
 
-        <div className='db-cards'>
-            <div className='flex alc db-card bg-white justsb p-20'>
-                <div className='flex flex-col justsb h-full g-20'>
-                    <p>Total Products</p>
-                    <h2>{vendorProductAmt}</h2>
-                </div>
-                <div className='bg-y'>
-                    <img src="/images/shopping-bag_17390063.png" alt="" />
-                </div>
-            </div>
-            <div className='flex alc db-card bg-white justsb p-20'>
-                <div className='flex flex-col justsb h-full g-20'>
-                    <p>Total Sales</p>
-                    <h2>{wallet?.pv}</h2>
-                </div>
-                <div className='bg-p'>
-                    <img src="/images/increasing_5329515.png" alt="" />
-                </div>
-            </div>
-            <div className='flex alc db-card bg-white justsb p-20'>
-                <div className='flex flex-col justsb h-full g-20'>
-                    <p>Total Sold</p>
-                    <h2>{orderAmt}</h2>
-                </div>
-                <div className='bg-p'>
-                    <img src="/images/cubes_2875916.png" alt="" />
-                </div>
-            </div>
-            <div className='flex alc db-card bg-white justsb p-20'>
-                <div className='flex flex-col justsb h-full g-20'>
-                    <p>Total Returned</p>
-                    <h2>0.00</h2>
-                </div>
-                <div className='bg-y'>
-                    <img src="/images/lsicon_sales-return-filled.png" alt="" />
-                </div>
-            </div>
-        </div>
-
-        <div className='flex flex-col g-20 vend-cat'>
-            <HeaderSearch />
-            {/* <PlainProductGrid /> */}
-            <div style={{ width: "100%" }}>
-          <div className="flex flex-col g-10 bg-white-contain">
-
+      <div className="ms-stats-grid">
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon bg-purple"><Inventory2OutlinedIcon /></div>
           <div>
-              <div className="carousel-wrapper">
+            <p>Total Products</p>
+            <h3>{products.length}</h3>
+          </div>
+        </div>
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon bg-yellow"><TrendingUpOutlinedIcon /></div>
+          <div>
+            <p>Total Sales</p>
+            <h3>{wallet?.pv || 0}</h3>
+          </div>
+        </div>
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon bg-blue"><LocalMallOutlinedIcon /></div>
+          <div>
+            <p>Total Sold</p>
+            <h3>{orderAmt || 0}</h3>
+          </div>
+        </div>
+        <div className="ms-stat-card">
+          <div className="ms-stat-icon bg-red"><ReplayOutlinedIcon /></div>
+          <div>
+            <p>Returned</p>
+            <h3>0</h3>
+          </div>
+        </div>
+      </div>
 
-              <div className={`carousel-container ${related && "related"}`}>
-              <div className="category-items">
-                  <div className={`products-grid ${related && "related"}`}>
-                      {products?.map((product) => (
-                          <div className="product-grid-item" key={product.id}>
-                              <div className="product-cart-wrap">
-                              <div className="product-badges product-badges-position product-badges-mrg"></div>
+      
+      <div className="ms-action-bar">
+        <div className="ms-search-wrap">
+          <SearchIcon className="ms-search-icon" />
+          <input 
+            type="text" 
+            placeholder="Search my products..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+        <Link to="/new-product" className="ms-add-btn">
+          <AddIcon />
+        </Link>
+      </div>
 
-                              <div className="product-info default-cover card">
-                                  <Link to={`/product/${product.id}`} className="img-bg">
-                                  <img
-                                      src={product.image || "/default-image.jpg"}
-                                      alt={product.name || "Product Image"}
-                                      className="product__image"
-                                      style={{
-                                      width: "100%",
-                                      height: "200px",
-                                      objectFit: "cover",
-                                      borderRadius: "8px",
-                                      }}
-                                      onError={(e) => (e.target.src = "/default-image.jpg")}
-                                  />
-                                  </Link>
-
-                                  <Link to={`/product/${product.id}`} className="no__underline">
-                                  <div className="product_desc" style={{ padding: "12px 8px" }}>
-                                      <div className="flex-col g-5">
-                                        <div className="flex justsb">
-                                          <p className="product__name bold uppercase">
-                                              {LimitWord(product.name || "Unnamed Product", 2)}
-
-                                          </p>
-                                        </div>
-                                          <p className="product__name text-muted yyyybbb">
-                                              {LimitWord(product.description, 4)}
-                                          </p>
-                                          <h3 className="red bold product__cost">
-                                              {currency(product.selling_price || 0)}
-                                              &nbsp;
-                                              {product.cost_price && (  // Fixed typo: ccst_price → cost_price
-                                              <span className="cost__price">
-                                                  {currency(product.cost_price)}
-                                              </span>
-                                              )}
-                                          </h3>
-                                      </div>
-                                  </div>
-                                  </Link>
-                              </div>
-                              </div>
-                          </div>
-                      ))}
+      
+      <div className="ms-products-section">
+        <h3 className="ms-section-title">My Inventory</h3>
+        
+        {loading ? (
+          <div className="ms-loading">Loading products...</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="ms-empty">
+            <Inventory2OutlinedIcon style={{ fontSize: 60, color: '#d1d5db' }} />
+            <h4>No products found</h4>
+            <p>Add products to start selling in your store.</p>
+          </div>
+        ) : (
+          <div className="ms-product-grid">
+            {filteredProducts.map((product) => {
+              const hasDiscount = Number(product.cost_price) > Number(product.selling_price);
+              return (
+                <div className="ms-product-card" key={product.id}>
+                  <Link to={`/product/${product.id}`} className="ms-product-img-box">
+                    <img 
+                      src={product.image || "/default-image.jpg"} 
+                      alt={product.name} 
+                      onError={(e) => (e.target.src = "/default-image.jpg")}
+                    />
+                    {hasDiscount && <span className="ms-discount-badge">SALE</span>}
+                  </Link>
+                  
+                  <div className="ms-product-info">
+                    <Link to={`/product/${product.id}`} className="ms-product-title">
+                      {product.name}
+                    </Link>
+                    
+                    <div className="ms-product-price-row">
+                      <span className="ms-price-current">{currency(product.selling_price)}</span>
+                      {hasDiscount && (
+                        <span className="ms-price-old">{currency(product.cost_price)}</span>
+                      )}
+                    </div>
                   </div>
-              </div>
-              </div>
-              </div>
+                </div>
+              );
+            })}
           </div>
-          </div>
-        </div>
-        </div>
-       
-        <Footer vendorIn={true} />  
-
+        )}
+      </div>
+      <Footer vendorIn={true} />  
     </div>
-  )
+  );
 }

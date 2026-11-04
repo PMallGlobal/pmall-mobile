@@ -1,131 +1,129 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import useForm from "../utils/useForm";
-import AffilateForm from "./affilateForm";
-import VendorForm from "./vendorForm";
-import { useState } from "react";
 import { useVendor } from "../context/AuthContext";
-import Toaster from "../utils/toaster";
-import ButtonLoader from "../utils/buttonLoader";
 import CustomerForm from "./CustomerForm";
+import VendorForm from "./vendorForm";
+import AffilateForm from "./affilateForm";
+import Toast from "../utils/Toast";
+import ButtonLoader from "../utils/buttonLoader";
+import "./CustomerReg.css"; 
 
 const CustomerReg = () => {
-  const onEnter = (e) => {
-    e.stopPropagation();
-    if (e.key === "Enter") {
-      signUpHandler();
-    }
-  };
-
-  const signUpHandler = () => {
-    console.log(inputValues);
-  };
-
+  
+  const [activeTab, setActiveTab] = useState("vendor"); 
+  const [agreed, setAgreed] = useState(false);
+  
   const {
     inputValues,
     onChangeHandler,
     onCustomerSubmitHandler,
     onAffilateSubmitHandler,
+    onSubmitHandler, 
     setState,
     toastMsg,
     toastType,
     loading,
-    submittedValues,
   } = useVendor();
-  const [vendorForm, setVendorForm] = useState(true);
-  const [vendorPay, setVendorPay] = useState(false);
-  const [completeReg, setCompleteReg] = useState(false);
-  console.log(loading)
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!agreed) return; 
+    
+    if (activeTab === "vendor") {
+      if (onSubmitHandler) onSubmitHandler(e);
+    } else if (activeTab === "affiliate") {
+      if (onAffilateSubmitHandler) onAffilateSubmitHandler(e);
+    } else {
+      if (onCustomerSubmitHandler) onCustomerSubmitHandler(e);
+    }
+  };
+
   return (
-    <div className="signup-screen">
-      <div className="w-100 flex all-center main-logo">
-          <img src="/images/new PMALL logo.png" alt="" />
-      </div>
-      <div className={`right ${!vendorForm }`}>
-        {/* <Toaster text={toastMsg} className={toastType} /> */}
-        <div className="main flex flex-col g-20">
-            <div>
-                <h1>Signup to Pmall</h1>
-                <p className="right-head bold">Connecting people and services</p>
-            </div>
-          <form
-            action=""
-            className=""
-            onSubmit={onCustomerSubmitHandler}
-            >
-              <CustomerForm
-                inputValues={inputValues}
-                onChangeHandler={onChangeHandler}
-                onCustomerSubmitHandler={onCustomerSubmitHandler}
-                completeReg={completeReg}
-                setInputValues = {setState}
-              />
-            <span className="t-and-c">
-              <input type="checkbox" name="t-and-c" />
-              <p className="bold">
-                I agree to the{" "}
-                <Link to="/app/Terms" className="purple ">
-                  Terms
-                </Link>{" "}
-                and{" "}
-                <Link to="/app/Conditions" className="purple ">
-                  Conditions
-                </Link>{" "}
-                of <Link to="/app/Conditions" className="purple ">Pmall Nigeria</Link>
-              </p>
-            </span>
-            {vendorForm ? (
-              <div className="flex flex-col">
-                {!vendorPay && !completeReg ? 
-                 <button
-                  className={`continue-btn my-20 relative ${!vendorForm && "affilate"}`}
-                  onClick={signUpHandler}
-                  disabled={loading}
-                  >
-                   {loading ?<ButtonLoader /> : "Continue"} 
-                </button> 
-                  : completeReg ? 
-                  <button
-                  className={`continue-btn my-20 relative ${!vendorForm && "affilate"}`}
-                  onClick={signUpHandler}
-                  disabled={loading}
-                  >
-                  {loading ?<ButtonLoader /> : "Complete Registration"}
-                </button>
-                :
-                <button
-                  className={`continue-btn my-20 relative ${!vendorForm && "affilate"}`}
-                  onClick={signUpHandler}
-                  disabled={loading}
-                  >
-                  {loading ?<ButtonLoader /> : " Proceed to Payment"}
-                 
-                </button>
-                }
-                {!completeReg &&
-                <>
-                  <p className="have-an-account bold">
-                  Already have an account? &nbsp;
-                  </p>
-                  <button
-                  className={`vend-login-btn my-20 relative ${!vendorForm && "affilate"}`}
-                  >
-                  Login
-                  </button>
-                </>
-                }
-              </div>
-            ) : (
-              <button
-                className={`continue-btn my-20 relative ${!vendorForm && "affilate"}`}
-                onClick={onAffilateSubmitHandler}
-               disabled={loading}
-                >
-                {loading ?<ButtonLoader /> : "Continue"}
-              </button>
-            )}
-           
-          </form>
+    <div className="signup-page">
+      <div className="bg-orb orb-1"></div>
+      <div className="bg-orb orb-2"></div>
+
+      {toastMsg && (
+        <Toast message={toastMsg} type={toastType} onClose={() => setState({})} />
+      )}
+
+      <div className="signup-card">
+        <div className="signup-header">
+          <img src="/images/new PMALL logo.png" alt="PMALL" className="signup-logo" />
+          <h1 className="signup-title">
+            {activeTab === "vendor" ? "Become a Vendor" : "Become an Affiliate"}
+          </h1>
+          <p className="signup-subtitle">Connecting people and services</p>
         </div>
+
+        
+        <div className="signup-tabs">
+          <button 
+            type="button"
+            className={`tab-btn ${activeTab === "vendor" ? "active" : ""}`}
+            onClick={() => setActiveTab("vendor")}
+          >
+            Vendor
+          </button>
+          <button 
+            type="button"
+            className={`tab-btn ${activeTab === "affiliate" ? "active" : ""}`}
+            onClick={() => setActiveTab("affiliate")}
+          >
+            Affiliate
+          </button>
+        </div>
+        <form className="signup-form" onSubmit={handleSubmit}>
+          
+          <div className="form-fields">
+            {activeTab === "vendor" && (
+              <VendorForm 
+                inputValues={inputValues} 
+                onChangeHandler={onChangeHandler} 
+                setInputValues={setState} 
+              />
+            )}
+            {activeTab === "affiliate" && (
+              <AffilateForm 
+                inputValues={inputValues} 
+                onChangeHandler={onChangeHandler} 
+                setInputValues={setState} 
+              />
+            )}
+          </div>
+
+          <label className="terms-wrapper">
+            <div className={`custom-checkbox ${agreed ? 'checked' : ''}`}>
+              <input 
+                type="checkbox" 
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+                required
+              />
+              <svg viewBox="0 0 24 24" className="check-icon">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+              </svg>
+            </div>
+            <span className="terms-text">
+              I agree to the <Link to="/app/Terms">Terms</Link> and <Link to="/app/Conditions">Conditions</Link> of Pmall Nigeria.
+            </span>
+          </label>
+
+          <div className="signup-actions">
+            <button 
+              type="submit" 
+              className="submit-btn" 
+              disabled={loading || !agreed}
+            >
+              {loading ? <ButtonLoader /> : "Continue"}
+            </button>
+            
+            <p className="login-link-text">
+              Already have an account? <Link to="/auth/sign-in">Login</Link>
+            </p>
+          </div>
+
+        </form>
       </div>
     </div>
   );

@@ -1,28 +1,20 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useVendor } from "../context/AuthContext";
-import Toaster from "../utils/toaster";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import Toast from "../utils/Toast";
 import ButtonLoader from "../utils/buttonLoader";
 
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import './StockistLogin.css'; 
+
 const StockistLogin = () => {
-  const onEnter = (e) => {
-    e.stopPropagation();
-    if (e.key === "Enter") {
-      loginHandler();
-    }
-  };
-
-  const loginHandler = () => {
-    // console.log(inputValues);
-  };
-
   const [showPassword, setShowPassword] = useState(false);
-
-  const togglePassword = () => {
-    setShowPassword((prevState) => !prevState);
-  };
+  const [toast, setToast] = useState(null);
+  const navigate = useNavigate();
 
   const {
     inputValues,
@@ -32,80 +24,103 @@ const StockistLogin = () => {
     toastMsg,
     toastType,
   } = useVendor();
-  console.log(loading)
-  
+
+  const togglePassword = () => {
+    setShowPassword((prevState) => !prevState);
+  };
+
+  const onSubmitHandler = (e) => {
+    e.preventDefault();
+    stockistLogin(e);
+  };
+
   return (
-    <section>
-      <div className="login-screen">
+    <div className="stockist-login-page">
+      <div className="bg-grid"></div>
+      <div className="bg-glow"></div>
 
-        <div className="right">
-          <div className="container">
-            <div className="w-100 flex all-center main-logo">
-                <img src="/images/new PMALL logo.png" alt="" />
-            </div>
-            {/* <Toaster text={toastMsg} className={toastType} /> */}
-            <h1>Hello again!</h1>
-            <p className="bold">Welcome back, you've been missed!</p>
-            <form action="">
-              <div className="pos-rel">
-                <label className="abs"> Username </label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="email"
-                  onChange={onChangeHandler}
-                  placeholder="username or email"
-                  value={inputValues.email || ""}
-                />
-              </div>
+      {toastMsg && (
+        <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
+      )}
 
-              <div className="pos-rel">
-                <label className="abs"> Your Password</label>
-                <div
-                  className="pos-rel">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    className="form-control"
-                    name="password"
-                    onChange={onChangeHandler}
-                    value={inputValues.password || ""}
-                    placeholder="********"
-                  />
-                  <span onClick={togglePassword} className="cnwjien">
-                    {/* {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />} */}
-                  </span>
-                </div>
-                <div className="forgotten">
-                    <Link to="/auth/app/reset-account" className=" bold">
-                        <p className=" purple">Forgot Password?</p>
-                    </Link>
-                    <p className="">Click <Link to='/' ><span className="purple "> HERE </span> </Link>to go back to Mall</p>
-                </div>
-              </div>
-            
-              <button
-                className="login-btn bold"
-                disabled={loading}
-                type="submit"
-                onClick={stockistLogin}
-                >
-                 {loading ? <ButtonLoader /> : "Login"}
-                </button>
-              <div className="flex all-center flex-col g-20 Register-btn w-full">
-                <p className="center">Don't have an account yet?</p>
-                <Link to="/auth/sign-up" className="flex w-full all-center purple">
-                    <button className="create-account bold purple">Register Now</button>
-                </Link>
-              </div>
-            </form>
-            <div className="form-logo">
-            <img src="/pmall-logo 1.png" alt="" />
+      <div className="stockist-card">
+        
+        <div className="stockist-header">
+          <div className="stockist-badge">
+            <LocalShippingOutlinedIcon fontSize="small" />
+            <span>Stockist Portal</span>
           </div>
-          </div>
-          
+          <img src="/images/new PMALL logo.png" alt="PMALL" className="stockist-logo" />
+          <h1 className="stockist-title">Welcome Back</h1>
+          <p className="stockist-subtitle">Log in to manage your hub and inventory.</p>
         </div>
+
+        <form className="stockist-form" onSubmit={onSubmitHandler}>
+          
+          <div className="stockist-input-group">
+            <label>Username or Email</label>
+            <div className="stockist-input-wrapper">
+              <PersonOutlineIcon className="stockist-input-icon" />
+              <input
+                type="text"
+                name="email"
+                onChange={onChangeHandler}
+                placeholder="Enter your email"
+                value={inputValues.email || ""}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="stockist-input-group">
+            <label>Password</label>
+            <div className="stockist-input-wrapper">
+              <LockOutlinedIcon className="stockist-input-icon" />
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                onChange={onChangeHandler}
+                value={inputValues.password || ""}
+                placeholder="Enter your password"
+                required
+              />
+              <button 
+                type="button" 
+                className="stockist-toggle-pwd" 
+                onClick={togglePassword}
+              >
+                {showPassword ? <VisibilityIcon fontSize="small" /> : <VisibilityOffIcon fontSize="small" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="stockist-options">
+            <Link to="/auth/app/reset-account" className="stockist-forgot-link">
+              Forgot Password?
+            </Link>
+            <Link to="/" className="stockist-back-link">
+              Back to Mall
+            </Link>
+          </div>
+
+          <button
+            className="stockist-submit-btn"
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? <ButtonLoader /> : "Access Dashboard"}
+          </button>
+        </form>
+
+        <div className="stockist-footer">
+          <p>Don't have a stockist account?</p>
+          <Link to="/auth/sign-up" className="stockist-register-btn">
+            Register Now
+          </Link>
+        </div>
+
       </div>
-    </section>
+    </div>
   );
 };
 

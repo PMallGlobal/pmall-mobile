@@ -490,7 +490,7 @@ ul {
 
 .login-screen,
 .signup-screen,
-.reset-password,
+.reset-password
  {
   width: 100%;
   height: 100vh;
@@ -508,8 +508,7 @@ ul {
 
 .login-screen .right,
 .signup-screen .right,
-.reset-password .right,
- {
+.reset-password .right {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -768,7 +767,7 @@ button {
 }
 .login-screen .right .container form button.create-account,
 .reset-password .right .container form button.back-to-login,
-.checkout-login form button.create-accountc,
+.checkout-login form button.create-accountc
  {
   border: 1px solid #330065;
   color: #330065;

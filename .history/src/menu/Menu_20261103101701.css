@@ -1,0 +1,124 @@
+.menu-page {
+    min-height: 100vh;
+    background: #f8f9fa;
+    padding-bottom: 100px;
+  }
+  
+  /* --- USER PROFILE SUMMARY --- */
+  .menu-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #ffffff;
+    margin: 16px;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f0f0f0;
+  }
+  
+  .menu-profile-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .menu-name {
+    margin: 0 0 4px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1a1a1a;
+    text-transform: capitalize;
+  }
+  
+  .menu-badge {
+    display: inline-block;
+    background: #f3e8ff;
+    color: #6d28d9;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    width: fit-content;
+  }
+  
+  /* --- SECTIONS --- */
+  .menu-section {
+    margin: 24px 16px;
+  }
+  
+  .menu-section-title {
+    margin: 0 0 12px 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .menu-list {
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    border: 1px solid #f0f0f0;
+    overflow: hidden;
+  }
+  
+  /* --- LIST ITEMS --- */
+  .menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 16px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.2s;
+  }
+  
+  .menu-item:last-child {
+    border-bottom: none;
+  }
+  
+  .menu-item:active {
+    background: #f9fafb;
+  }
+  
+  .menu-item-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  /* Icon Wrappers */
+  .menu-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .bg-purple { background: #f3e8ff; color: #6d28d9; }
+  .bg-yellow { background: #fef3c7; color: #d97706; }
+  .bg-red { background: #fee2e2; color: #ef4444; }
+  
+  .menu-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .menu-chevron {
+    color: #d1d5db;
+    font-size: 20px !important;
+  }
+  
+  /* Danger State for Logout */
+  .menu-item.danger .menu-label {
+    color: #ef4444;
+  }

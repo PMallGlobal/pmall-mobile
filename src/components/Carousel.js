@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 
-
-// Replace these with your actual image paths or URLs
 const slides = [
   {
     id: 1,
@@ -20,7 +18,6 @@ const slides = [
 const Carousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Auto-play: change slide every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % slides.length);
@@ -53,7 +50,6 @@ const Carousel = () => {
         ))}
       </div>
 
-      {/* Dots Indicator */}
       <div className="carousel-dots">
         {slides.map((_, index) => (
           <span

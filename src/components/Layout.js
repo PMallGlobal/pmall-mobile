@@ -1,71 +1,117 @@
-import React, { useState } from 'react';
-import { Link, Outlet } from 'react-router-dom'; // <-- Import Outlet
+import React, { useState, useEffect } from 'react';
+import { Link, Outlet, useLocation } from 'react-router-dom'; 
 import '../App.css'; 
+import './Layout.css'; 
+
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
+import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
+import LogoutIcon from '@mui/icons-material/Logout';
+
 import Footer from './footer';
 import HeaderSearch from './headerSearch';
-import { cartNum } from '../utils/cartUtils';
-import { useUser, useLogOut} from "../context/UserContext";
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
-import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
+import { getCart } from '../utils/cartUtils'; 
+import { useUser, useLogOut } from "../context/UserContext";
 import { useVendorr } from '../context/VendorSignupContext';
 
 const Layout = () => {
-  const [vendorIn, setVendorIn] = useState(true)
-  const {user} = useUser()
+  const { user } = useUser();
   const logOut = useLogOut();
+  const { unreadNotifs } = useVendorr();
+  const location = useLocation();
 
-   const {unreadNotifs} = useVendorr()
- 
+  
+  const [cartCount, setCartCount] = useState(0);
+  const [isBumping, setIsBumping] = useState(false);
+
+  const vendorIn = user?.accountType === 'Vendor';
+
+  
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cart = getCart() || [];
+      const newCount = cart.reduce((sum, item) => sum + (item.amtItems || 1), 0);
+      
+      
+      setCartCount((prevCount) => {
+        if (newCount > prevCount) {
+          setIsBumping(true);
+          setTimeout(() => setIsBumping(false), 300); 
+        }
+        return newCount;
+      });
+    };
+
+    updateCartCount();
+
+    window.addEventListener('cartUpdated', updateCartCount);
+    return () => window.removeEventListener('cartUpdated', updateCartCount);
+  }, [location.pathname]); 
+
   return (
     <div className="layout-container">
-      {/* Header */}
       <header className="layout-header">
-        <div className="flex justsb header-t">
-          <div>
-            <h6>Welcome to Pmall,</h6>
-            {user.token? 
-            <div className='flex alc g-5'>
-              <AccountCircleOutlinedIcon className='location-icon header-icon' />
-              <p className='capitalize'>{user.fname} {user.accountType && `(${user.accountType})`}</p>
-            </div> :
-            <div className='login-link'>
-                <Link to="/auth/sign-in"><p>Login</p></Link>
-            </div>
-            }
-          </div>
-          <div className='flex  g-10'>
-          {user.token && user.accountType &&
-           <div className='cart-cont'>
-              <Link to="/notifications"> <NotificationsActiveOutlinedIcon  className='header-icon pointer' /></Link>
-              <div className='cart-num'>
-                <p >{unreadNotifs}</p>
+        <div className="header-top-row">
+          
+          <div className="header-left">
+            {user?.loggedIn ? (
+              <div className="header-greeting">
+                <p className="greeting-label">Welcome back,</p>
+                <h2 className="greeting-name">{user.fname || 'Shopper'} 👋</h2>
               </div>
-            </div>
-          }
-            <div className='cart-cont'>
-              <Link to="/cart"> <ShoppingCartOutlinedIcon className='header-icon pointer' /> </Link>
-              <div className='cart-num'>
-                <p >{cartNum}</p>
+            ) : (
+              <div className="header-greeting">
+                <p className="greeting-label">Welcome to Pmall</p>
+                <Link to="/auth/sign-in" className="login-link">
+                  <h2 className="greeting-name">Tap to Login</h2>
+                </Link>
               </div>
+            )}
+            
+            <div className="location-pill">
+              <LocationOnOutlinedIcon fontSize="small" />
+              <span>Deliver to Lagos</span>
             </div>
           </div>
-        </div>
-       <HeaderSearch />
-       {user.token && !user.accountType && 
-        <div className='logout-btn-header'>
-          <p onClick={logOut}>Logout</p>
-        </div>
-       }
-      </header>
 
+          <div className="header-actions">
+            {user?.loggedIn && (
+              <Link to="/notifications" className="icon-btn">
+                <NotificationsActiveOutlinedIcon />
+                {unreadNotifs > 0 && <span className="icon-badge red">{unreadNotifs}</span>}
+              </Link>
+            )}
+            
+            <Link to="/cart" className={`icon-btn ${isBumping ? 'bump' : ''}`}>
+              <ShoppingCartOutlinedIcon />
+              {cartCount > 0 && (
+                <span className="icon-badge purple">{cartCount > 99 ? '99+' : cartCount}</span>
+              )}
+            </Link>
+
+            {user?.loggedIn ? (
+              <button className="icon-btn logout-btn" onClick={logOut} title="Log Out">
+                <LogoutIcon />
+              </button>
+            ) : (
+              <Link to="/auth/sign-in" className="icon-btn">
+                <PersonOutlineIcon />
+              </Link>
+            )}
+          </div>
+        </div>
+
+        <div className="header-search-row">
+          <HeaderSearch />
+        </div>
+      </header>
 
       <main className="layout-main">
         <Outlet />
       </main>
 
-      {user.token && <Footer vendorIn={vendorIn} />}
+      {user?.loggedIn && <Footer vendorIn={vendorIn} />}
     </div>
   );
 };
