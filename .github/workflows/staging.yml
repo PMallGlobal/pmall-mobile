@@ -1,0 +1,50 @@
+
+name: PMALL Staging Connection Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-staging:
+    name: Verify Namecheap SSH Connection
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Configure SSH authentication
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_KEY }}
+          SSH_KNOWN_HOSTS: ${{ vars.STAGING_SSH_KNOWN_HOSTS }}
+        run: |
+          set -eu
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+
+      - name: Test SSH connection and staging directory
+        env:
+          SSH_HOST: ${{ vars.STAGING_SSH_HOST }}
+          SSH_PORT: ${{ vars.STAGING_SSH_PORT }}
+          SSH_USER: ${{ vars.STAGING_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH }}
+        run: |
+          set -eu
+
+          if [ "$DEPLOY_PATH" != "/home/pmalacus/pmall-staging" ]; then
+            echo "Unexpected staging deployment path"
+            exit 1
+          fi
+
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$SSH_USER@$SSH_HOST" \
+            'test -d /home/pmalacus/pmall-staging && echo "PMALL staging SSH connection successful"'
