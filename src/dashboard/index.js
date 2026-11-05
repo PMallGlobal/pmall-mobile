@@ -124,7 +124,7 @@ export default function Dashboard() {
         </div>
       </section>
 
-      
+      {user?.accountType === "Affiliate" && 
       <section className="db-referral-banner" onClick={handleCopy}>
         <div>
           <h4>Invite & Earn</h4>
@@ -132,7 +132,7 @@ export default function Dashboard() {
         </div>
         <button className="db-share-btn">Copy Link</button>
       </section>
-
+}
       
       <section className="db-stats-grid">
         {isVendor ? (
