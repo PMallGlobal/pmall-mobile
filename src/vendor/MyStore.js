@@ -34,7 +34,8 @@ export default function MyStore() {
       if (user?.accountType !== "Vendor") return;
       
       try {
-        const res = await fetch("https://api.pmall.com.ng/api/v1/products", {
+          
+        const res = await fetch(`https://api.pmall.com.ng/api/v1/products/list-all-by-vendor?store_id=${user?.storeId}`, {
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
             Accept: "application/json",
