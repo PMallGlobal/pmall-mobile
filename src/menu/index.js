@@ -17,7 +17,7 @@ export default function Menu() {
     alert("Social media connection coming soon!");
   };
   const handleFollowPage = () => {
-    window.open("https://instagram.com/pmall", "_blank"); 
+    window.open("https://www.instagram.com/pmallhq?cplk=Ynl4Ymlzb2Z1dXJm&utm_source=qr", "_blank"); 
   };
 
   return (
