@@ -1,5 +1,5 @@
 
-name: PMALL Staging Connection Test
+name: PMALL Staging Deployment
 
 on:
   workflow_dispatch:
@@ -7,14 +7,43 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pmall-mobile-staging
+  cancel-in-progress: false
+
 jobs:
-  test-staging:
-    name: Verify Namecheap SSH Connection
+  deploy-staging:
+    name: Build and Deploy to Staging
     runs-on: ubuntu-latest
     environment: staging
+    timeout-minutes: 20
 
     steps:
-      - name: Configure SSH authentication
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build PMALL
+        run: npm run build
+        env:
+          CI: 'false'
+
+      - name: Verify build
+        run: |
+          set -eu
+          test -f build/index.html
+          test -d build/static
+          echo "PMALL build verified"
+
+      - name: Configure SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.STAGING_SSH_KEY }}
           SSH_KNOWN_HOSTS: ${{ vars.STAGING_SSH_KNOWN_HOSTS }}
@@ -24,9 +53,10 @@ jobs:
           mkdir -p "$HOME/.ssh"
           printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
           printf '%s\n' "$SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-          chmod 600 "$HOME/.ssh/id_ed25519" "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/known_hosts"
 
-      - name: Test SSH connection and staging directory
+      - name: Validate staging destination
         env:
           SSH_HOST: ${{ vars.STAGING_SSH_HOST }}
           SSH_PORT: ${{ vars.STAGING_SSH_PORT }}
@@ -35,8 +65,10 @@ jobs:
         run: |
           set -eu
 
-          if [ "$DEPLOY_PATH" != "/home/pmalacus/pmall-staging" ]; then
-            echo "Unexpected staging deployment path"
+          EXPECTED="/home/pmalacus/pmall-staging"
+
+          if [ "$DEPLOY_PATH" != "$EXPECTED" ]; then
+            echo "ERROR: Unexpected deployment destination"
             exit 1
           fi
 
@@ -47,4 +79,46 @@ jobs:
             -o BatchMode=yes \
             -o StrictHostKeyChecking=yes \
             "$SSH_USER@$SSH_HOST" \
-            'test -d /home/pmalacus/pmall-staging && echo "PMALL staging SSH connection successful"'
+            'test -d /home/pmalacus/pmall-staging &&
+             test -f /home/pmalacus/pmall-staging/.pmall-staging-marker &&
+             test "$(realpath /home/pmalacus/pmall-staging)" = "/home/pmalacus/pmall-staging" &&
+             echo "Staging destination verified"'
+
+      - name: Deploy build to staging
+        env:
+          SSH_HOST: ${{ vars.STAGING_SSH_HOST }}
+          SSH_PORT: ${{ vars.STAGING_SSH_PORT }}
+          SSH_USER: ${{ vars.STAGING_SSH_USER }}
+          DEPLOY_PATH: ${{ vars.STAGING_DEPLOY_PATH }}
+        run: |
+          set -eu
+
+          test "$DEPLOY_PATH" = "/home/pmalacus/pmall-staging"
+
+          rsync -avz \
+            --exclude='.pmall-staging-marker' \
+            -e "ssh -i $HOME/.ssh/id_ed25519 -p $SSH_PORT -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes" \
+            build/ \
+            "$SSH_USER@$SSH_HOST:$DEPLOY_PATH/"
+
+          echo "PMALL staging upload completed"
+
+      - name: Verify uploaded build
+        env:
+          SSH_HOST: ${{ vars.STAGING_SSH_HOST }}
+          SSH_PORT: ${{ vars.STAGING_SSH_PORT }}
+          SSH_USER: ${{ vars.STAGING_SSH_USER }}
+        run: |
+          set -eu
+
+          ssh \
+            -i "$HOME/.ssh/id_ed25519" \
+            -p "$SSH_PORT" \
+            -o IdentitiesOnly=yes \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=yes \
+            "$SSH_USER@$SSH_HOST" \
+            'test -f /home/pmalacus/pmall-staging/index.html &&
+             test -d /home/pmalacus/pmall-staging/static &&
+             test -f /home/pmalacus/pmall-staging/.pmall-staging-marker &&
+             echo "PMALL staging deployment verified"'
