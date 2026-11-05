@@ -1,0 +1,51 @@
+name: PMALL Mobile CI
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pmall-mobile-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build PMALL Mobile
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          CI: 'false'
+
+      - name: Verify build output
+        run: |
+          test -f build/index.html
+          test -d build/static
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pmall-mobile-build
+          path: build/
+          if-no-files-found: error
+          retention-days: 7
+
