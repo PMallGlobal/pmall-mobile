@@ -49,7 +49,7 @@ const Popup = ({ isOpen, onClose, user, children }) => {
           </div>
           <div className="row">
           <div className="cell">Store URL </div>
-          <div className="cell">https://pmall.com.ng/{user.store_url}</div>
+          <div className="cell">https://app.pmall.com.ng/{user.store_url}</div>
         </div>
         </>
           )}
