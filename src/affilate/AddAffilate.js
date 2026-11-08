@@ -124,7 +124,7 @@ export default function AddAffiliate() {
   return (
     <div className="af-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Add New Affiliate" image="true" />
+      {/* <CategoryHeader title="Add New Affiliate" image="true" /> */}
 
       <form className="af-form" onSubmit={handleSubmit}>
         

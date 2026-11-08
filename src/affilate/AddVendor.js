@@ -128,7 +128,7 @@ export default function AddVendor() {
   return (
     <div className="av-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Add New Vendor" image="true" />
+      {/* <CategoryHeader title="Add New Vendor" image="true" /> */}
 
       <form className="av-form" onSubmit={handleSubmit}>
         

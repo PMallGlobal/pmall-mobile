@@ -120,7 +120,7 @@ export default function Transfer() {
   return (
     <div className="tf-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Transfer Funds" image="true" />
+      {/* <CategoryHeader title="Transfer Funds" image="true" /> */}
 
       <form className="tf-form" onSubmit={handleTransfer}>
         

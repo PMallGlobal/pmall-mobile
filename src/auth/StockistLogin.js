@@ -95,7 +95,7 @@ const StockistLogin = () => {
           </div>
 
           <div className="stockist-options">
-            <Link to="/auth/app/reset-account" className="stockist-forgot-link">
+            <Link to="/auth/forgot-password" className="stockist-forgot-link">
               Forgot Password?
             </Link>
             <Link to="/" className="stockist-back-link">

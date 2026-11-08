@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 export default function StockistMenu() {
   return (
     <div className='funds-withdraw s-menu'>
-    <CategoryHeader title="Menu" image="true" />
+    {/* <CategoryHeader title="Menu" image="true" /> */}
 
     <div className='flex flex-col g-20 w-full '>
         <Link to="/stockist/dashboard" className='black'>

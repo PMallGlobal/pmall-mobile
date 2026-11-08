@@ -4,7 +4,7 @@ import CategoryHeader from '../components/CategoryHeader'
 export default function Settings() {
   return (
     <div className='funds-withdraw'>
-    <CategoryHeader title="Settings" image="true" />
+    {/* <CategoryHeader title="Settings" image="true" /> */}
 
     <div className='flex flex-col g-20 w-full '>
         <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>

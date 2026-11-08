@@ -120,7 +120,7 @@ export default function Products({categoryId = null,related=false }) {
       }, [newProduct]);
   return (
     <div className="products">
-        <CategoryHeader title="Products" />
+        {/* <CategoryHeader title="Products" /> */}
         <div style={{ width: "100%" }}>
           <div className="flex flex-col g-10 bg-white-contain">
 

@@ -78,7 +78,6 @@ export default function MyStockist() {
   return (
     <div className="ms-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="My Stockists" image="true" />
 
       <div className="ms-stats-banner">
         <div className="ms-stat-box">

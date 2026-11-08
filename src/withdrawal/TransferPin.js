@@ -31,7 +31,7 @@ export default function TransferPinPage() {
   return (
     <div className="pin-page">
 
-        <CategoryHeader title="Transfer Pin" />
+        {/* <CategoryHeader title="Transfer Pin" /> */}
 
       <div className="main-content">
         <p className="subtitle">

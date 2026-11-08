@@ -126,7 +126,7 @@ export default function AddStockist() {
   return (
     <div className="as-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Add Stockist" image="true" />
+      {/* <CategoryHeader title="Add Stockist" image="true" /> */}
 
       <form className="as-form" onSubmit={handleAddStockist}>
         

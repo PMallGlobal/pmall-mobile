@@ -62,7 +62,6 @@ export default function Cart() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
       <header className="cart-topbar">
-        <CategoryHeader title="My Cart" image="true" />
         {cart.length > 0 && (
           <button className="cart-clear-btn" onClick={handleClearCart}>
             Clear

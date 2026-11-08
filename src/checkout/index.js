@@ -57,18 +57,12 @@ export default function Checkout() {
   };
 
   const processCheckout = async () => {
-        if (cart.length === 0) return showToast("Cart is empty", "error");
-        
-        if (method === 'pickup' && !selectedStockist) {
-            return showToast("Please select a pickup location", "error");
-        }
-        
-        if (method === 'delivery' && !deliveryAddress) {
-            return showToast("Please search and select a delivery address on the map", "error");
-        }
-    
+    if (cart.length === 0) return showToast("Cart is empty", "error");
+    if (method === 'pickup' && !selectedStockist) return showToast("Please select a pickup location", "error");
+    if (method === 'delivery' && !deliveryAddress) return showToast("Please search and select a delivery address on the map", "error");
+
     setLoading(true);
-    
+
     try {
       let customerId = user?.id;
       let tokenToUse = user?.token;
@@ -93,21 +87,32 @@ export default function Checkout() {
         });
         
         const regData = await regRes.json();
-        if (!regData.status) throw new Error(regData.message || "Registration failed");
+        if (!regData.status) {
+          if (regRes.status === 401 || regData.message.includes("log in")) {
+             showToast("This email is registered. Please log in to checkout.", "error");
+             navigate('/auth/sign-in'); 
+             setLoading(false);
+             return;
+          }
+          throw new Error(regData.message || "Registration failed");
+        }
 
+        // If successful (either new user or existing unverified user)
         customerId = regData.customer.id;
         tokenToUse = regData.token;
 
-        // Auto Login
-        const loginRes = await fetch(`${BASE_URL}/customer/login`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ username: credentials.username, password: credentials.password }),
-        });
-        const loginData = await loginRes.json();
-        if (loginData.data?.token) {
-          tokenToUse = loginData.data.token;
-          localStorage.setItem("userToken", tokenToUse);
+        // Auto Login (Only needed if the backend didn't return a token for an existing user)
+        if (!tokenToUse && credentials.username) {
+            const loginRes = await fetch(`${BASE_URL}/customer/login`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ username: credentials.username, password: credentials.password }),
+            });
+            const loginData = await loginRes.json();
+            if (loginData.data?.token) {
+              tokenToUse = loginData.data.token;
+              localStorage.setItem("userToken", tokenToUse);
+            }
         }
         
         setUser({ id: customerId, token: tokenToUse, loggedIn: true, ...formDetails });
@@ -150,7 +155,6 @@ export default function Checkout() {
 
       // Redirect to Paystack
       window.location.href = payData.authorization_url;
-      localStorage.removeItem("pmallCart");
 
     } catch (error) {
       showToast(error.message || "Something went wrong during checkout", "error");
@@ -162,8 +166,6 @@ export default function Checkout() {
   return (
     <div className="checkout-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Checkout" />
-
       <div className="checkout-content">
         <div className="checkout-section">
             <div className="checkout-form">

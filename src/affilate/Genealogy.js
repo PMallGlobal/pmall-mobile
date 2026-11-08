@@ -97,7 +97,7 @@ export default function Genealogy() {
 
   return (
     <div className="gen-page">
-      <CategoryHeader title="Genealogy Dashboard" image="true" />
+      {/* <CategoryHeader title="Genealogy Dashboard" image="true" /> */}
 
       <div className="gen-hero-card">
         <div className="gen-hero-header">

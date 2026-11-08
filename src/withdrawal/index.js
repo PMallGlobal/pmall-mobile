@@ -15,7 +15,7 @@ export default function FundWithdrawal() {
 
   return (
     <div className="fw-page">
-      <CategoryHeader title="Fund Withdrawal" image="true" />
+      {/* <CategoryHeader title="Fund Withdrawal" image="true" /> */}
 
       <div className="fw-hero-card">
         <div className="fw-hero-icon">

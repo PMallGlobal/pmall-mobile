@@ -80,7 +80,7 @@ export default function GenealogyTree() {
   return (
     <div className="gt-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Genealogy Tree" image="true" />
+      {/* <CategoryHeader title="Genealogy Tree" image="true" /> */}
 
       <div className="gt-summary-card">
         <div className="gt-summary-header">

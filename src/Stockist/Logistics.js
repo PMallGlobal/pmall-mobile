@@ -4,7 +4,7 @@ import CategoryHeader from '../components/CategoryHeader'
 export default function Logistics() {
   return (
     <div className='funds-withdraw'>
-    <CategoryHeader title="Logistics and Delivery" image="true" />
+    {/* <CategoryHeader title="Logistics and Delivery" image="true" /> */}
 
     <div className='flex flex-col g-20 w-full '>
         <div className='flex w-full justsb alc bg-white p-10 rounded-sm'>

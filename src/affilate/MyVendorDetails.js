@@ -32,7 +32,6 @@ export default function MyVendorDetails() {
   return (
     <div className='my-vendor-details'>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="My Vendors" image="true" />
         <div className='flex justsb w-full g-20 alc'>
             <div className='statement flex all-center g-10 w-full'>
                 <ArticleOutlinedIcon />

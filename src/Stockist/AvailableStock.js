@@ -19,7 +19,6 @@ export default function AvailableStock() {
       ];
   return (
     <div className='available-stock flex flex-col g-20'>
-        <CategoryHeader title="Available Stock" image="true" />
         <div className='bg-white rounded-sm p-20'>
             <div className='p-table flex flex-col g-20'>
             <div className='flex justsb alc'>

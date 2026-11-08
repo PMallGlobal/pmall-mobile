@@ -1,3 +1,4 @@
+import { createBrowserRouter } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import SignIn from './auth/signin'; 
@@ -17,6 +18,7 @@ import Profile from './Profile';
 import Rating from './rating';
 import Address from './address';
 import ChangePassword from './auth/ChangePassword';
+import ForgotPassword from './auth/ForgotPassword';
 import SupportCenter from './SupportCenter';
 import Products from './vendor/Products';
 import NewProduct from './vendor/NewProduct.js';
@@ -74,6 +76,7 @@ function App() {
     <>
       <Routes>
         <Route path="/auth/sign-in" element={<SignIn />} />
+        <Route path="/auth/forgot-password" element={<ForgotPassword />} />
         <Route path="/auth/stockist/sign-in" element={<StockistLogin />} />
         <Route path="/auth/sign-up" element={<SignUp />} />
         <Route path="/auth/customer/sign-up" element={<CustomerReg />} />

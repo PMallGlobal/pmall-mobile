@@ -251,7 +251,7 @@ export default function EditProduct() {
   return (
     <div className='new-product'>
               {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="Edit Product" />
+        {/* <CategoryHeader title="Edit Product" /> */}
         <form action="" className="new flex flex-col g-20 w-full">
                 <div className="pos-rel">
                     <label className="abs py-10"> Product Name * </label>

@@ -20,7 +20,69 @@
     padding: 12px 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
   }
-  
+  /* Layout.css */
+.layout-header {
+  background-color: #ffffff;
+  padding: 16px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Adjust padding for sub-pages so it's not too tall */
+.layout-header.sub-page-header {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.header-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+/* Sub-page Title Styles */
+.sub-page-title-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  height: 100%;
+  min-height: 40px; /* Match height of greeting */
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background-color: #f5f5f5;
+  border-radius: 50%;
+  padding: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.page-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* Avatar in header */
+.profile-avatar-btn {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
   
   .header-top-row {
     display: flex;

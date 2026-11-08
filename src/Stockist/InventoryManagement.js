@@ -26,8 +26,6 @@ export default function InventoryManagement() {
       ];
   return (
     <div className='available-stock flex flex-col g-20 inventory'>
-        <CategoryHeader title="Inventory Management" image="true" />
-
         <div className='bg-white rounded-sm p-20'>
             <div className='p-table flex flex-col g-20'>
                 <div className='flex justsb alc'>
