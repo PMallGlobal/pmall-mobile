@@ -14,6 +14,8 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import "leaflet/dist/leaflet.css";
 
+import * as serviceWorkerRegistration from './serviceWorkerRegistration'; 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -40,5 +42,9 @@ root.render(
     </QueryClientProvider>
   </React.StrictMode>
 );
+
+// 2. REGISTER THE SERVICE WORKER
+// This will enable the PWA install prompt and offline capabilities
+serviceWorkerRegistration.register(); 
 
 reportWebVitals();
