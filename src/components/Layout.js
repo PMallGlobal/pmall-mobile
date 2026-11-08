@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'; 
+import InstallPrompt from './components/InstallPrompt'; 
 import '../App.css'; 
 import './Layout.css'; 
 
@@ -138,6 +139,7 @@ const Layout = () => {
       </main>
 
       {user?.loggedIn && <Footer vendorIn={vendorIn} />}
+      <InstallPrompt /> 
     </div>
   );
 };
