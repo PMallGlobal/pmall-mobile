@@ -14,8 +14,7 @@ import HeaderSearch from './headerSearch';
 import { getCart } from '../utils/cartUtils'; 
 import { useUser, useLogOut } from "../context/UserContext";
 import { useVendorr } from '../context/VendorSignupContext';
-import UserAvatar from '../utils/UserAvatar'; // Make sure this path is correct
-
+import UserAvatar from '../utils/UserAvatar'; 
 const Layout = () => {
   const { user } = useUser();
   const logOut = useLogOut();
@@ -28,24 +27,23 @@ const Layout = () => {
 
   const vendorIn = user?.accountType === 'Vendor';
 
-  // 1. Map paths to their titles
   const pageTitles = {
     '/vendors': 'My Vendors',
     '/cart': 'My Cart',
     '/wishlist': 'My Wishlist',
     '/checkout': 'Checkout',
     '/orders': 'My Orders',
-    // Add other sub-pages here
   };
 
   const currentTitle = pageTitles[location.pathname];
   const isSubPage = !!currentTitle;
 
-  // 2. Hide search bar on specific pages (like Cart or Vendors) to save space
   const hideSearchPaths = ['/vendors', '/cart', '/checkout', '/wishlist'];
   const showSearch = !hideSearchPaths.includes(location.pathname);
 
   useEffect(() => {
+    const cart = getCart();
+    setCartCount(cart.length);
     const updateCartCount = () => {
       const cart = getCart() || [];
       const newCount = cart.reduce((sum, item) => sum + (item.amtItems || 1), 0);
@@ -70,7 +68,6 @@ const Layout = () => {
       <header className={`layout-header ${isSubPage ? 'sub-page-header' : ''}`}>
         <div className="header-top-row">
           
-          {/* LEFT SIDE: Either Greeting OR Back Button + Title */}
           <div className="header-left">
             {isSubPage ? (
               <div className="sub-page-title-row">
@@ -102,8 +99,6 @@ const Layout = () => {
               </>
             )}
           </div>
-
-          {/* RIGHT SIDE: Global Icons */}
           <div className="header-actions">
             {user?.loggedIn && (
               <Link to="/notifications" className="icon-btn">
@@ -119,7 +114,6 @@ const Layout = () => {
               )}
             </Link>
 
-            {/* Replaced the logout icon with the Avatar shown in your screenshot */}
             {user?.loggedIn ? (
                <div className="profile-avatar-btn" onClick={logOut} title="Log Out">
                   <UserAvatar name={user?.fname} size={36} className="header-avatar" />
@@ -132,7 +126,6 @@ const Layout = () => {
           </div>
         </div>
 
-        {/* Only show search if we aren't on a sub-page like Cart */}
         {showSearch && (
           <div className="header-search-row">
             <HeaderSearch />
