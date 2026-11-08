@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'; 
+
 import '../App.css'; 
 import './Layout.css'; 
-
+import InstallPrompt from './InstallPrompt';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import NotificationsActiveOutlinedIcon from '@mui/icons-material/NotificationsActiveOutlined';
@@ -138,6 +139,7 @@ const Layout = () => {
       </main>
 
       {user?.loggedIn && <Footer vendorIn={vendorIn} />}
+      <InstallPrompt /> 
     </div>
   );
 };
