@@ -19,7 +19,6 @@ export default function Analytics() {
       ];
   return (
     <div className='available-stock flex flex-col g-20 analytics'>
-        <CategoryHeader title="Analytics" image="true" />
 
         <div className="flex justsb dates">
             <div className='flex alc date g-10'>

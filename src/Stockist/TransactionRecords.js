@@ -48,7 +48,7 @@ export default function TransactionRecords() {
     ]
   return (
     <div className='transaction-records flex flex-col g-20'>
-        <CategoryHeader title="Transaction Records" image="true" search="true" />
+        {/* <CategoryHeader title="Transaction Records" image="true" search="true" /> */}
         <div className='flex flex-col g-20'>
             {records.map((record)=>(
                 <div className='bg-white rounded-sm p-10 flex alc justsb'> 

@@ -166,7 +166,7 @@ export default function EditProfile() {
   return (
     <div className="ep-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Edit Profile" image="true" />
+      {/* <CategoryHeader title="Edit Profile" image="true" /> */}
 
       <form className="ep-form" onSubmit={handleSubmit}>
         <div className="ep-avatar-section">

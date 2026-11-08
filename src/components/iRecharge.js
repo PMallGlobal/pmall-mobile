@@ -40,8 +40,6 @@ export default function IRecharge() {
     <div className="rc-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       
-      <CategoryHeader title="iRecharge" image="true" />
-
       <div className="rc-content">
         <div className="rc-hero-wrap">
           <div className="rc-pulse-ring"></div>

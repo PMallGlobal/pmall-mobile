@@ -117,7 +117,7 @@ export default function Notifications() {
   return (
     <div className='transaction-records notifs flex flex-col g-20'>
          <Toast message={toastMsg} type={toastType} onClose={() => setToast(null)} />
-        <CategoryHeader title="Notifications" image="true"/>
+        {/* <CategoryHeader title="Notifications" image="true"/> */}
         <div className='flex flex-col g-20'>
     
             {notifications?.map((record) =>(

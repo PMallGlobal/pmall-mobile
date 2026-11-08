@@ -51,7 +51,7 @@ export default function AffiliateManagement() {
 
   return (
     <div className='am-page'>
-      <CategoryHeader title="Affiliate Management" image="true" />
+      {/* <CategoryHeader title="Affiliate Management" image="true" /> */}
 
       
       <div className="am-summary-card">

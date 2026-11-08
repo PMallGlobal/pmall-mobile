@@ -87,7 +87,7 @@ export default function Withdraw() {
   return (
     <div className="wd-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="Withdraw Funds" image="true" />
+      {/* <CategoryHeader title="Withdraw Funds" image="true" /> */}
 
       <form className="wd-form" onSubmit={makeWithdrawal}>
         

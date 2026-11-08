@@ -102,7 +102,7 @@ const Login = () => {
 
           
           <div className="login-options">
-            <Link to="/auth/app/reset-account" className="forgot-link">
+            <Link to="/auth/forgot-password" className="forgot-link">
               Forgot Password?
             </Link>
             <Link to="/" className="back-link">

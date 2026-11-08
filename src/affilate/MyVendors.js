@@ -50,9 +50,6 @@ export default function MyVendors() {
   return (
     <div className="mv-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="My Vendors" image="true" />
-
-      
       <div className="mv-stats-banner">
         <div className="mv-stat-box">
           <StorefrontOutlinedIcon className="mv-stat-icon" />

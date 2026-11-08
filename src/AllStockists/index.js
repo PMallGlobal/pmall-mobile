@@ -51,7 +51,6 @@ export default function AllStockists() {
   return (
     <div className='all-stkts flex flex-col g-40'>
          {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="All Stockists" image="true" />
          <TableContainer component={Paper}>
             <Table sx={{ minWidth: 650 }} size="small" aria-label="Product Table" 
             sx={{

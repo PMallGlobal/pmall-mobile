@@ -98,7 +98,7 @@ export default function EditStockist() {
   return (
     <div className='new-product edit-profile '>
         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-        <CategoryHeader title="Edit Stockist" image="true" />
+        {/* <CategoryHeader title="Edit Stockist" image="true" /> */}
 
         <form action="" className="new flex flex-col g-20 w-full" onSubmit={handleEditStockist}>
             <div className="pos-rel">

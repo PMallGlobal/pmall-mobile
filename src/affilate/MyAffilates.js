@@ -49,7 +49,7 @@ export default function MyAffiliates() {
   return (
     <div className="ma-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="My Affiliates" image="true" />
+      {/* <CategoryHeader title="My Affiliates" image="true" /> */}
 
       <div className="ma-stats-banner">
         <div className="ma-stat-box">

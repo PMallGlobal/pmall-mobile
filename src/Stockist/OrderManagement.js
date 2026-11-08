@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 export default function OrderManagement() {
   return (
     <div className='funds-withdraw s-menu'>
-    <CategoryHeader title="Order Management" image="true" />
+    {/* <CategoryHeader title="Order Management" image="true" /> */}
 
     <div className='flex flex-col g-20 w-full '>
         <Link to="/stockist/orders" className='black'>

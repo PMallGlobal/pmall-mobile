@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import ArrowBackOutlinedIcon from '@mui/icons-material/ArrowBackOutlined';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import HeaderSearch from '../components/headerSearch';
@@ -8,46 +8,60 @@ import FavoriteOutlinedIcon from '@mui/icons-material/FavoriteOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 import { cartNum } from '../utils/cartUtils';
 import UserAvatar from '../utils/UserAvatar';
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined';
 
-
-export default function CategoryHeader({title, image, search}) {
+export default function CategoryHeader({ title, image, search }) {
     const navigate = useNavigate();
     const { user } = useUser();
-  return (
-    <div className='category-t'>
-        <div className='flex justsb category-head'>
-            <div className='back-icon' 
-                onClick={() => navigate(-1)}   
-                style={{ cursor: 'pointer' }}
-            >
-                <ArrowBackOutlinedIcon />
-            </div>
-            <p>{title}</p>
-            {title === 'My Cart' ? (
-              <div className="back-icon">
-                <FavoriteOutlinedIcon className="fav-icon" />
-              </div>
-            ) : title === 'My Wishlist' || title === 'Checkout' ? (
-              <div className="back-icon">
-                <SearchOutlinedIcon className="" />
-              </div>
-            ) : title === 'My Orders' || title === 'Order Details' || title === 'Products' || title === 'New Product' || title === 'Edit Product' || title == "Orders/Transactions" || title == "Fund Withdrawal" || title == "Withdraw Funds" || title == "Transfer Funds"  || title == "Menu" || title == "Transfer Pin" || title === 'Edit Profile' || image === 'true' ? (
-              <div className="back-icon">
-                <UserAvatar name={user?.fname} size={50} className="db-avatar" />
-              </div>
-            ) : (
-              <div className='cart-cont'>
-                <Link to="/cart"> <ShoppingCartOutlinedIcon className='header-icon pointer' /> </Link>
-                <div className='cart-num'>
-                  <p >{cartNum}</p>
-                </div>
-              </div>
-            )}
-        </div>
 
-       {title !== 'Product Details' || title !== 'My Cart' || title !== "My Wishlist" || title !== "Checkout"  && <HeaderSearch />}
-       {title == 'Products' || search == "true" && <HeaderSearch />}
-    </div>
-  )
+    // 1. Determine the right-side icon cleanly
+    const renderRightIcon = () => {
+        if (title === 'My Cart') {
+            return <FavoriteOutlinedIcon className="fav-icon" />;
+        }
+        
+        const showSearchIcon = ['My Wishlist', 'Checkout'].includes(title);
+        if (showSearchIcon) {
+            return <SearchOutlinedIcon />;
+        }
+
+        const showUserAvatar = [
+            'My Orders', 'Order Details', 'Products', 'New Product', 'Edit Product', 
+            'Orders/Transactions', 'Fund Withdrawal', 'Withdraw Funds', 'Transfer Funds', 
+            'Menu', 'Transfer Pin', 'Edit Profile'
+        ].includes(title) || image === 'true';
+
+        if (showUserAvatar) {
+            return <UserAvatar name={user?.fname} size={40} className="db-avatar" />;
+        }
+
+        // Default: Cart
+        return (
+            <div className='cart-cont'>
+                <Link to="/cart"> <ShoppingCartOutlinedIcon className='header-icon pointer' /> </Link>
+                <div className='cart-num'><p>{cartNum}</p></div>
+            </div>
+        );
+    };
+
+    // 2. Fix the search logic
+    const hideSearchTitles = ['Product Details', 'My Cart', 'My Wishlist', 'Checkout'];
+    const shouldShowSearch = !hideSearchTitles.includes(title) || search === "true";
+
+    return (
+        <div className='category-header-wrapper'> {/* New wrapper for sticky styling */}
+            <div className='category-head flex justsb'>
+                <div className='back-icon' onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
+                    <ArrowBackOutlinedIcon />
+                </div>
+                
+                <p className="header-title">{title}</p>
+                
+                <div className="header-right-action">
+                    {renderRightIcon()}
+                </div>
+            </div>
+            
+            {shouldShowSearch && <HeaderSearch />}
+        </div>
+    );
 }

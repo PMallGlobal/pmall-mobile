@@ -6,7 +6,7 @@ import ContentCopyOutlinedIcon from '@mui/icons-material/ContentCopyOutlined';
 export default function GenealogyProfile() {
   return (
     <div className='genealogy  flex flex-col g-20'>
-        <CategoryHeader title="Genealogy" image="true" />
+        {/* <CategoryHeader title="Genealogy" image="true" /> */}
         <div className=' flex flex-col g-10 all-center gp-head'>
             <img src="/images/Ellipse 330.png" alt="" />
             <p>Vitrus John</p>

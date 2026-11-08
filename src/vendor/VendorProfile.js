@@ -68,7 +68,7 @@ export default function VendorProfile() {
   return (
     <div className="vp-page">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
-      <CategoryHeader title="My Profile" image="true" />
+      {/* <CategoryHeader title="My Profile" image="true" /> */}
 
       <div className="vp-hero">
         <div className="vp-avatar-wrap">

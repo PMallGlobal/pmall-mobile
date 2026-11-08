@@ -59,7 +59,7 @@ export default function Wishlist() {
   return (
     <div className='cart'>
         <div className='cart-main'>
-            <CategoryHeader title="My Wishlist" />
+            {/* <CategoryHeader title="My Wishlist" /> */}
             <div className="">
                 <div className='flex flex-col g-20'> 
                     {dummyCartItems.map((item)=>(
