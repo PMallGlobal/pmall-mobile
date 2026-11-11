@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Toaster from "../utils/toaster";
 import Toast from "../utils/Toast";
 import { useUser } from "./UserContext";
+import { BASE_URL } from "../utils/config";
+
 
 const AuthContext = createContext();
 
@@ -25,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
-    fetch("https://api.pmall.com.ng/api/v1/register/vendor", {
+    fetch(`${BASE_URL}/register/vendor`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -73,7 +75,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
 
-    fetch("https://api.pmall.com.ng/api/v1/register/affiliate", {
+    fetch(`${BASE_URL}/register/affiliate`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -122,7 +124,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     inputValues.device_name = 1234;
     console.log(JSON.stringify(inputValues));
-    fetch("https://api.pmall.com.ng/api/v1/customer/register", {
+    fetch(`${BASE_URL}/customer/register`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -169,7 +171,7 @@ export const AuthProvider = ({ children }) => {
     const payload = { ...inputValues, device_name: "1234" };
   
     try {
-      const response = await fetch("https://api.pmall.com.ng/api/v1/login", {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
@@ -247,7 +249,7 @@ export const AuthProvider = ({ children }) => {
     const payload = { ...inputValues, device_name: "1234" };
 
     try {
-      const response = await fetch("https://api.pmall.com.ng/api/v1/login", {
+      const response = await fetch(`${BASE_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
@@ -308,7 +310,7 @@ export const AuthProvider = ({ children }) => {
     const payload = { ...inputValues, device_name: "1234" };
 
     try {
-      const response = await fetch("https://api.pmall.com.ng/api/v1/customer/login", {
+      const response = await fetch(`${BASE_URL}/customer/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
@@ -358,7 +360,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); 
     setLoading(true);
 
-    fetch("https://api.pmall.com.ng/api/v1/stockists/login", {
+    fetch(`${BASE_URL}/stockists/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -419,7 +421,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); 
     setLoading(true);
     inputValues.device_name = 1234;
-    fetch("https://api.pmall.com.ng/api/v1/forgot-password", {
+    fetch(`${BASE_URL}/forgot-password`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -481,7 +483,7 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
   
     try {
-      const response = await fetch("https://api.pmall.com.ng/api/v1/reset-password", {
+      const response = await fetch(`${BASE_URL}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",
@@ -520,7 +522,7 @@ export const AuthProvider = ({ children }) => {
     e.preventDefault(); 
     setLoading(true);
     inputValues.email = email
-    fetch("https://api.pmall.com.ng/api/v1/verify-code", {
+    fetch(`${BASE_URL}/verify-code`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -574,7 +576,7 @@ export const AuthProvider = ({ children }) => {
 
   const getPackages = async (e) => {
     setLoading(true);
-    fetch("https://api.pmall.com.ng/api/v1/account-packages/all", {
+    fetch(`${BASE_URL}/account-packages/all`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -597,7 +599,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetch("https://api.pmall.com.ng/api/v1/account-packages/all", {
+    fetch(`${BASE_URL}/account-packages/all`, {
       headers: { Accept: "application/json" }
     })
       .then((resp) => resp.json())

@@ -9,6 +9,7 @@ import Toast from '../utils/Toast';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CloseIcon from '@mui/icons-material/Close';
 import './NewProduct.css';
+import { BASE_URL } from '../utils/config';
 
 export default function NewProduct() {
   const [categories, setCategories] = useState([]);
@@ -39,7 +40,7 @@ export default function NewProduct() {
     const token = user?.token || localStorage.getItem("authToken");
 
     
-    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all", {
+    fetch(`${BASE_URL}/product-category/get-all`, {
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     })
       .then((resp) => resp.json())
@@ -47,7 +48,7 @@ export default function NewProduct() {
       .catch((err) => console.log(err));
 
     
-    fetch(`https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=${user?.user?.storeId}`, {
+    fetch(`${BASE_URL}/product-brand/get-all?store_id=${user?.user?.storeId}`, {
       headers: { Accept: "application/json", Authorization: `Bearer ${token}` },
     })
       .then((resp) => resp.json())
@@ -79,7 +80,7 @@ export default function NewProduct() {
     formData.append("file", file);
 
     try {
-      const res = await fetch("https://api.pmall.com.ng/api/v1/products/upload-file", {
+      const res = await fetch(`${BASE_URL}/products/upload-file`, {
         method: "POST",
         body: formData,
         headers: { Authorization: "Bearer " + localStorage.getItem("authToken") },
@@ -127,7 +128,7 @@ export default function NewProduct() {
     };
 
     try {
-      const response = await fetch('https://api.pmall.com.ng/api/v1/products/create', {
+      const response = await fetch(`${BASE_URL}/products/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',

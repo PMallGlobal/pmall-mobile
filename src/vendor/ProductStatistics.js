@@ -12,6 +12,7 @@ import SingleCategoryGrid from '../products/SingleCategoryGrid';
 import ArrowForwardIosOutlinedIcon from '@mui/icons-material/ArrowForwardIosOutlined';
 import Rating from '@mui/material/Rating';
 import Footer from '../components/footer';
+import { BASE_URL } from "../utils/config";
 
 
 
@@ -32,7 +33,7 @@ export default function ProductStatistics() {
     setLoading(true);
     // getProductsCategories();
     fetch(
-      `https://api.pmall.com.ng/api/v1/public/products/single-product?product_id=${id}`,
+      `${BASE_URL}/public/products/single-product?product_id=${id}`,
       {
         method: "GET",
         headers: {

@@ -14,6 +14,7 @@ import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import StorefrontOutlinedIcon from '@mui/icons-material/StorefrontOutlined';
 import './MyStockist.css';
+import { BASE_URL } from "../utils/config";
 
 export default function MyStockist() {
   const [stockists, setStockists] = useState([]);
@@ -22,7 +23,7 @@ export default function MyStockist() {
 
   const getStockists = () => {
     setLoading(true);
-    fetch("https://api.pmall.com.ng/api/v1/stockists/affiliate_stockist", {
+    fetch(`${BASE_URL}/stockists/affiliate_stockist`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -44,7 +45,7 @@ export default function MyStockist() {
   const deleteStockist = (id) => {
     if (!window.confirm('Are you sure you want to delete this stockist?')) return;
 
-    fetch(`https://api.pmall.com.ng/api/v1/stockists/delete/${id}`, {
+    fetch(`${BASE_URL}/stockists/delete/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",

@@ -47,7 +47,7 @@ export default function GenealogyTree() {
       setTimeout(() => setToast(null), 3000);
       return;
     }
-    copyToClipboard(`https://app.pmall.com.ng/auth/app/Signup?refLink=${user.refId}`, (message, type) => {
+    copyToClipboard(`${process.env.REACT_APP_ENV === 'staging' ? 'https://staging.pmall.com.ng' : 'https://app.pmall.com.ng'}/auth/app/Signup?refLink=${user.refId}`, (message, type) => {
       setToast({ message, type });
       setTimeout(() => setToast(null), 3000);
     });

@@ -19,6 +19,7 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import CalendarTodayOutlinedIcon from '@mui/icons-material/CalendarTodayOutlined';
 import BadgeOutlinedIcon from '@mui/icons-material/BadgeOutlined';
 import './VendorProfile.css';
+import { BASE_URL } from "../utils/config";
 
 export default function VendorProfile() {
   const { user } = useUser(); 
@@ -29,7 +30,7 @@ export default function VendorProfile() {
 
   useEffect(() => {
     const getProfileDetails = () => {
-      fetch("https://api.pmall.com.ng/api/v1/profile", {
+      fetch(`${BASE_URL}/profile`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json;charset=UTF-8",

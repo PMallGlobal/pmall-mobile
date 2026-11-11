@@ -33,9 +33,14 @@ export default function AddVendor() {
     ref_id: "",
     package_id: "",
   });
+  const storefrontBaseUrl =
+    process.env.REACT_APP_ENV === 'staging'
+      ? 'https://staging.pmall.com.ng/'
+      : 'https://pmall.ng/';
+
   const storeUrlPreview = formData.store_name
-    ? `https://pmall.ng/${formData.store_name.toLowerCase().replace(/\s+/g, '_')}`
-    : 'https://pmall.ng/your_store_name';
+    ? `${storefrontBaseUrl}${formData.store_name.toLowerCase().replace(/\s+/g, '_')}`
+    : `${storefrontBaseUrl}your_store_name`;
 
   const onChangeHandler = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

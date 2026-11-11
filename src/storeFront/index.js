@@ -5,6 +5,7 @@ import Carousel from '../components/Carousel';
 import CategorySection from '../products/CategorySection'; 
 import { useUser } from '../context/UserContext';
 import { getCart } from '../utils/cartUtils';
+import { BASE_URL } from '../utils/config';
 import './StoreFront.css';
 
 import SearchIcon from '@mui/icons-material/Search';
@@ -17,7 +18,7 @@ const StoreFront = () => {
   const cartCount = (getCart() || []).reduce((sum, item) => sum + (item.amtItems || 1), 0);
 
   const fetchAllCategories = async () => {
-    const response = await fetch("https://api.pmall.com.ng/api/v1/public/products/get-all-categories", {
+    const response = await fetch(`${BASE_URL}/public/products/get-all-categories`, {
       headers: { Accept: "application/json" },
     });
     if (!response.ok) throw new Error(`Failed to fetch categories`);
@@ -26,7 +27,7 @@ const StoreFront = () => {
   };
 
   const fetchAllProducts = async () => {
-    const response = await fetch("https://api.pmall.com.ng/api/v1/public/products/list-all", {
+    const response = await fetch(`${BASE_URL}/public/products/list-all`, {
       headers: { Accept: "application/json" },
     });
     if (!response.ok) throw new Error(`Failed to fetch products`);

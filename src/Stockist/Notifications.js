@@ -5,6 +5,7 @@ import { useVendorr } from '../context/VendorSignupContext';
 import { useVendor } from '../context/AuthContext';
 import Toast from '../utils/Toast';
 import { useUser } from '../context/UserContext';
+import { BASE_URL } from '../utils/config';
 
 export default function Notifications() {
     const {notifications, getNotifications} = useVendorr()
@@ -91,7 +92,7 @@ export default function Notifications() {
       } = useVendor();
 
  const readNotifications = (id) => {
-        fetch("https://api.pmall.com.ng/api/v1/user/notification/markedasread/" + id,{
+        fetch(`${BASE_URL}/user/notification/markedasread/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",

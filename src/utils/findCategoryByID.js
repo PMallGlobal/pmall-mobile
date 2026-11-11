@@ -1,5 +1,6 @@
+import { BASE_URL } from './config';
 const FindCategoryByID = async (categoryId) => {
-    const endpoint = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
+    const endpoint = `${BASE_URL}/public/products/get-all-categories`;
 
     try {
         const response = await fetch(endpoint);
@@ -22,25 +23,3 @@ const FindCategoryByID = async (categoryId) => {
 
 
 export default FindCategoryByID;
-
-
-
-
-// const FindCategoryByID = async (categoryId) => {
-//     const endpoint = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
-//     try {
-//         const response = await fetch(endpoint);
-//         if (!response.ok) {
-//             throw new Error("Failed to fetch categories");
-//         }
-//         const data = await response.json();
-        
-//         // Find the specific category by ID
-//         return data.categories?.data.find(category => category.id === categoryId) || null;
-//     } catch (error) {
-//         console.error(`Error fetching category ${categoryId}:`, error);
-//         return null;
-//     }
-// };
-
-// export default FindCategoryByID;

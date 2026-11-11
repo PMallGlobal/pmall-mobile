@@ -17,6 +17,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import UserAvatar from '../utils/UserAvatar'; 
 import './MyStore.css';
+import { BASE_URL } from "../utils/config";
 
 export default function MyStore() {
   const { user } = useUser(); 
@@ -35,7 +36,7 @@ export default function MyStore() {
       
       try {
           
-        const res = await fetch(`https://api.pmall.com.ng/api/v1/products/list-all-by-vendor?store_id=${user?.storeId}`, {
+        const res = await fetch(`${BASE_URL}/products/list-all-by-vendor?store_id=${user?.storeId}`, {
           headers: {
             "Content-Type": "application/json;charset=UTF-8",
             Accept: "application/json",

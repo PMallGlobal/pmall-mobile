@@ -1,5 +1,6 @@
+import { BASE_URL } from "./config";
 const fetchProductsByCategory = async (categoryId) => {
-    const endpoint = `https://api.pmall.com.ng/api/v1/public/products/list-all-by-category?category_id=${categoryId}`;
+    const endpoint = `${BASE_URL}/public/products/list-all-by-category?category_id=${categoryId}`;
     try {
         const response = await fetch(endpoint);
         if (!response.ok) {

@@ -4,9 +4,10 @@ import axios from "axios";
 import LimitWord from "../utils/limitWord";
 import currency from "../utils/formatCurrency";
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { BASE_URL } from "../utils/config";
 
-const PRODUCTS_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/list-all";
-const CATEGORIES_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
+const PRODUCTS_ENDPOINT = `${BASE_URL}/public/products/list-all`;
+const CATEGORIES_ENDPOINT = `${BASE_URL}/public/products/get-all-categories`;
 
 const PlainProductGrid = ({ categoryId = null }) => {
   const navigate = useNavigate();

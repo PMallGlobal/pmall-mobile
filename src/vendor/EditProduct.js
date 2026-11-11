@@ -8,6 +8,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Toast from '../utils/Toast';
 import Chip from '@mui/material/Chip';
+import { BASE_URL } from '../utils/config';
 
 export default function EditProduct() {
     const { id } = useParams();
@@ -56,7 +57,7 @@ export default function EditProduct() {
 
     
   const getCategories = () => {
-    fetch("https://api.pmall.com.ng/api/v1/product-category/get-all",{
+    fetch(`${BASE_URL}/product-category/get-all`,{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -75,7 +76,7 @@ export default function EditProduct() {
   };
 
   const getBrands = () => {
-    fetch("https://api.pmall.com.ng/api/v1/product-brand/get-all?store_id=" + user?.user.storeId,{
+    fetch(`${BASE_URL}/product-brand/get-all?store_id=` + user?.user.storeId,{
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",
@@ -144,7 +145,7 @@ export default function EditProduct() {
         if (e) {
           e.preventDefault(); 
         try {
-          const response = await fetch('https://api.pmall.com.ng/api/v1/products/update/' + id, {
+          const response = await fetch(`${BASE_URL}/products/update/` + id, {
             method: 'POST',
             headers:{ 
               'Content-Type': 'application/json;charset=UTF-8', 
@@ -184,7 +185,7 @@ export default function EditProduct() {
         setLoading(true);
         // getProductsCategories();
         fetch(
-          `https://api.pmall.com.ng/api/v1/public/products/single-product?product_id=${id}`,
+          `${BASE_URL}/public/products/single-product?product_id=${id}`,
           {
             method: "GET",
             headers: {
@@ -445,7 +446,7 @@ export default function EditProduct() {
                       files?.length && formData.append("file", files[0]);
                       //setLoading(true);
                       fetch(
-                        "https://api.pmall.com.ng/api/v1/products/upload-file",
+                        `${BASE_URL}/products/upload-file`,
                         {
                           method: "POST",
                           body: formData,
@@ -488,7 +489,7 @@ export default function EditProduct() {
                         files?.length && formData.append("file", files[0]);
                         //setLoading(true);
                         fetch(
-                            "https://api.pmall.com.ng/api/v1/products/upload-file",
+                            `${BASE_URL}/products/upload-file`,
                             {
                             method: "POST",
                             body: formData,

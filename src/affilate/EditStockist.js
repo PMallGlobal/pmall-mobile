@@ -4,6 +4,7 @@ import { useVendor } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useParams, Link } from "react-router-dom";
 import Toast from '../utils/Toast';
+import { BASE_URL } from "../utils/config";
 
 
 export default function EditStockist() {
@@ -28,7 +29,7 @@ export default function EditStockist() {
           e.preventDefault(); 
           setLoading(true)
         try {
-          const response = await fetch('https://api.pmall.com.ng/api/v1/stockists/update/' + id, {
+          const response = await fetch(`${BASE_URL}/stockists/update/${id}`, {
             method: 'PUT',
             headers: {
                 "Content-Type": "application/json;charset=UTF-8",
@@ -66,7 +67,7 @@ export default function EditStockist() {
       };
 
       const getStockistById = () => {
-        fetch("https://api.pmall.com.ng/api/v1/stockists/list/" + id,{
+        fetch(`${BASE_URL}/stockists/list/${id}`,{
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",

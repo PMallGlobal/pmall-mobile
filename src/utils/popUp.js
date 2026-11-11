@@ -49,7 +49,9 @@ const Popup = ({ isOpen, onClose, user, children }) => {
           </div>
           <div className="row">
           <div className="cell">Store URL </div>
-          <div className="cell">https://app.pmall.com.ng/{user.store_url}</div>
+          <div className="cell">{process.env.REACT_APP_ENV === "staging"
+  ? "https://staging.pmall.com.ng/"
+  : "https://app.pmall.com.ng/"}{user.store_url}</div>
         </div>
         </>
           )}

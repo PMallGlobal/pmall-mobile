@@ -1,12 +1,7 @@
 // import axios from "axios";
 import { useState } from "react";
-interface QueryParams {
-  method: string;
-  url: string;
-  bodyData: {};
-  token?:string;
-}
-export default async function query({ method, url, bodyData,token='' }: QueryParams) {
+import { BASE_URL } from "./config";
+export default async function query({ method, url, bodyData,token='' }) {
   let headers1={
     "Content-Type": "application/json",
     "Authorization": "Bearer " + token //`Bearer ${token}`
@@ -20,12 +15,12 @@ export default async function query({ method, url, bodyData,token='' }: QueryPar
 
   try {
     if (method=='GET') {
-    var response = await fetch(`https://api.pmall.com.ng/api/v1${url}`,{
+    var response = await fetch(`${BASE_URL}${url}`,{
      headers:conditionalHeader,
      method
     })
     }else{
-      var response = await fetch(`https://api.pmall.com.ng/api/v1${url}`, {
+      var response = await fetch(`${BASE_URL}${url}`, {
         method,
         headers:conditionalHeader,
         body: JSON.stringify(bodyData),

@@ -5,6 +5,7 @@ import Toast from '../utils/Toast';
 import ButtonLoader from '../utils/buttonLoader';
 import UserAvatar from '../utils/UserAvatar'; 
 import { useUser } from '../context/UserContext';
+import { BASE_URL } from '../utils/config';
 import nigeriaStates from '../components/nigeriaStateAndLgas.json';
 
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -46,7 +47,7 @@ export default function EditProfile() {
   useEffect(() => {
     const getProfile = async () => {
       try {
-        const res = await fetch("https://api.pmall.com.ng/api/v1/profile", {
+        const res = await fetch(`${BASE_URL}/profile`, {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
@@ -108,7 +109,7 @@ export default function EditProfile() {
     formDataObj.append("file", file);
 
     try {
-      const res = await fetch("https://api.pmall.com.ng/api/v1/products/upload-file", {
+      const res = await fetch(`${BASE_URL}/products/upload-file`, {
         method: "POST",
         body: formDataObj,
         headers: {
@@ -131,7 +132,7 @@ export default function EditProfile() {
     const token = user?.token || localStorage.getItem("authToken");
 
     try {
-      const response = await fetch('https://api.pmall.com.ng/api/v1/profile/update', {
+      const response = await fetch(`${BASE_URL}/profile/update`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json;charset=UTF-8',

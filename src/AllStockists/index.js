@@ -8,6 +8,7 @@ import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import Toast from '../utils/Toast';
+import { BASE_URL } from '../utils/config';
 
 
 
@@ -26,7 +27,7 @@ export default function AllStockists() {
       ];
 
     const getStockist = () => {
-        fetch("https://api.pmall.com.ng/api/v1/stockists/fetchstockist",{
+        fetch(`${BASE_URL}/stockists/fetchstockist`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json;charset=UTF-8",

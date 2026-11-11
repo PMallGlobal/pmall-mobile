@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CategoryHeader from '../components/CategoryHeader';
 import Toast from '../utils/Toast';
 import ButtonLoader from '../utils/buttonLoader';
+import { BASE_URL } from '../utils/config';
 
 // Icons
 import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
@@ -89,7 +90,7 @@ export default function AddStockist() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://api.pmall.com.ng/api/v1/stockists/store', {
+      const response = await fetch(`${BASE_URL}/stockists/store`, {
         method: 'POST',
         headers: {
           "Content-Type": "application/json;charset=UTF-8",

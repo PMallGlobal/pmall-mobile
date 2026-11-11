@@ -8,9 +8,10 @@ import LimitWord from "../utils/limitWord";
 import currency from "../utils/formatCurrency";
 import { ChevronLeft, ChevronRight } from '@mui/icons-material';
 import { useVendorr } from "../context/VendorSignupContext";
+import { BASE_URL } from '../utils/config';
 
-const PRODUCTS_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/list-all";
-const CATEGORIES_ENDPOINT = "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
+const PRODUCTS_ENDPOINT = `${BASE_URL}/public/products/list-all`;
+const CATEGORIES_ENDPOINT = `${BASE_URL}/public/products/get-all-categories`;
 
 const ProductGrid = ({ categoryId = null }) => {
   const { storeId } = useParams();
@@ -37,7 +38,7 @@ const ProductGrid = ({ categoryId = null }) => {
   
     if (storeId) {
       response = await axios.get(
-        `https://api.pmall.com.ng/api/v1/public/products/list-all-by-vendor?store_id=${storeId}`
+        `${BASE_URL}/public/products/list-all-by-vendor?store_id=${storeId}`
       );
     } else {
       response = await axios.get(PRODUCTS_ENDPOINT);
@@ -54,7 +55,7 @@ const ProductGrid = ({ categoryId = null }) => {
   
   const getStoreProducts = () => {
        
-    fetch("https://api.pmall.com.ng/api/v1/public/products/list-all-by-vendor?store_id=" + storeId, {
+    fetch(`${BASE_URL}/public/products/list-all-by-vendor?store_id=` + storeId, {
       method: "GET",
       headers: {
         "Content-Type": "application/json;charset=UTF-8",

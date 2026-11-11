@@ -10,6 +10,7 @@ import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined
 import { useUser } from "../context/UserContext";
 import { useVendor } from "../context/AuthContext";
 import { useVendorr } from "../context/VendorSignupContext";
+import { BASE_URL } from "../utils/config";
 
 
 export default function Products({categoryId = null,related=false }) {
@@ -32,7 +33,7 @@ export default function Products({categoryId = null,related=false }) {
 
       const getProducts = () => {
         if(user?.user.accountType== "Vendor"){
-          fetch("https://api.pmall.com.ng/api/v1/products", {
+          fetch(`${BASE_URL}/products`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -55,7 +56,7 @@ export default function Products({categoryId = null,related=false }) {
               console.log(err);
             });
         }else{
-          fetch("https://api.pmall.com.ng/api/v1/products/?store_id=" + user.user.storeId, {
+          fetch(`${BASE_URL}/products/?store_id=` + user.user.storeId, {
             method: "GET",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",
@@ -82,7 +83,7 @@ export default function Products({categoryId = null,related=false }) {
       const deleteProduct = (productId) => {
         const isConfirmed = window.confirm('Are you sure you want to delete this item?');
         if (isConfirmed) {
-          fetch("https://api.pmall.com.ng/api/v1/products/delete-account?product_id=" + productId, {
+          fetch(`${BASE_URL}/products/delete-account?product_id=` + productId, {
             method: "DELETE",
             headers: {
               "Content-Type": "application/json;charset=UTF-8",

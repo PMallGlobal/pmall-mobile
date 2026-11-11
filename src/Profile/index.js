@@ -5,6 +5,7 @@ import ProfileItemsCard from './ProfileItemsCard';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useUser } from '../context/UserContext';
 import { useLogOut } from '../context/UserContext'
+import { BASE_URL } from '../utils/config';
 
 export default function Profile() {
     const logOut = useLogOut()
@@ -48,7 +49,7 @@ export default function Profile() {
     const [profile, setProfile] = useState();
     const user = useUser();
     const getProfile = () => {
-        fetch("https://api.pmall.com.ng/api/v1/profile",{
+        fetch(`${BASE_URL}/profile`, {
             method: "GET",
             headers: {
             "Content-Type": "application/json;charset=UTF-8",

@@ -8,7 +8,7 @@ export default function Wishlist() {
     {
       id: 1,
       name: "CARICH Cool Algal Fluoride-Free Toothpaste",
-      image: "https://api.pmall.com.ng/storage/productImages/40_1759017056.png",
+      image: "/product-placeholder.svg",
       category_name: "PERSONAL CARE",
       selling_price: 3360,
       cost_price: 5000,

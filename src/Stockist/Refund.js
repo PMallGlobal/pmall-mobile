@@ -7,7 +7,7 @@ export default function Refund() {
         {
           id: 1,
           name: "CARICH Cool Algal Fluoride-Free Toothpaste",
-          image: "https://api.pmall.com.ng/storage/productImages/40_1759017056.png",
+          image: "/product-placeholder.svg",
           category_name: "PERSONAL CARE",
           order_number: "02080909",
           date_delivered: "20-10-2025",

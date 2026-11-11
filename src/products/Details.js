@@ -19,8 +19,9 @@ import { getCart } from '../utils/cartUtils';
 import Toast from '../utils/Toast';
 
 import './Details.css';
+import { BASE_URL } from "../utils/config";
 
-const API = 'https://api.pmall.com.ng/api/v1/public/products/single-product';
+const API = `${BASE_URL}/public/products/single-product`;
 
 async function fetchProductById(productId) {
   const url = `${API}?product_id=${productId}`;

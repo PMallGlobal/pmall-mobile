@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
+import { BASE_URL } from "../utils/config";
 
-const API_URL = process.env.REACT_APP_CATEGORIES_ENDPOINT || "https://api.pmall.com.ng/api/v1/public/products/get-all-categories";
+const API_URL = `${BASE_URL}/public/products/get-all-categories`;
 
 const useProductCategories = () => {
   const [productCategories, setProductCategories] = useState([]);
